@@ -55,7 +55,7 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als
 
 ### Fahrplan
 
-Abgabe der Post Mortems jeweils **Mittwoch bis 09:00 Uhr** im
+Abgabe der Post Mortems jeweils **Montag bis 09:00 Uhr** im
 [ILIAS](https://www.hsbi.de/elearning/goto.php/exc/1582799). Vorstellung
 der Lösung im jeweiligen Praktikum in der Abgabewoche.
 
@@ -201,4 +201,4 @@ See the
 [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md)
 for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 887a38d 2026-09-04 readme: rework columns<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6ecf3d4 2026-09-04 orga: fix deadline for homework<br></sub></sup></p></blockquote>
