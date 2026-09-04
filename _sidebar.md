@@ -1,0 +1,20 @@
+- [**Syllabus**](readme.md)
+- **Vorlesungsunterlagen**
+  - **Überblick**
+  - **Lexikalische Analyse**
+    - [Reguläre Sprachen, Ausdrucksstärke (Teil 1)](lecture/01-lexing/regular1.md)
+    - [Reguläre Sprachen, Ausdrucksstärke (Teil 2)](lecture/01-lexing/regular2.md)
+  - **Syntaktische Analyse**
+    - [CFG](lecture/02-parsing/cfg.md)
+    - [LL-Parser](lecture/02-parsing/ll-parser.md)
+  - **Sprache L-Int: Integer, Addition, Subtraktion**
+  - **Sprache L-Expr: erweiterte Ausdrücke, Vorrangregeln**
+  - **Sprache L-Var: Variablen, Statments, nested Scopes**
+  - **Sprache L-If: Datentyp Boolean, Vergleiche, Kontrollstrukturen (if/else, while)**
+  - **Sprache L-Fun: Funktionen (Definition, Aufruf)**
+  - **Sprache L-Class: Klassen (Felder, Methoden, Objekte)**
+  - **Sprache L-Inherit: Einfachvererbung und dynamischer Dispatch**
+  - **Sprache L-Self: native Klassen (inkl. Vererbung)**
+- **Praktikum**
+  - [Blatt 01: Reguläre Sprachen](homework/sheet01.md)
+  - [Blatt 02: CFG](homework/sheet02.md)
