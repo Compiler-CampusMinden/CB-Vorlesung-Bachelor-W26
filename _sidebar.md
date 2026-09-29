@@ -1,12 +1,14 @@
 - [**Syllabus**](readme.md)
 - **Vorlesungsunterlagen**
   - **Überblick**
-  - **Lexikalische Analyse**
-    - [Reguläre Sprachen, Ausdrucksstärke (Teil 1)](lecture/01-lexing/regular1.md)
-    - [Reguläre Sprachen, Ausdrucksstärke (Teil 2)](lecture/01-lexing/regular2.md)
-  - **Syntaktische Analyse**
-    - [CFG](lecture/02-parsing/cfg.md)
-    - [LL-Parser](lecture/02-parsing/ll-parser.md)
+    - [Struktur eines Compilers](lecture/00-intro/overview.md)
+    - [Bandbreite der Programmiersprachen](lecture/00-intro/languages.md)
+    - [Anwendungen](lecture/00-intro/applications.md)
+  - **Reguläre Sprachen, kontextfreie Grammatiken und Sprachen, lexikalische und syntaktische Analyse**
+    - [Reguläre Sprachen, Ausdrucksstärke (Teil 1)](lecture/01-theory/regular1.md)
+    - [Reguläre Sprachen, Ausdrucksstärke (Teil 2)](lecture/01-theory/regular2.md)
+    - [CFG](lecture/01-theory/cfg.md)
+    - [LL-Parser](lecture/01-theory/ll-parser.md)
   - **Sprache L-Int: Integer, Addition, Subtraktion**
   - **Sprache L-Expr: erweiterte Ausdrücke, Vorrangregeln**
   - **Sprache L-Var: Variablen, Statments, nested Scopes**

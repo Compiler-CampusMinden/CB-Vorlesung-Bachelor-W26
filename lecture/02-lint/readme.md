@@ -7,8 +7,7 @@
 
 ### Teil 2:
 
--   Wiederholung ANTLR, Visitor mit Rückgabe (zustandslos),
-    ANTLR-Grammatik
+-   Wiederholung ANTLR, Visitor mit Rückgabe (zustandslos), ANTLR-Grammatik
 -   Handgeschriebener Lexer, RD-Parser
 
 ------------------------------------------------------------------------
