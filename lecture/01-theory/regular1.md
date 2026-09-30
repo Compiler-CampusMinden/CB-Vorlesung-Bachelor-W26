@@ -1,14 +1,5 @@
 # Reguläre Sprachen, Ausdrucksstärke (Teil 1)
 
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular1.ann.ba.pdf)
->
-> </details>
-
 ## Motivation
 
 ### Was muss ein Compiler wohl als erstes tun?
@@ -276,4 +267,4 @@ Hier entsteht ein Tafelbild.
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 838bfca 2026-09-29 refactoring: fix typo in folder name<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>

@@ -1,14 +1,5 @@
 # CFG
 
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: CFG, LL-Parser](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/frontend_parsing_cfg.ann.ba.pdf)
->
-> </details>
-
 ## Wiederholung
 
 ### Endliche Automaten, reguläre Ausdrücke, reguläre Grammatiken, reguläre Sprachen
@@ -207,4 +198,4 @@ Wir verstehen unter Syntax eine Menge von Regeln, die die Struktur von Daten (z.
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 838bfca 2026-09-29 refactoring: fix typo in folder name<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>

@@ -983,15 +983,6 @@ In der syntaktischen Analyse arbeitet ein Parser mit dem Tokenstrom, der vom Lex
 
 #### Reguläre Sprachen, Ausdrucksstärke (Teil 1)
 
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular1.ann.ba.pdf)
->
-> </details>
-
 ##### Motivation
 
 ###### Was muss ein Compiler wohl als erstes tun?
@@ -1226,15 +1217,6 @@ Hier entsteht ein Tafelbild.
 
 #### Reguläre Sprachen, Ausdrucksstärke (Teil 2)
 
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular2.ann.ba.pdf)
->
-> </details>
-
 ##### Wiederholung
 
 ###### Endliche Automaten, reguläre Ausdrücke, reguläre Grammatiken, reguläre Sprachen
@@ -1337,15 +1319,6 @@ Ein **Parser**
 <a id="id-7c0e930dad216729eeb1545678306ab9f0d6a57b"></a>
 
 #### CFG
-
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: CFG, LL-Parser](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/frontend_parsing_cfg.ann.ba.pdf)
->
-> </details>
 
 ##### Wiederholung
 
@@ -1517,15 +1490,6 @@ Wir verstehen unter Syntax eine Menge von Regeln, die die Struktur von Daten (z.
 <a id="id-9aa1932181298bc40b56bb55a0bf53edf1c3aa88"></a>
 
 #### LL-Parser
-
-> [!TIP]
->
-> <details open>
-> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
->
-> -   [Annotierte Folien: LL-Parser](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/ll-parser.ann.ba.pdf)
->
-> </details>
 
 ##### Wiederholung
 
@@ -1951,12 +1915,12 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> c51ad86 2026-09-29 orga: update navbar<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>
