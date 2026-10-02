@@ -73,12 +73,12 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 
 ##### **Studienleistung**: "Portfolio" - Kriterien je Person:
 
-1.  Teilnahme an mind. zwei Edmonton/Minden-Terminen mit aktiver Beteiligung und Abgabe eines ausreichenden Post Mortems (pro Meeting, je Person)
+1.  Teilnahme an **mind. zwei Edmonton/Minden-Terminen** mit aktiver Beteiligung und Abgabe eines ausreichenden **Post Mortems** (pro Meeting, je Person)
     -   Termin 1: Dienstag, 03.11., 17:00 - 18:00 Uhr (online)
     -   Termin 2: Montag, 30.11., 17:00 - 18:00 Uhr (online)
     -   Termin 3: Montag, 07.12., 17:00 - 18:00 Uhr (online)
     -   Abgabe der Post Mortems zu den Edmonton-Meetings jeweils bis Montag 09:00 Uhr in der Folgewoche im [ILIAS](https://www.hsbi.de/elearning/goto.php/exc/1737956)
-2.  Abschluss-Video-Vortrag zum erfolgreich bearbeiteten Snake-Mini-Projekt am Semesterende
+2.  **Abschluss-Video-Vortrag** zum erfolgreich bearbeiteten Snake-Mini-Projekt am Semesterende
     -   Termin: Mittwoch, 27.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Video: 10 Minuten Dauer (pro Team)
     -   Anschließend kurzes Q&A (Fragen zum Snake-Mini-Projekt, pro Team)
@@ -89,18 +89,18 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 
 Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablegen. Die Stationen der Parcoursprüfung sind je nach Prüfungsphase unterschiedlich gestaltet und in sich geschlossen (kein Übertrag):
 
--   **Prüfungsphase I**: Vier Stationen (digitale E-Assessments im B40 mit je 30 Minuten Dauer), beste drei Ergebnisse ergeben die Note
+-   **Prüfungsphase I**: **Vier Stationen** (digitale E-Assessments im B40 mit je 30 Minuten Dauer), **beste drei Ergebnisse ergeben die Note**
     -   Station 1: Mittwoch, 11.11., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 2: Mittwoch, 02.12., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 3: Mittwoch, 06.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
-    -   Station 4: Im ersten Prüfungszeitraum, Termin wird vom Prüfungsamt bekanntgegeben
--   **Prüfungsphase II**: Digitale Klausur im B40, Dauer 120 Minuten, Termin wird vom Prüfungsamt bekanntgegeben
+    -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
+-   **Prüfungsphase II**: **Digitale Klausur** im B40, Dauer 120 Minuten (*Termin wird vom Prüfungsamt bekanntgegeben*)
 
 ##### Hinweise
 
 -   Die Bearbeitung der Aufgaben erfolgt im Team
 -   Ein Team umfasst 3 Personen
--   Die Post Mortems sind individuell zu erstellen und abzugeben
+-   Die Post Mortems sind pro Meeting und individuell zu erstellen und abzugeben
 -   Das Video zum Projekt ist pro Team zu erstellen und einmal abzugeben unter Angabe der Teammitglieder
 -   "Aktive Beteiligung" umfasst Anwesenheit und sachbezogene Beiträge; Anwesenheit/Beteiligung werden dokumentiert
 
@@ -1915,12 +1915,12 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 49edb67 2026-10-02 orga: highlight important sections<br></sub></sup></p></blockquote>

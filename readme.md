@@ -69,12 +69,12 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 
 #### **Studienleistung**: "Portfolio" - Kriterien je Person:
 
-1.  Teilnahme an mind. zwei Edmonton/Minden-Terminen mit aktiver Beteiligung und Abgabe eines ausreichenden Post Mortems (pro Meeting, je Person)
+1.  Teilnahme an **mind. zwei Edmonton/Minden-Terminen** mit aktiver Beteiligung und Abgabe eines ausreichenden **Post Mortems** (pro Meeting, je Person)
     -   Termin 1: Dienstag, 03.11., 17:00 - 18:00 Uhr (online)
     -   Termin 2: Montag, 30.11., 17:00 - 18:00 Uhr (online)
     -   Termin 3: Montag, 07.12., 17:00 - 18:00 Uhr (online)
     -   Abgabe der Post Mortems zu den Edmonton-Meetings jeweils bis Montag 09:00 Uhr in der Folgewoche im [ILIAS](https://www.hsbi.de/elearning/goto.php/exc/1737956)
-2.  Abschluss-Video-Vortrag zum erfolgreich bearbeiteten Snake-Mini-Projekt am Semesterende
+2.  **Abschluss-Video-Vortrag** zum erfolgreich bearbeiteten Snake-Mini-Projekt am Semesterende
     -   Termin: Mittwoch, 27.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Video: 10 Minuten Dauer (pro Team)
     -   Anschließend kurzes Q&A (Fragen zum Snake-Mini-Projekt, pro Team)
@@ -85,18 +85,18 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 
 Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablegen. Die Stationen der Parcoursprüfung sind je nach Prüfungsphase unterschiedlich gestaltet und in sich geschlossen (kein Übertrag):
 
--   **Prüfungsphase I**: Vier Stationen (digitale E-Assessments im B40 mit je 30 Minuten Dauer), beste drei Ergebnisse ergeben die Note
+-   **Prüfungsphase I**: **Vier Stationen** (digitale E-Assessments im B40 mit je 30 Minuten Dauer), **beste drei Ergebnisse ergeben die Note**
     -   Station 1: Mittwoch, 11.11., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 2: Mittwoch, 02.12., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 3: Mittwoch, 06.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
-    -   Station 4: Im ersten Prüfungszeitraum, Termin wird vom Prüfungsamt bekanntgegeben
--   **Prüfungsphase II**: Digitale Klausur im B40, Dauer 120 Minuten, Termin wird vom Prüfungsamt bekanntgegeben
+    -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
+-   **Prüfungsphase II**: **Digitale Klausur** im B40, Dauer 120 Minuten (*Termin wird vom Prüfungsamt bekanntgegeben*)
 
 #### Hinweise
 
 -   Die Bearbeitung der Aufgaben erfolgt im Team
 -   Ein Team umfasst 3 Personen
--   Die Post Mortems sind individuell zu erstellen und abzugeben
+-   Die Post Mortems sind pro Meeting und individuell zu erstellen und abzugeben
 -   Das Video zum Projekt ist pro Team zu erstellen und einmal abzugeben unter Angabe der Teammitglieder
 -   "Aktive Beteiligung" umfasst Anwesenheit und sachbezogene Beiträge; Anwesenheit/Beteiligung werden dokumentiert
 
@@ -132,4 +132,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 64ab63f 2026-09-29 orga: update links to ilias<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 49edb67 2026-10-02 orga: highlight important sections<br></sub></sup></p></blockquote>
