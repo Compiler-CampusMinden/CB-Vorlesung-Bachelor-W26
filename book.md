@@ -180,7 +180,7 @@ Was ist ein Compiler? Welche Bausteine lassen sich identifizieren, welche Aufgab
 > <details open>
 > <summary><strong>🎦 Videos</strong></summary>
 >
-> -   [VL Überblick](https://youtu.be/zpELDC_3G7Q)
+> Vorlesung \[[YT](https://youtu.be/Fubh-W3uN48)\], \[[HSBI](https://www.hsbi.de/medienportal/album/video/cb-struktur-eines-compilers/457e730cef493e2ecc643113be3c4f91/253)\]
 >
 > </details>
 
@@ -489,7 +489,7 @@ expr : ID '(' ')'
 > <details open>
 > <summary><strong>🎦 Videos</strong></summary>
 >
-> -   [VL Programmiersprachen](https://youtu.be/prsc8cf4cJ8)
+> Vorlesung \[[YT](https://youtu.be/cluS9modzDk)\], \[[HSBI](https://www.hsbi.de/medienportal/album/video/cb-bandbreite-der-programmiersprachen/b355504c34965b385cd2348611418e55/253)\]
 >
 > </details>
 
@@ -747,7 +747,7 @@ Die Sprache ähnelt stark anderen modernen Sprachen und ist gut geeignet, um an 
 > <details open>
 > <summary><strong>🎦 Videos</strong></summary>
 >
-> -   [VL Anwendungen](https://youtu.be/gt9ROh-qRIU)
+> Vorlesung \[[YT](https://youtu.be/JJ2H3fZnbTc)\], \[[HSBI](https://www.hsbi.de/medienportal/album/video/cb-anwendungen-compiler/d4e98c05a03cb5cfbbe5e1fadf6c67cc/253)\]
 >
 > </details>
 
@@ -1925,12 +1925,12 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 60533b0 2026-10-02 orga: amend exams<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> ac627c7 2026-10-05 intro applications: rework screencasts<br></sub></sup></p></blockquote>

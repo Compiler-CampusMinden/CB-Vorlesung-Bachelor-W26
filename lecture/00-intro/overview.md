@@ -20,7 +20,7 @@
 > <details open>
 > <summary><strong>🎦 Videos</strong></summary>
 >
-> -   [VL Überblick](https://youtu.be/zpELDC_3G7Q)
+> Vorlesung \[[YT](https://youtu.be/Fubh-W3uN48)\], \[[HSBI](https://www.hsbi.de/medienportal/album/video/cb-struktur-eines-compilers/457e730cef493e2ecc643113be3c4f91/253)\]
 >
 > </details>
 
@@ -344,4 +344,4 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> d404db6 2025-10-15 lecture: use local files for attachments (Overview)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> c1c1b51 2026-10-05 intro overview: rework screencasts<br></sub></sup></p></blockquote>
