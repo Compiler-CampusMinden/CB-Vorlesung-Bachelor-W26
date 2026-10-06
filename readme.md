@@ -45,8 +45,8 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 ### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:---|:---|:--------------------------------------|:--------|:----------------|
-| Oktober | 12.10 | [Orga](./readme.md) \|\| [Überblick](lecture/00-intro/overview.md) \| [Sprachen](lecture/00-intro/languages.md) \| [Anwendungen](lecture/00-intro/applications.md) | \- |  |
+|:---|:---|:-------------------------------------|:--------|:-----------------|
+| Oktober | 12.10 | Orga \|\| [Überblick](lecture/00-intro/overview.md) \| [Sprachen](lecture/00-intro/languages.md) \| [Anwendungen](lecture/00-intro/applications.md) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](lecture/01-theory/regular1.md) | [B01](homework/sheet01.md) |  |
 |  | 26.10. | [Reguläre Sprachen 2](lecture/01-theory/regular2.md) \|\| [CFG](lecture/01-theory/cfg.md) | [B02](homework/sheet02.md) |  |
 | November | 02.11. | [LL-Parser (Theorie)](lecture/01-theory/ll-parser.md) | \- | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
@@ -142,4 +142,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 60533b0 2026-10-02 orga: amend exams<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 265bc27 2026-10-06 orga: remove link to readme<br></sub></sup></p></blockquote>
