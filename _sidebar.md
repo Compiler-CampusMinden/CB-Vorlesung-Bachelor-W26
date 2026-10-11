@@ -10,6 +10,11 @@
     - [CFG](lecture/01-theory/cfg.md)
     - [LL-Parser](lecture/01-theory/ll-parser.md)
   - **Sprache L-Int: Integer, Addition, Subtraktion**
+    - [L-Int: Die Sprache Lispy](lecture/02-lint/01-lint.md)
+    - [L-Int: Konkrete und abstrakte Syntax](lecture/02-lint/02-grammar.md)
+    - [L-Int: Von Ausdrücken zum Interpreter](lecture/02-lint/03-interpreter.md)
+    - [L-Int: Lexer - Handcodierte Implementierung](lecture/02-lint/04-lexer.md)
+    - [L-Int: LL-Parser mit Recursive Descent](lecture/02-lint/05-rdparser.md)
   - **Sprache L-Expr: erweiterte Ausdrücke, Vorrangregeln**
   - **Sprache L-Var: Variablen, Statments, nested Scopes**
   - **Sprache L-If: Datentyp Boolean, Vergleiche, Kontrollstrukturen (if/else, while)**

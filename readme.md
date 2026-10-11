@@ -33,12 +33,12 @@ In diesem Modul geht es um ein grundlegendes Verständnis für die wichtigsten K
 
 ### Kursformat
 
-| Vorlesung (2 SWS)            | Praktikum (2 SWS)                       |
-|:-----------------------------|:----------------------------------------|
-| Mo, 15:45 - 17:15 Uhr (Zoom) | G1: Mi, 11:30 - 13:00 Uhr (Zoom)        |
-|                              | G2: Mi, 14:00 - 15:30 Uhr (Zoom)        |
-|                              | G3: Mi, 11:30 - 13:00 Uhr (Präsenz B40) |
-|                              | G4: Mi, 14:00 - 15:30 Uhr (Präsenz B40) |
+| Vorlesung (2 SWS)            | Praktikum (2 SWS)                        |
+|:-----------------------------|:-----------------------------------------|
+| Mo, 15:45 - 17:15 Uhr (Zoom) | G1: Mi, 11:30 - 13:00 Uhr (Zoom)         |
+|                              | G2: Mi, 14:00 - 15:30 Uhr (Zoom)         |
+|                              | G3: Mi, 11:30 - 13:00 Uhr (Präsenz D327) |
+|                              | G4: Mi, 14:00 - 15:30 Uhr (Präsenz D327) |
 
 Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *reguläre Vorlesung* (BC). **Zugangsdaten Zoom siehe [ILIAS](https://www.hsbi.de/elearning/goto.php/crs/1702066)**.
 
@@ -50,8 +50,8 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 |  | 19.10. | [Reguläre Sprachen 1](lecture/01-theory/regular1.md) | [B01](homework/sheet01.md) |  |
 |  | 26.10. | [Reguläre Sprachen 2](lecture/01-theory/regular2.md) \|\| [CFG](lecture/01-theory/cfg.md) | [B02](homework/sheet02.md) |  |
 | November | 02.11. | [LL-Parser (Theorie)](lecture/01-theory/ll-parser.md) | \- | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
-|  | 09.11. | [L-Int (Teil 1)](lecture/02-lint/readme.md) | **Station 1** |  |
-|  | 16.11. | [L-Int (Teil 2)](lecture/02-lint/readme.md) | C-Int |  |
+|  | 09.11. | L-Int (Teil 1): [Intro](lecture/02-lint/01-lint.md) \| [Grammatik](lecture/02-lint/02-grammar.md) \| [Interpreter](lecture/02-lint/03-interpreter.md) | **Station 1** |  |
+|  | 16.11. | L-Int (Teil 2): [Lexer](lecture/02-lint/04-lexer.md) \| [RD-Parser](lecture/02-lint/05-rdparser.md) | C-Int |  |
 |  | 23.11. | [L-Expr](lecture/03-lexpr/readme.md) | C-Expr |  |
 | Dezember | 30.11. | [L-Var](lecture/04-lvar/readme.md) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
 |  | 07.12. | [L-If](lecture/05-lif/readme.md) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
@@ -142,4 +142,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 265bc27 2026-10-06 orga: remove link to readme<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6d5e09d 2026-10-11 orga: change room for lab session<br></sub></sup></p></blockquote>
