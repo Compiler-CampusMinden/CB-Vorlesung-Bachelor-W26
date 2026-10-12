@@ -119,7 +119,7 @@ D. h. es existieren Algorithmen zur
 
     -   $\epsilon$ und $\emptyset$ sind reguläre Ausdrücke mit $L(\epsilon) =
           \lbrace \epsilon\rbrace$, $L(\emptyset)=\emptyset$
-    -   Sei $a$ ein Symbol $\Rightarrow$ $a$ ist ein regex mit $L(a) = \lbrace a\rbrace$
+    -   Sei $a$ ein Symbol $\Rightarrow a$ ist ein regex mit $L(a) = \lbrace a\rbrace$
 
 -   Induktion: Seien $E,\ F$ reguläre Ausdrücke. Dann gilt:
 
@@ -160,7 +160,7 @@ $\qquad X \rightarrow Y$ mit $X \in (N \cup T)^{\ast} N  (N \cup T)^{\ast}, Y \i
 
 ### Ableitungen
 
-**Def.:** Sei $G = (N, T, P, S)$ eine Grammatik, sei $\alpha A \beta$ eine Zeichenkette über $(N \cup T)^{\ast}$ und sei $A$ $\rightarrow \gamma$ eine Produktion von $G$.
+**Def.:** Sei $G = (N, T, P, S)$ eine Grammatik, sei $\alpha A \beta$ eine Zeichenkette über $(N \cup T)^{\ast}$ und sei $A \rightarrow \gamma$ eine Produktion von $G$.
 
 Wir schreiben: $\alpha A \beta \Rightarrow \alpha \gamma \beta$ ($\alpha A \beta$ leitet $\alpha \gamma \beta$ ab).
 
@@ -267,4 +267,4 @@ Hier entsteht ein Tafelbild.
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6773162 2026-10-12 lecture: fix math issues with docsify<br></sub></sup></p></blockquote>
