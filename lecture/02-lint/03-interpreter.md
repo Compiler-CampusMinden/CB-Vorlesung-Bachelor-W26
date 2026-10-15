@@ -5,9 +5,11 @@
 > <details open>
 > <summary><strong>🎯 TL;DR</strong></summary>
 >
-> Ein AST-basierter Interpreter besteht oft aus einem "Dispatch": Man traversiert mit einer `eval()`-Funktion den AST und ruft je nach Knotentyp die passende Funktion auf. Dabei werden bei Ausdrücken (*Expressions*) Werte berechnet und zurückgegeben, d.h. hier hat man einen Rückgabewert und ein entsprechendes `return` im `switch`/`case`, während man bei Anweisungen (*Statements*) keinen Rückgabewert hat. Dieser Dispatch kann wahlweise per Visitor-Pattern oder manueller Traversierung mit `switch`/`case` erfolgen.
+> Ein AST-basierter Interpreter besteht oft aus einem "Dispatch": Man traversiert mit einer `eval()`-Funktion den AST und ruft je nach Knotentyp die passende Funktion auf. Dabei werden bei Ausdrücken (*Expressions*) Werte berechnet und zurückgegeben ("eval" von "evaluieren" - "auswerten"), d.h. hier hat man einen Rückgabewert und ein entsprechendes `return` im `switch`/`case`, während man bei Anweisungen (*Statements*) keinen Rückgabewert hat.
 >
-> Der Wert von Literalen ergibt sich direkt durch die Übersetzung des jeweiligen Werts in den passenden Typ der Implementierungssprache. Bei Ausdrücken interpretiert man zunächst die Teilausdrücke durch den Aufruf von `eval()` für die jeweiligen AST-Kindknoten und berechnet daraus das gewünschte Ergebnis.
+> Der Dispatch (Aufruf der zum Knotentyp passenden Funktion) kann wahlweise per Visitor-Pattern oder manueller Traversierung mit `switch`/`case` erfolgen.
+>
+> Der Wert von Literalen ergibt sich direkt durch die Übersetzung des jeweiligen Werts in den passenden Typ der Implementierungssprache. Bei komplexeren Ausdrücken interpretiert man zunächst die Teilausdrücke durch den rekursiven Aufruf von `eval()` für die jeweiligen AST-Kindknoten und berechnet daraus das gewünschte Ergebnis.
 >
 > </details>
 
@@ -51,7 +53,7 @@ Aktuell könnten wir streng genommen einfach `int` als Rückgabetyp verwenden. A
 ``` java
 public interface Value {
     static int asInt(Value v) {
-        if (v instanceof IntVal(var val)) return val;
+        if (v instanceof IntVal(int val)) return val;
         throw new RuntimeException("number expected");
     }
 }
@@ -67,7 +69,7 @@ Wir müssen die Typen der Zielsprache (hier Lispy) auf unsere Implementierungssp
 
 > [!IMPORTANT]
 >
-> **Wichtig**: `Expr` beschreibt die abstrakte Syntax, also die Struktur des Programms, und `Value` beschreibt die Ergebnisse der Auswertung. Diese Trennung hilft uns später auch bei Typprüfung und Fehlerbehandlung.
+> **Wichtig**: `Expr` beschreibt die abstrakte Syntax, also die Struktur des Programms, und `Value` beschreibt die Ergebnisse der Auswertung zur Laufzeit. Diese Trennung hilft uns später auch bei Typprüfung und Fehlerbehandlung.
 
 ## Tree-Walking-Interpreter: Grundidee
 
@@ -104,7 +106,7 @@ public class InterpreterLint {
 }
 ```
 
-Hier sehen wir die konkrete Implementierung unseres L-Int-Interpreters.
+Hier sehen wir die (teilweise) Implementierung unseres L-Int-Interpreters.
 
 Die `eval()`-Methode bildet das Kernstück des (AST-traversierenden) Interpreters für Ausdrücke. Hier wird passend zum aktuellen AST-Knoten die passende Methode des Interpreters aufgerufen.
 
@@ -136,9 +138,13 @@ Wir bekommen im AST also Knoten vom Typ `AddExpr` für eine Addition bzw. vom Ty
 
 Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv aus und kombinieren die Ergebnisse passend. Das entspricht genau der mathematischen Intuition von Addition und Subtraktion, nur eben explizit im Code ausgedrückt.
 
+**Wichtig**: Die Subtraktion (Auswertung von `SubExpr`) fehlt hier und dient als kleine Übung.
+
 > [!IMPORTANT]
 >
-> **Wichtig**: Die meisten möglichen Fehlerzustände sind bereits durch den Lexer und Parser (und in späteren Sprachstufen während der semantischen Analyse) abgefangen worden. Falls zur Laufzeit die Auswertung der beiden Summanden keine Zahl ergibt, würde eine Java-Exception geworfen, die der Aufrufer an geeigneter Stelle fangen und behandeln muss. Der Interpreter soll sich ja nicht mit einem Stack-Trace verabschieden, sondern soll eine Fehlermeldung präsentieren und danach normal weiter machen ...
+> ### Fehlerbehandlung und Fehlermeldungen
+>
+> Die meisten möglichen Fehlerzustände sind bereits durch den Lexer und Parser (und in späteren Sprachstufen während der semantischen Analyse) abgefangen worden. Falls zur Laufzeit die Auswertung der beiden Summanden keine Zahl ergibt, würde eine Java-Exception geworfen, die der Aufrufer an geeigneter Stelle fangen und behandeln muss. Der Interpreter soll sich ja nicht mit einem Stack-Trace verabschieden, sondern soll eine Fehlermeldung präsentieren und danach normal weiter machen ...
 >
 > Die hier gezeigte Fehlerbehandlung ist nur sehr rudimentär, um nicht zu sehr von den Kernkonzepten für unsere Veranstaltung abzulenken. In der Praxis würde man hier deutlich komplexere Fehlerbehandlung machen, beispielsweise auf die Zeile und Spalte in der Eingabe hinweisen. Gute Fehlerbehandlung ist eine Wissenschaft für sich. Vergleichen Sie einmal die Fehler, die Python ausgibt, und die Meldungen beispielsweise von Rust.
 
@@ -146,11 +152,9 @@ Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv 
 >
 > ### REPL: Read-Eval-Print-Loop
 >
-> In den folgenden Beispielen wird davon ausgegangen, dass ein komplettes Programm eingelesen, geparst, vorverarbeitet und dann interpretiert wird.
+> In den Beispielen in dieser Veranstaltung wird immer davon ausgegangen, dass ein komplettes Programm eingelesen, geparst, vorverarbeitet und dann interpretiert wird.
 >
-> Für einen interaktiven Interpreter würde man in einer Schleife die Eingaben lesen, parsen und vorverarbeiten und dann interpretieren. Dabei würde jeweils der AST und die Symboltabelle *ergänzt*, damit die neuen Eingaben auf frühere verarbeitete Eingaben zurückgreifen können. Durch die Form der Schleife "Einlesen - Verarbeiten
->
-> -   Auswerten" hat sich auch der Name "*Read-Eval-Loop*" bzw. "*Read-Eval-Print-Loop*" (**REPL**) eingebürgert.
+> Für einen interaktiven Interpreter würde man in einer Schleife die Eingaben lesen, parsen und vorverarbeiten und dann interpretieren. Dabei würden jeweils der AST und die Symboltabelle und das Environment *ergänzt*, damit die neuen Eingaben auf frühere verarbeitete Eingaben zurückgreifen können. Durch die Form der Schleife "Einlesen - Verarbeiten - Auswerten" hat sich auch der Name "*Read-Eval-Loop*" bzw. "*Read-Eval-Print-Loop*" (**REPL**) eingebürgert.
 
 > [!TIP]
 >
@@ -158,11 +162,11 @@ Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv 
 >
 > In Programmiersprachen unterscheiden wir häufig **Expressions** (*Ausdrücke*) und **Statements** (*Anweisungen*).
 >
-> Expressions sind dabei syntaktische Konstrukte einer Programmiersprache, die (in einem gegebenen Kontext) zu einem Wert **evaluiert** werden können. Typische Expressions sind beispielsweise Ausdrücke wie `(+ 2 3)` oder `(foo 42)`... In manchen Sprachen sind beispielsweise auch Zuweisungen Expressions: `v = 42 + 7;` würde in C der Variablen `v` den Wert 49 zuweisen, dies ist gleichzeitig auch der Wert des gesamten Ausdrucks. Man könnte in C also Dinge formulieren wie `if (v = 42 + 7) ...` (wobei das Interpretieren eines Integers in einem bool'schen Kontext nochmal ein anderes Problem ist).
+> Expressions sind dabei syntaktische Konstrukte einer Programmiersprache, die (in einem gegebenen Kontext) zu einem Wert **evaluiert** werden können. Typische Expressions sind beispielsweise Ausdrücke wie `(+ 2 3)` oder `(foo 42)` ... In manchen Sprachen sind beispielsweise auch Zuweisungen Expressions: `v = 42 + 7;` würde in C der Variablen `v` den Wert 49 zuweisen, dies ist gleichzeitig auch der Wert des gesamten Ausdrucks. Man könnte in C also Dinge formulieren wie `if (v = 42 + 7) ...` (wobei das Interpretieren eines Integers in einem bool'schen Kontext nochmal ein anderes Problem ist).
 >
 > Statements sind syntaktische Konstrukte in Programmiersprachen, die **ausgeführt** werden können und dabei in der Regel einen Zustand im Programm verändern, also einen Seiteneffekt haben. Die Ausführung eines Statements hat normalerweise keinen Wert an sich. Typische Beispiele sind Zuweisungen `v = 7`, Kontrollfluss `if (...) then {...} else {...}`, Schleifen `for x in foo: ...`, `switch/case`-Statements. (Es gibt aber auch Programmiersprachen, wo ein `if/then/else`-Konstrukt eine Expression ist, also bei der Ausführung einen Wert ergibt.) Expressions können in den meisten Programmiersprachen Teile von Statements bilden: In `v = 42 + 7` ist die gesamte Zuweisung eine Anweisung (Seiteneffekt: die Variable `v` hat danach einen anderen Zustand), und der Teil `42 + 7` ist ein Ausdruck, der ausgewertet werden kann und üblicherweise den Wert 49 ergibt (außer man beauftragt ein LLM mit der Auswertung). In C-ähnlichen Sprachen kann durch Hinzufügen eines Semikolons aus dem Ausdruck `42 +7` eine Anweisung gemacht werden ...
 >
-> Vergleiche auch Nystrom ([2021](#ref-Nystrom2021)), Kapitel 6 "Parsing Expressions", Kapitel 7 "Evaluating Expressions" und Kapitel 8 "Statements and State", aber auch [Wikipedia: Expression](https://en.wikipedia.org/wiki/Expression_(computer_science)) und [Wikipedia: Statement](https://en.wikipedia.org/wiki/Statement_(computer_science)). Wir werden uns an späterer Stelle noch darum kümmern.
+> Vergleiche auch ([Nystrom 2021](#ref-Nystrom2021)), Kapitel 6 "Parsing Expressions", Kapitel 7 "Evaluating Expressions" und Kapitel 8 "Statements and State", aber auch [Wikipedia: Expression](https://en.wikipedia.org/wiki/Expression_(computer_science)) und [Wikipedia: Statement](https://en.wikipedia.org/wiki/Statement_(computer_science)). Wir werden uns an späterer Stelle noch darum kümmern.
 
 ## Interpreter in Aktion
 
@@ -250,7 +254,7 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 >
 > Diskutieren Sie:
 >
-> -   Kann`Value.asInt(...)` bei einem AST, der nur aus den aktuell definierten L-Int-Knoten besteht, tatsächlich fehlschlagen?
+> -   Kann `Value.asInt(...)` bei einem AST, der nur aus den aktuell definierten L-Int-Knoten besteht, tatsächlich fehlschlagen?
 > -   Warum könnte die Methode trotzdem einen Laufzeitfehler prüfen und nicht einfach einen Cast verwenden?
 > -   Was ist der Unterschied zwischen einem `Expr`-Knoten und einem `Value`?
 >
@@ -287,4 +291,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 91604b3 2026-10-11 lint: final format for beamer<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> c8fc057 2026-10-15 lint interpreter: improve wording<br></sub></sup></p></blockquote>

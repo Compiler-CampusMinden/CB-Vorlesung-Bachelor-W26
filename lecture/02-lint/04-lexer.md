@@ -26,11 +26,11 @@ Aus dem Eingabe(-quell-)text
 
 erstellt der Lexer (oder auch Scanner genannt) eine Sequenz von Token:
 
-    <LPAREN, "("> <PLUS, "+"> <INT, "1"> <INT, "222"> <RPAREN, ")">
+    <LPAREN, "(">   <PLUS, "+">   <INT, "1">   <INT, "222">   <RPAREN, ")">
 
-Wir wollen den Eingabetext in abstraktere Einheiten aufsplitten: die Token.
+Wir wollen den Eingabetext (Zeichenstrom) in *abstraktere Einheiten* aufsplitten: die **Token**.
 
-Jedes Token hat einen Typ und speichert ein Lexem - das ist der Teil der Eingabe, der zu dem Token gematcht wurde.
+Jedes Token hat einen **Typ** und speichert ein **Lexem** - das ist der Teil der Eingabe, der zu dem Token gematcht wurde.
 
 Der Lexer versucht anhand von Regeln (reguläre Ausdrücke) zu erkennen, welche Token in der Eingabe vorkommen. In der Regel geht man zeichenweise von links nach rechts durch die Eingabe und versucht anhand des aktuellen Zeichens zu erkennen, welches Token hier beginnt. Bei Mehrdeutigkeiten muss man entsprechend noch weitere folgende Zeichen mit einbeziehen.
 
@@ -44,7 +44,7 @@ INT   ::= [0-9]+
 ``` java
 public enum TokenKind {
     PLUS, MINUS, LPAREN, RPAREN, SEMI,
-    INT, // [0-9]+
+    INT,  // [0-9]+
     EOF
 }
 
@@ -57,7 +57,7 @@ public record Token(TokenKind kind, String lexeme) {}
 >
 > Es gibt verschiedene Möglichkeiten, Token zu modellieren.
 >
-> Aus der C-Welt stammt die gezeigte Modellierung: Man nutzt ein Enum, um die Tokenarten zu modellieren. (Wir werden dieses Enum im Laufe des Semesters noch deutlich ergänzen.) Für die Repräsentation der Token nutzt man dann eine gemeinsame Daten-Klasse, die einfach die Tokenart und das Lexem kombiniert. Das ist übersichtlich, allerdings muss man für Token wie `PLUS` das Lexem "+" dann nochmal explizit mit speichern.
+> Aus der C-Welt stammt die gezeigte Modellierung: Man nutzt ein Enum, um die Tokenarten zu modellieren. (Wir werden dieses Enum im Laufe des Semesters noch deutlich ergänzen.) Für die Repräsentation der Token nutzt man dann eine gemeinsame Daten-Klasse, die einfach die Tokenart und das Lexem kombiniert. Das ist übersichtlich, allerdings muss man für Token wie `PLUS` das Lexem "+" dann unnötigerweise nochmal explizit mit speichern.
 
 > [!IMPORTANT]
 >
@@ -65,12 +65,12 @@ public record Token(TokenKind kind, String lexeme) {}
 >
 > Token enthalten oft auch Positionen oder Quelltextbereiche (Zeile, Spalte, Start- und Endindex). Das erleichtert Fehlermeldungen erheblich.
 >
-> `EOF` ist ein synthetisches Token und hat kein Lexem aus dem Quelltext. "<EOF>" ist eine mögliche Debug-Darstellung, aber kein tatsächliches Lexem.
+> `EOF` ist ein synthetisches Token und hat kein Lexem aus dem Quelltext. Das hier verwendete "`<EOF>`" ist eine mögliche Debug-Darstellung, aber kein tatsächliches Lexem.
 
-## Grundstruktur eines Lexers
+## Grundstruktur eines Lexers für L-Int
 
 ``` java
-public abstract class BaseLexer {
+public class LispyLexerLint {
     protected String source;
     protected int current;
 
@@ -78,95 +78,105 @@ public abstract class BaseLexer {
         source = input;  current = 0;
         List<Token> tokens = new ArrayList<>();
 
-        while (!isAtEnd()) {
-            while (skipIrrelevant()) {}
-            if (!isAtEnd()) tokens.add(nextToken());
-        }
-        tokens.add(new Token(EOF, "<EOF>"));
+        do tokens.add(nextToken());
+        while (tokens.getLast().kind() != EOF);
+
         return tokens;
     }
 
-    protected abstract Token nextToken();
-
-    // Hilfsmethoden: isAtEnd(), peek(), advance() ...
+    // Arbeitsmethode: nextToken()
+    // Hilfsmethoden:  isAtEnd(), peek(), advance() ...
 }
 ```
 
-Der Lexer läuft über den Eingabestring und erzeugt eine vollständige Liste mit Token. Irrelevante Zeichen wie Whitespace und Kommentare werden immer wieder entfernt.
+Der Lexer läuft über den Eingabestring und erzeugt eine vollständige Liste mit Token. Irrelevante Zeichen wie Whitespace und Kommentare werden dabei immer wieder entfernt (s.u.).
 
 Die Einsprungsfunktion `scan()` stützt sich dabei auf der zentralen Hilfsmethode `nextToken()` ab, die das nächste Token an der aktuellen Eingabeposition bildet. Die Implementierung ist algorithmisch einfach: Wir schauen uns das aktuelle Zeichen an, entscheiden, um welchen Token-Typ es sich handelt, und rücken den Positionszeiger entsprechend vor. Falls nötig, ziehen wir weitere Zeichen in diese Entscheidung mit ein.
 
-*Anmerkung*: In Lispy werden Whitespaces und Kommentare in späteren Verarbeitungsstufen nicht mehr benötigt und deshalb entfernt. In Sprachen wie Python spielen Whitespaces aber eine wichtige syntaktische Rolle und werden deshalb geeignet als Token erfasst und an den Parser weitergegeben.
-
-> [!TIP]
->
-> Der gezeigte Aufbau wirkt zunächst unnötig komplex, insbesondere die `while`-Schleife in `scan()`. Dies liegt u.a. daran, dass wir für die nächsten Sprachstufen jeweils eigene Klassen anlegen, die von den Klassen der Vorgängerstufe erben. Für den Lexer wäre dies beispielsweise `class LispyLexerLexpr extends LispyLexerLint` usw. Dabei wird das neue Verhalten durch Überschreiben der entsprechenden Methoden erreicht und für das bisherige Verhalten nur `super.xyz()` aufgerufen. Das orientiert sich am Vorgehen in ([Siek 2023](#ref-Siek2023python)) und ist relativ elegant, kommt aber mit dem Preis, dass man bei Zustandsveränderungen gut aufpassen muss - wenn die überschreibende Methode ein `advance()` macht und dann ihre Basisimplementierung aufruft, dann fehlt dort das bereits gelesene Zeichen ...
+**Anmerkung**: In Lispy werden Whitespaces und Kommentare in späteren Verarbeitungsstufen nicht mehr benötigt und deshalb entfernt. In Sprachen wie Python spielen Whitespaces aber eine wichtige syntaktische Rolle und werden deshalb geeignet als Token erfasst und an den Parser weitergegeben.
 
 > [!TIP]
 >
 > ### Design-Diskussion: Schnittstelle Lexer
 >
-> In der gezeigten Variante verarbeitet der Lexer den kompletten Input und erzeugt (falls möglich) eine vollständige Liste mit den zur Eingabe gehörenden Token. Der nachfolgende Parser kann damit vom Lexer entkoppelt werden und bekommt als Input einfach eine Liste mit Token und arbeitet auf dieser Liste - die Parserimplementierung muss nicht wissen, dass es eine Klasse `Lexer` gibt und wie diese aussieht. Der Preis ist dabei möglicher Mehrbedarf an Speicher und möglicherweise schlechtere Fehlermeldungen.
+> In der gezeigten Variante verarbeitet der Lexer den *kompletten* Input und erzeugt (falls möglich) eine *vollständige Liste* mit den zur Eingabe gehörenden Token. Der nachfolgende Parser kann damit vom Lexer entkoppelt werden und bekommt als Input einfach eine Liste mit Token und arbeitet auf dieser Liste - die Parserimplementierung muss nicht wissen, dass es eine Klasse `Lexer` gibt und wie diese aussieht. Der Preis ist dabei möglicher Mehrbedarf an Speicher und möglicherweise schlechtere Fehlermeldungen.
 
 ## Beispielimplementierung Lexer für L-Int
 
 ``` java
-public class LispyLexerLint extends BaseLexer {
-
-  protected Token nextToken() {
-    return switch (peek()) {
-      case '(' -> new Token(LPAREN, advance());
-      case '+' -> new Token(PLUS, advance());
-      default -> scanLiteral(); // Integer Literals
-    };
-  }
-
-  protected Token scanLiteral() {
-    if (Character.isDigit(peek())) {
-      String lexeme = readWhile(Character::isDigit);
-      return new Token(INT, lexeme);
+protected Token nextToken() {
+    skipIrrelevant();
+    if (!isAtEnd()) {
+        char c = advance();
+        if (Character.isDigit(c)) {
+            String lexeme = c + readWhile(Character::isDigit);
+            return Token.from(INT, lexeme);
+        }
+        return switch (c) {
+            case '(' -> Token.from(LPAREN);
+            case '+' -> Token.from(PLUS);
+            default -> throw error("unexpected character: '" + c + "'");
+        };
     }
-
-    throw new RuntimeException("unexpected character: '" + peek() + "'");
-  }
+    return Token.from(EOF);
 }
 ```
 
-Hier ist eine mögliche Implementierung von `nextToken()`. In der aufrufenden Methode `scan()` hatten wir Whitespaces und Kommentare übersprungen und geprüft, ob wir am Ende der Eingabe sind. Wir können hier also unbesorgt das aktuelle Zeichen lesen und entscheiden, welches Token hier vorliegt (oder beginnt). Gelesene Zeichen werden aus der Eingabe "entfernt": Beim Aufruf von `advance()` wird der Index `current` inkrementiert (falls möglich).
+Hier ist eine mögliche Implementierung von `nextToken()`.
+
+Irrelevante Zeichen wie Whitespace und Kommentare werden zu Beginn entfernt (übersprungen). Falls wir danach nicht am Ende der Eingabe sind, können wir das aktuelle Zeichen lesen und entscheiden, welches Token hier vorliegt (oder beginnt). Gelesene Zeichen werden aus der Eingabe "entfernt": Beim Aufruf von `advance()` wird der Index `current` inkrementiert (falls möglich).
 
 Wenn das aktuelle Zeichen eine Ziffer ist, lesen wir so lange weiter, bis keine Ziffer mehr folgt, und erzeugen ein `INT`-Token. Andernfalls unterscheiden wir anhand des Zeichens die Operatoren und Klammern. Unbekannte Zeichen führen zu einem Fehler. Das ist im Kern das, was auch generierte Lexer tun.
 
-**Wichtig**: Die Subtraktion fehlt hier und dient als kleine Übung.
+Falls wir am Ende der Eingabe angelangt sind, erzeugen wir das synthetische Token `EOF` für den Parser.
+
+**Wichtig**: Die Subtraktion und die Behandlung der schließenden Klammer fehlen hier und dienen als kleine Übung.
 
 *Anmerkung*: Häufig findet man im Lexer keinen "schönen" objektorientierten Ansatz. Das hat häufig Performancegründe ...
 
-## Hilfsfunktionen im Lexer I: Zeichenhandling
+> [!TIP]
+>
+> ### Nützliche Hilfsmethoden
+>
+> Um beim Erzeugen der Token nicht immer wieder `new` schreiben zu müssen, und um nicht bei Token mit festem Lexem dieses immer wieder extra angeben zu müssen, kann man sich einige statische Hilfsmethoden im Enum `Token` definieren (im Beispiel die Methode `from()`), die aus dem Tokentyp das passende Token erzeugen.
+
+## Hilfsfunktionen im Lexer: Zeichenhandling
 
 ``` java
-public abstract class BaseLexer {
+protected final boolean isAtEnd() { return current >= source.length(); }
 
-    protected final boolean isAtEnd() { return current >= source.length(); }
+protected final char peek() { return peek(0); }
+protected final char peek(int la) {
+    if (la < 0 || current + la >= source.length()) return '\0';
+    return source.charAt(current + la);
+}
 
-    protected final char peek() { return peek(0); }
-    protected final char peek(int la) {
-        if (la < 0 || current + la >= source.length()) return '\0';
-        return source.charAt(current + la);
-    }
+protected final char advance() {
+    if (isAtEnd()) return '\0';  return source.charAt(current++);
+}
 
-    protected final char advance() {
-        if (isAtEnd()) return '\0';
-        return source.charAt(current++);
-    }
+protected final boolean skipIrrelevant() {}  // Homework
+
+protected final String readWhile(Predicate<Character> pred) {
+    StringBuilder sb = new StringBuilder();
+    while (!isAtEnd() && pred.test(peek())) sb.append(advance());
+    return sb.toString();
 }
 ```
 
+Um nicht immer wieder manuell mit dem Index `current` und der Eingabe `source` hantieren zu müssen (das hat sich als sehr fehlerträchtig herausgestellt), definiert man sich typischerweise einige Hilfsmethoden. Die hier gezeigten Namen sind tatsächlich relativ verbreitet, aber man findet beispielsweise auch oft `consume()` statt `advance()`.
+
 Wir müssen im Lexer immer wieder erkennen, ob bereits alle Zeichen im Input abgearbeitet sind. Um nicht immer wieder den Index `current` mit der Länge des Inputs `source` vergleichen zu müssen, kapselt man dies in der Hilfsmethode `isAtEnd()`. Diese liefert `true`, sobald wir alle Zeichen im Input-String `source` bearbeitet haben.
 
-In der Hauptschleife `nextToken()` müssen wir auf das aktuelle Zeichen schauen. Auch hier bietet es sich an, dies nicht immer wieder manuell über `source.charAt(current)` zu tun, sondern dies über eine Hilfsmethode `peek()` zu tun. Im obigen Beispiel ist auch gleich eine Implementierung für ein `peek()` mit Lookahead gezeigt - wir werden später auch das nächste und übernächste Zeichen nach dem aktuellen Zeichen benötigen.
+In der Hauptschleife `nextToken()` müssen wir auf das aktuelle Zeichen schauen. Auch hier bietet es sich an, dies nicht immer wieder manuell über `source.charAt(current)` zu tun, sondern dies über eine Hilfsmethode `peek()` zu kapseln. Im obigen Beispiel ist auch gleich eine Implementierung für ein `peek()` mit Lookahead gezeigt - wir werden später auch das nächste und übernächste Zeichen nach dem aktuellen Zeichen benötigen.
 
 Für das Weiterschalten gibt es die Methode `advance()`. Diese gibt das aktuelle Zeichen zurück und schaltet auf das nächste Zeichen, d.h. ein nachfolgendes `peek()` liefert dann das nächste Zeichen. Damit wir nicht über den Input-String hinaus laufen, wird die Weiterschaltung nur gemacht, wenn wir noch nicht am Ende des Inputs sind. Anderenfalls liefern wir ein Null-Zeichen (`\0`) zurück.
 
-*Anmerkung*: Der gezeigte Lexer verändert den Eingabestring nicht: Er verschiebt lediglich den Index `current`. "Zeichen werden aus der Eingabe entfernt" bedeutet hier also, dass der Index `current` inkrementiert wird.
+Der Aufruf von `skipIrrelevant()` "entfernt" vom aktuellen Zeichen an alle nicht benötigten Zeichen wie Whitespace und Kommentare und stoppt, sobald ein benötigtes Zeichen auftaucht. Dabei muss die Funktion selbst prüfen, ob überhaupt noch gelesen werden darf, oder ob bereits das Ende des Inputs erreicht ist. Falls Zeichen entfernt wurden, wird `true` zurückgegeben. (In unserer Implementierung springt der Index `current` weiter, es werden keine Zeichen physisch entfernt.)
+
+Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so lange, wie das aktuelle Zeichen diesen Test erfüllt und das Ende der Eingabe nicht erreicht ist. Jedes gelesene Zeichen wird an einen StringBuilder angehängt und am Ende als String zurückgeliefert. Diese Funktion ist sehr praktisch, wenn man beispielsweise aufeinander folgende Ziffern einlesen will: `String lexeme = readWhile(Character::isDigit);` liest so lange, wie Ziffern in der Eingabe vorkommen und liefert diese zunächst als String zurück.
+
+**Anmerkung**: Der gezeigte Lexer verändert den Eingabestring nicht: Er verschiebt lediglich den Index `current`. "Zeichen werden aus der Eingabe entfernt" bedeutet hier also, dass der Index `current` inkrementiert wird.
 
 > [!TIP]
 >
@@ -178,54 +188,34 @@ Für das Weiterschalten gibt es die Methode `advance()`. Diese gibt das aktuelle
 >
 > Im obigen Beispiel habe ich die Rückgabe eines besonderen Null-Zeichens gewählt, dies stammt aus der C-Welt und bedeutet dort "wir sind am Ende des Strings angekommen".
 >
-> Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende des Strings noch ein `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich, zumal wir unsere Lexer für die Sprachstufen schrittweise aufbauen und voneinander ableiten werden.
+> Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende der Eingabe noch ein weiteres `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich ...
 
-## Read-Ahead: Unterscheiden von "=" und "=="
+## Exkurs Read-Ahead: Unterscheiden von "=" und "=="
 
 ``` java
 protected Token nextToken() {
+    ...
     return switch (peek()) {
 
         case '=' -> {
             advance();  // consume first '='
             if (peek() == '=') {
                 advance();  // consume second '='
-                yield new Token(EQEQ, "==");
+                yield Token.from(EQEQ);
             }
-            else yield new Token(EQUAL, "=");
+            else yield Token.from(EQUAL);
         }
 
-        default -> super.nextToken();
+        ...
     };
 }
 ```
 
-Um die Token "`=`" und "`==`" unterscheiden zu können, müssen wir ein Zeichen vorausschauen: Wenn nach dem ersten "`=`" noch ein zweites "`=`" kommt, ist es "`==`", sonst "`=`".
+Um die Token `'='` und `'=='` unterscheiden zu können, müssen wir ein zusätzliches Zeichen vorausschauen: Wenn nach dem ersten "=" noch ein zweites "=" kommt, ist es `'=='` (`EQEQ`), sonst `'='` (`EQUAL`).
 
 Erinnerung: Die Funktion `advance()` liefert das aktuelle Zeichen aus der Eingabe zurück und schaltet zum nächsten Zeichen.
 
 **Hinweis**: In der `if`-Abfrage im `case '='` könnte man auch `peek(1)` einsetzen, dann müsste man nur die Reihenfolge der `advance()` anpassen.
-
-## Hilfsfunktionen im Lexer II: Lese solange ...
-
-``` java
-public abstract class BaseLexer {
-
-    protected final boolean skipIrrelevant() {}  // Homework
-
-    protected final String readWhile(Predicate<Character> pred) {
-        StringBuilder sb = new StringBuilder();
-        while (!isAtEnd() && pred.test(peek())) sb.append(advance());
-        return sb.toString();
-    }
-}
-```
-
-Wir brauchen noch zwei weitere komplexere Hilfsfunktionen im Lexer: `skipIrrelevant()` und `readWhile()`.
-
-Der Aufruf von `skipIrrelevant()` "entfernt" vom aktuellen Zeichen an alle nicht benötigten Zeichen wie Whitespace und Kommentare und stoppt, sobald ein benötigtes Zeichen auftaucht. Dabei muss die Funktion selbst prüfen, ob überhaupt noch gelesen werden darf, oder ob bereits das Ende des Inputs erreicht ist. Falls Zeichen entfernt wurden, wird `true` zurückgegeben. (In unserer Implementierung springt der Index `current` weiter, es werden keine Zeichen physisch entfernt.)
-
-Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so lange, wie das aktuelle Zeichen diesen Test erfüllt und das Ende der Eingabe nicht erreicht ist. Jedes gelesene Zeichen wird an einen StringBuilder angehängt und am Ende als String zurückgeliefert. Diese Funktion ist sehr praktisch, wenn man beispielsweise aufeinander folgende Ziffern einlesen will: `String lexeme = readWhile(Character::isDigit);` liest so lange, wie Ziffern in der Eingabe vorkommen und liefert diese zunächst als String zurück.
 
 ## Typische Muster für Erstellung von Token
 
@@ -256,6 +246,8 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
     Normalerweise benötigt man Kommentare und Whitespaces in den folgenden Stufen nicht und entfernt diese deshalb aus dem Eingabestrom. Dabei könnte man etwa Whitespaces in den Pattern der restlichen Token berücksichtigen, was die Pattern aber sehr komplex macht. Die Alternative sind zusätzliche Pattern, die auf die Whitespace und anderen nicht benötigten Inhalt matchen und diesen "geräuschlos" entfernen. Mit diesen Pattern werden keine Token erzeugt, d.h. der Parser und die anderen Stufen bemerken nichts von diesem Inhalt.
 
     Gelegentlich benötigt man aber auch Informationen über Whitespaces, beispielsweise in Python. Dann müssen diese Token wie normale Token an den Parser weitergereicht werden.
+
+### Anmerkung: Hilfsfunktionen für Token
 
 Jedes Token hat üblicherweise ein Attribut, in dem das Lexem gespeichert wird. Bei eindeutigen Token (etwa bei eigenen Token je Schlüsselwort oder bei den Interpunktions-Token) kann man sich das Attribut auch sparen, da das Lexem durch die Tokenart eindeutig rekonstruierbar ist. Bei unserer Implementierung in Java müsste man dann entweder zwei verschiedene Klassen zur Modellierung der Token nutzen (was eher umständlich ist), oder man spendiert der `Token`-Klasse Hilfsfunktionen, die ein Token bauen: einmal vollständig (mit Token-Typ und Lexem) und einmal nur mit dem Token-Typ:
 
@@ -322,7 +314,7 @@ Optionen:
 
 <!-- -->
 
--   Fehler-Regeln: Matche typische Typos
+-   Fehler-Regeln: Matche typische Typos (Fehler-Token)
 
     Gelegentlich findet man in den Grammatiken für den Lexer extra Regeln, die häufige bzw. typische Typos matchen und dann passend darauf reagieren.
 
@@ -379,7 +371,7 @@ Optionen:
 >
 > **Token-Strom vorhersagen: Wo endet das Lexem?**
 >
-> Bestimmen Sie für jede Eingabe den Token-Strom, den der Lexer erzeugen sollte. Geben Sie jeweils Tokenart und Lexem an; das synthetische EOF-Token können Sie dazuschreiben.
+> Bestimmen Sie für jede Eingabe den Token-Strom, den der Lexer erzeugen sollte. Geben Sie jeweils Tokenart und Lexem an; das synthetische `EOF`-Token können Sie dazuschreiben.
 >
 > ``` clojure
 > (+ 12 345)
@@ -391,7 +383,7 @@ Optionen:
 > Diskussionsfragen:
 >
 > -   Gehört ein Vorzeichen zum Integer-Literal oder ist es ein eigenes Token? Begründen Sie Ihre Entscheidung anhand der Tokenregeln für L-Int.
-> -   Was passiert bei der letzten Eingabe: Erkennt der Lexer "12a" als ein fehlerhaftes Integer-Literal, oder liest er zunächst "12" als INT?
+> -   Was passiert bei der letzten Eingabe: Erkennt der Lexer "12a" als ein fehlerhaftes Integer-Literal, oder liest er zunächst "12" als `INT`?
 >
 > **nextToken() für L-Int vervollständigen**
 >
@@ -439,12 +431,6 @@ Optionen:
 >
 > </div>
 >
-> <div id="ref-Siek2023python" class="csl-entry">
->
-> Siek, J. G. 2023. *Essentials of Compilation: An Incremental Approach in Python*. The MIT Press. <https://github.com/IUCompilerCourse/Essentials-of-Compilation>.
->
-> </div>
->
 > </div>
 >
 > </details>
@@ -455,4 +441,4 @@ Optionen:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 91604b3 2026-10-11 lint: final format for beamer<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 12f0e1b 2026-10-15 lint lexer: improve wording and use simple lexer<br></sub></sup></p></blockquote>

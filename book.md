@@ -1684,7 +1684,7 @@ Rekursive Programmierung bedeutet, dass das Laufzeitsystem einen Stack benutzt. 
 >
 > Lispy ist eine für diese Lehrveranstaltung frei erfundene Lisp-ähnliche Programmiersprache. Ihre Ausdrücke werden als S-Expressions in einer Klammer- und Präfixnotation geschrieben.
 >
-> L-Int ist dabei die Grundstufe von Lipsy, die lediglich Integer-Literale sowie Addition und Subtraktion umfasst. Ein Integer-Literal ist selbst ein Ausdruck, während eine Liste wie `(+ 1 2)` einen Operator und seine Operanden enthält.
+> L-Int ist dabei die Grundstufe von Lipsy und umfasst lediglich Integer-Literale sowie Addition und Subtraktion. Ein Integer-Literal ist bereits ein minimaler Ausdruck, während eine Liste wie `(+ 1 2)` einen Operator und seine Operanden enthält.
 >
 > Die Syntax legt fest, welche Ausdrücke gültig sind; die Semantik legt fest, welchen Wert ein gültiger Ausdruck ergibt.
 >
@@ -1704,7 +1704,7 @@ Rekursive Programmierung bedeutet, dass das Laufzeitsystem einen Stack benutzt. 
 
 Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 - 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
 
-Das wird uns durch die gesamte Vorlesung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
+Das wird uns durch die gesamte Veranstaltung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
 
 > [!IMPORTANT]
 >
@@ -1716,7 +1716,7 @@ Das wird uns durch die gesamte Vorlesung begleiten: **Vom Text (Eingabe) über S
 
 ##### S-Expressions als syntaktische Grundform
 
-Ein Programm in L-Int besteht aus einem Ausdruck (*Expression*). Die Ausdrücke haben eine spezielle Form: Sie sind sogenannte [**S-Expressions**](https://en.wikipedia.org/wiki/S-expression).
+Ein Programm in L-Int besteht aus einem **Ausdruck** (*Expression*). Die Ausdrücke haben eine spezielle Form: Sie sind sogenannte [**S-Expressions**](https://en.wikipedia.org/wiki/S-expression).
 
 Eine S-Expression ist:
 
@@ -1737,7 +1737,7 @@ Eine S-Expression ist:
 >
 > Wir werden zur Beschreibung der Syntax verschiedene Grammatiken entwickeln. Die Auswertung wird über eine semantische Analyse und einen Interpreter erfolgen.
 
-In der *Vorlesung* werden wir für unsere aufeinander aufbauenden Sprachfamilien **S-Expressions** nutzen in Anlehnung an Clojure und Lisp. Das vereinfacht das Parsing deutlich und lässt die Konzepte im Skript und den Folien deutlicher hervortreten. Im Praktikum werden wir diese Konzepte auf einen Subdialekt von C++ anwenden und über das Semester hinweg in modernem Java einen Interpreter für C++ schreiben.
+In der *Vorlesung* werden wir für unsere aufeinander aufbauenden Sprachfamilien **S-Expressions** nutzen in Anlehnung an Clojure und Lisp. Das vereinfacht das Parsing deutlich und lässt die Konzepte im Skript und den Folien deutlicher hervortreten. Im Praktikum werden wir diese Konzepte auf einen Subdialekt von C++ anwenden und über das Semester hinweg in modernem Java einen Interpreter für dieses Mini-C++ schreiben.
 
 Lisp ist eine alte Sprachfamilie, die aus dem KI-Umfeld stammt, und ist eine Abkürzung für "*list processing*". In vielen Lisp-Dialekten werden Programme und viele Daten in einer gemeinsamen listenartigen Form ([S-Expressions](https://en.wikipedia.org/wiki/S-expression)) dargestellt ("Homoikonizität", "*code as data*") - einfach zu merken und gleichzeitig sehr mächtig.
 
@@ -1892,11 +1892,11 @@ Der Ausdruck `(+ 1 1)` ist eine S-Expression, gebildet aus den atomaren Ausdrüc
 > <details open>
 > <summary><strong>🎯 TL;DR</strong></summary>
 >
-> Die **konkrete Grammatik** beschreibt, welche Texte gültige L-Int-Programme sind und welche Struktur ihr Parse-Tree hat. Ein L-Int-Ausdruck ist entweder ein Integer-Literal oder eine Addition beziehungsweise Subtraktion mit mindestens zwei Operanden.
+> Die **konkrete Grammatik** beschreibt, welche Texte gültige L-Int-Programme sind und welche Struktur ihr **Parse-Tree** hat. Ein L-Int-Ausdruck ist entweder ein Integer-Literal oder eine Addition beziehungsweise Subtraktion mit mindestens zwei Operanden.
 >
-> Die konkrete Syntax enthält Details wie Klammern und Hilfsregeln, die für die spätere Verarbeitung nicht immer benötigt werden. Die **abstrakte Grammatik** beschreibt stattdessen die wesentlichen Ausdrucksformen als `IntLiteral`, `AddExpr` und `SubExpr`. Daraus entsteht ein AST, in dem Klammern nicht als eigene Knoten vorkommen.
+> Die konkrete Syntax enthält Details wie Klammern und Hilfsregeln, die für die spätere Verarbeitung teilweise nicht mehr benötigt werden. Die **abstrakte Grammatik** beschreibt stattdessen die wesentlichen Ausdrucksformen als `IntLiteral`, `AddExpr` und `SubExpr`. Daraus entsteht ein **AST** (*abstract syntax tree*), in dem beispielsweise Klammern nicht als eigene Knoten vorkommen.
 >
-> Die AST-Knoten lassen sich in Java durch ein gemeinsames `Expr`-Interface und Records modellieren. Da der AST Addition und Subtraktion binär darstellt, muss festgelegt werden, wie Ausdrücke mit mehr als zwei Operanden in binäre Knoten übersetzt werden.
+> Die AST-Knoten lassen sich in Java durch ein gemeinsames `Expr`-Interface und Records modellieren. Da der AST Addition und Subtraktion binär darstellt, muss festgelegt werden, wie Ausdrücke mit mehr als zwei Operanden in binäre Knoten übersetzt werden - eine einfache Form von "Desugaring".
 >
 > </details>
 
@@ -1930,19 +1930,21 @@ INT   ::= [0-9]+
 L_int ::= eform EOF
 ```
 
-Diese Grammatik beschreibt die Struktur der Zeichenketten, die zulässige Ausdrücke in L-Int sind.
+Diese konkrete Grammatik beschreibt die Struktur (Syntax) der Zeichenketten, die zulässige Ausdrücke in L-Int sind.
 
-Ein Programm in L-Int besteht aus einer S-Expression `eform` ("e" wie "Expression" - diese `eform` sind Ausdrücke und evaluieren zu einem Wert), auf die ein EOF-Token folgt. Weitere Eingaben sind nicht zulässig.
+Ein Programm in L-Int besteht aus einer S-Expression `eform` ("e" wie "Expression" - diese `eform` sind Ausdrücke und evaluieren zu einem Wert), auf die ein `EOF`-Token folgt. Weitere Eingaben sind nicht zulässig.
 
 Ein `eform` besteht aus drei Alternativen:
 
--   eine S-Expression mit einem `+` als Operator (Addition),
--   eine S-Expression mit einem `-` als Operator (Subtraktion),
+-   eine S-Expression mit einem `'+'` als Operator (Addition),
+-   eine S-Expression mit einem `'-'` als Operator (Subtraktion),
 -   ein Integer-Literal.
 
 Das Integer-Literal ist ein Terminal-Symbol (Token) und wird über den regulären Ausdruck `[0-9]+` beschrieben. Es besteht aus mindestens einer oder beliebig vielen Ziffern. In der Definition von S-Expressions ist das ein "Atom".
 
-*Anmerkung*: Man kann hier zwischen der Tokenart (`INT`) und dem Lexem (konkrete Ziffernfolge, die im Lexer durch den regulären Ausdruck gematcht wird) unterscheiden. Das gilt auch für die "impliziten Token", die in der Grammatik direkt als Literal dargestellt werden, beispielsweise `(`: Dies ist die Tokenart `LPAREN` mit dem Lexem "(".
+> [!TIP]
+>
+> *Anmerkung*: Man kann hier zwischen der Tokenart (`INT`) und dem Lexem (konkrete Ziffernfolge, die im Lexer durch den regulären Ausdruck gematcht wird) unterscheiden. Das gilt auch für die "impliziten Token", die in der Grammatik direkt als Literal dargestellt werden, beispielsweise `'('`: Dies ist die Tokenart `LPAREN` mit dem Lexem "(".
 
 Die beiden Ausdrücke für Addition und Subtraktion haben die Klammern und den Operator als Terminal-Symbol (Token), und bestehen dann aus mindestens zwei weiteren `eform`-Ausdrücken - das sind die Operanden. Über das `eform+` erlauben wir auch mehr als zwei `eform` als Operanden, das `+` ist hierbei ein Wiederholungsoperator der Grammatik (ein- oder mehrfach). Ein `*` würde "kein- oder mehrfach" bedeuten, das `?` entsprechend "ein- oder keinmal". Bitte nicht mit dem `'+'` verwechseln: Dies ist ein "implizites" Token, also ein Token, dessen Lexem hier statt der Tokenart verwendet wird.
 
@@ -1956,8 +1958,12 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 >
 > -   klein geschrieben: Nichtterminale (Produktionsregeln) der konkreten Syntax, etwa `eform`
 > -   GROSS geschrieben: Terminal-Symbole (Token) des Lexers, etwa `INT` oder `EOF`
-> -   in einfachen 'Anführungszeichen': unbenannte Terminale als konkrete Zeichenketten, etwa `+` oder `(` - für diese gibt es ebenfalls Token im Lexer (`PLUS`, `LPAREN`)
+> -   in einfachen 'Anführungszeichen': unbenannte Terminale als konkrete Zeichenketten (implizite Token), etwa `'+'` oder `'('` - für diese gibt es ebenfalls Token im Lexer (`PLUS`, `LPAREN`)
 > -   UpperCamelCase: kommt in der konkreten Syntax ausschließlich für die Einstiegsregel vor: `L_int`
+> -   Wiederholungsoperatoren: beziehen sich auf den Ausdruck davor (ggf. klammern!)
+>     -   `?`: "ein- oder keinmal"
+>     -   `*`: "kein- oder mehrfach"
+>     -   `+`: "ein- oder mehrfach"
 
 > [!TIP]
 >
@@ -1971,7 +1977,7 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 
 > [!IMPORTANT]
 >
-> Die Grammatik zeigt die Token und wie der Lexer `INT`, `+`, `(` und `)` erkennt: Für `INT` wurde ein regulärer Ausdruck definiert, der zum Erkennen von `INT` angewendet wird. Die "impliziten" Token wie `(` werden direkt mit der angebenenen Zeichenfolge (hier "(") erkannt.
+> Die Grammatik zeigt die Token und wie der Lexer `INT`, `'+'`, `'('` und `')'` erkennt: Für `INT` wurde ein regulärer Ausdruck definiert, der zum Erkennen von `INT` angewendet wird. Die "impliziten" Token wie `'('` werden direkt mit der angegebenen Zeichenfolge (hier "(") erkannt.
 >
 > Whitespace (Leerzeichen, Tabs, Zeilenumbrüche) werden vom Lexer ignoriert. Kommentare `;; ...` (bis zum Zeilenende) werden ebenfalls vom Lexer ignoriert. Dies muss man für Tools wie ANTLR explizit formulieren; in der Darstellung der konkreten Syntax in den Vorlesungsunterlagen sparen wir uns dies zugunsten einer besseren Lesbarkeit.
 >
@@ -1997,9 +2003,11 @@ Parse-Tree:
                                ...           |
                                             "3"
 
-Wir starten mit der Startregel `L_int`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das `(` gefolgt von einem `-` passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer `)`. Der Teilausdruck `(+ 1 2)` passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die `3` passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und `3` zu der Alternative `INT` in `eform` passt.
+Wir starten mit der Startregel `L_int`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das "(" gefolgt von einem "-" passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer ")". Der Teilausdruck "(+ 1 2)" passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die "3" passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und "3" zu der Alternative `INT` in `eform` passt.
 
-Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei unserer einfachen L-Int-Grammatik und der kleinen Eingabe bereits relativ komplex.
+> [!TIP]
+>
+> **Beobachtung**: Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei unserer einfachen L-Int-Grammatik und der kleinen Eingabe bereits relativ komplex.
 
 ##### Konkrete Grammatik - Eigenschaften
 
@@ -2017,7 +2025,7 @@ Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei u
 
 Die konkrete Grammatik ist gut, um zu entscheiden: Gehört ein String zur Sprache, ja oder nein? Und sie ermöglicht es uns, einen Recursive-Descent-Parser aus der Grammatik abzuleiten. Sie liefert für eine Eingabe eines syntaktisch korrekt formulierten Programms einen dazu passenden Parse-Tree, der strukturell entsprechend den Regeln in der Grammatik aufgebaut ist.
 
-Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite Klammern, die wir im weiteren Verlauf für die Semantik nicht zwingend brauchen. Für die weitere Verarbeitung ist es oft besser, eine aufgeräumte, abstraktere Sicht auf das eingegebene Programm zu haben.
+Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite Klammern, die wir im weiteren Verlauf für die Semantik nicht zwingend brauchen. Für die weitere Verarbeitung ist es oft besser, eine aufgeräumtere und abstraktere Sicht auf das eingegebene Programm zu haben.
 
 ##### Konkrete vs. abstrakte Grammatik
 
@@ -2031,11 +2039,11 @@ Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite 
     -   Wie wir den Code **im Programm** modellieren
     -   Fokus auf Bedeutungsträger (z.B. `AddExpr`, `SubExpr`, `IntLiteral`)
 
-Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen konkreter und abstrakter Grammatik.
+Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen **konkreter** und **abstrakter Grammatik**.
 
-Die konkrete Grammatik ist das, was der Parser sieht: der tatsächliche Text, inklusive aller Klammern und syntaktischen Konstrukte.
+Die konkrete Grammatik beschreibt das, was der Parser sieht: der tatsächliche Text, inklusive aller Klammern und syntaktischen Konstrukte.
 
-Die abstrakte Grammatik hingegen ist das Modell, das wir im Programm verwenden, um die Semantik zu definieren. Sie reduziert die Sprache auf die wesentlichen Knoten, die Bedeutung tragen.
+Die abstrakte Grammatik hingegen ist das Modell, das wir intern verwenden, um die Semantik zu definieren. Sie reduziert die Sprache auf die wesentlichen Knoten, die Bedeutung tragen.
 
 ##### Abstrakte Grammatik für L-Int
 
@@ -2086,11 +2094,21 @@ Wir starten mit einer Subtraktion (`SubExpr`). Der linke Operand ist eine Additi
 >
 > ###### Desugaring
 >
-> Wir haben für den AST nur *binäre* Knoten modelliert, während der Parse-Tree variadisch ist und mehr als zwei Operanden beispielsweise in der Addition erlaubt. Dies muss man an einer geeigneten Stelle entsprechend umformen, etwa im Parser oder in einem nachgelagerten Pass über den AST.
+> Wir haben für den AST nur *binäre* Knoten modelliert, während der Parse-Tree variadisch ist und mehr als zwei Operanden beispielsweise in der Addition erlaubt. Dies muss an einer geeigneten Stelle entsprechend umgeformt werden, beispielsweise noch direkt im Parser oder in einem nachgelagerten Lauf ("*Pass*") über den AST.
 >
-> Beispiel: Wenn wir den Ausdruck `(+ 1 2 3)` betrachten, würde der Parse-Tree hier einen `eform`-Knoten mit drei Operanden beinhalten. Dies können wir nicht direkt im AST repräsentieren. Dazu müssen wir beim Erzeugen des AST den Ausdruck geeignet klammern (typisch wäre hier eine Klammerung von links nach rechts): `(+ (+ 1 2) 3)` und dazu den AST erzeugen: `AddExpr(AddExpr(IntLiteral(1), IntLiteral(2)), IntLiteral(3))`.
+> Beispiel: Wenn wir den Ausdruck `(+ 1 2 3)` betrachten, würde der Parse-Tree hier einen `eform`-Knoten mit drei Operanden beinhalten. Dies können wir nicht direkt im AST repräsentieren. Dazu müssen wir beim Erzeugen des AST den Ausdruck geeignet klammern (typisch wäre hier eine Klammerung von links nach rechts): `(+ (+ 1 2) 3)` und dazu den passenden AST erzeugen:
 >
-> `(+ 1 2 3)` ist also nur "**syntaktischer Zucker**" für `(+ (+ 1 2) 3)`. Die gezeigte Vereinfachung ist eine besonders einfache Form des "**Desugaring**".
+> ``` java
+> AddExpr(
+>     AddExpr(
+>         IntLiteral(1),
+>         IntLiteral(2)
+>     ),
+>     IntLiteral(3)
+> )
+> ```
+>
+> `(+ 1 2 3)` ist also nur "**syntaktischer Zucker**" für `(+ (+ 1 2) 3)`. Die gezeigte Vereinfachung ist eine besonders einfache Form der Vereinfachung/Umformung (auch "**Desugaring**" genannt).
 
 ##### AST in Java: Definition
 
@@ -2106,11 +2124,11 @@ public record IntLiteral(int value) implements Expr {}
 
 Die Regel `Expr` in der abstrakten Grammatik kann aus verschiedenen Alternativen bestehen. Wir modellieren `Expr` als Interface, von dem die Alternativen ableiten. Jede dieser Alternativen *ist* eine `Expr`.
 
-Für die Alternativen brauchen wir Datentypen, die ihrerseits Felder speichern können: `AddExpr(Expr, Expr)` muss zwei `Expr` als Kind-Ausdrücke speichern. Jede dieser Formen wird als `record` definiert, was uns Konstruktor, Zugriffsmethoden und `toString` automatisch mit liefert. So bekommen wir eine sehr knappe, typsichere AST-Repräsentation, die gut mit Pattern Matching zusammenspielt. (Wir könnten hier auch normale Klassen nutzen, müssten aber den ganzen Boilerplate-Code selbst schreiben.)
+Für die Alternativen brauchen wir Datentypen, die ihrerseits Felder speichern können: `AddExpr(Expr, Expr)` muss zwei `Expr` als Kind-Ausdrücke speichern. Jede dieser Formen wird als `record` definiert, was uns Konstruktor, Zugriffsmethoden und `toString` automatisch mitliefert. So bekommen wir eine sehr knappe, typsichere AST-Repräsentation, die gut mit Pattern Matching zusammenspielt. (Wir könnten hier auch normale Klassen nutzen, müssten aber den ganzen Boilerplate-Code selbst schreiben.)
 
-Diese Struktur bildet unseren AST.
+Diese Struktur bildet unseren AST in L-Int und wird in späteren Sprachstufen erweitert.
 
-Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus einem `Expr`-Ausdruck bestehen. Deshalb setzen wir diese nicht separat in Java um.
+Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus *einem* `Expr`-Ausdruck bestehen. Diese wird deshalb nicht in den AST-Typen umgesetzt, sondern findet später im Parser und Interpreter Beachtung.
 
 > [!TIP]
 >
@@ -2128,7 +2146,7 @@ Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Progra
 >
 > Das hat den Vorteil, dass wir später in den `switch`-Expressions keinen `default`-Zweig brauchen und der Compiler automatisch darauf achtet, dass wir immer alle Fälle abgedeckt haben.
 >
-> Da wir unsere Sprachstufen aber inkrementell aufeinander aufbauen, werden wir im Laufe der Zeit immer weitere AST-Knoten hinzufügen. Wenn unser gemeinsames Interface `Expr` nun `sealed` wäre, würden wir im alten Code entsprechend Fehler bekommen, weil wir dort ja noch nicht die neuen Fälle kennen (und auch nicht kennen wollen). D.h. wir müssten dann doch wieder mit `default` arbeiten - und damit ist `sealed` nur noch halb nützlich (schützt nur noch vor unbeabsichtigten Ableitungen).
+> Da wir unsere Sprachstufen aber inkrementell aufeinander aufbauen, werden wir im Laufe der Zeit immer weitere AST-Knoten hinzufügen. Wenn unser gemeinsames Interface `Expr` nun `sealed` wäre, würden wir im alten Code entsprechende Fehler bekommen, weil wir dort ja noch nicht die neuen Fälle kennen (und auch nicht kennen wollen). D.h. wir müssten dann doch wieder mit `default` arbeiten - und damit ist `sealed` nur noch halb so nützlich (schützt nur noch vor unbeabsichtigten Ableitungen).
 
 ##### AST in Java: Beispielkonstruktion
 
@@ -2250,9 +2268,11 @@ Hier konstruieren wir den AST für `(- (+ 1 2) 3)` von Hand in Java. Das ist wic
 > <details open>
 > <summary><strong>🎯 TL;DR</strong></summary>
 >
-> Ein AST-basierter Interpreter besteht oft aus einem "Dispatch": Man traversiert mit einer `eval()`-Funktion den AST und ruft je nach Knotentyp die passende Funktion auf. Dabei werden bei Ausdrücken (*Expressions*) Werte berechnet und zurückgegeben, d.h. hier hat man einen Rückgabewert und ein entsprechendes `return` im `switch`/`case`, während man bei Anweisungen (*Statements*) keinen Rückgabewert hat. Dieser Dispatch kann wahlweise per Visitor-Pattern oder manueller Traversierung mit `switch`/`case` erfolgen.
+> Ein AST-basierter Interpreter besteht oft aus einem "Dispatch": Man traversiert mit einer `eval()`-Funktion den AST und ruft je nach Knotentyp die passende Funktion auf. Dabei werden bei Ausdrücken (*Expressions*) Werte berechnet und zurückgegeben ("eval" von "evaluieren" - "auswerten"), d.h. hier hat man einen Rückgabewert und ein entsprechendes `return` im `switch`/`case`, während man bei Anweisungen (*Statements*) keinen Rückgabewert hat.
 >
-> Der Wert von Literalen ergibt sich direkt durch die Übersetzung des jeweiligen Werts in den passenden Typ der Implementierungssprache. Bei Ausdrücken interpretiert man zunächst die Teilausdrücke durch den Aufruf von `eval()` für die jeweiligen AST-Kindknoten und berechnet daraus das gewünschte Ergebnis.
+> Der Dispatch (Aufruf der zum Knotentyp passenden Funktion) kann wahlweise per Visitor-Pattern oder manueller Traversierung mit `switch`/`case` erfolgen.
+>
+> Der Wert von Literalen ergibt sich direkt durch die Übersetzung des jeweiligen Werts in den passenden Typ der Implementierungssprache. Bei komplexeren Ausdrücken interpretiert man zunächst die Teilausdrücke durch den rekursiven Aufruf von `eval()` für die jeweiligen AST-Kindknoten und berechnet daraus das gewünschte Ergebnis.
 >
 > </details>
 
@@ -2296,7 +2316,7 @@ Aktuell könnten wir streng genommen einfach `int` als Rückgabetyp verwenden. A
 ``` java
 public interface Value {
     static int asInt(Value v) {
-        if (v instanceof IntVal(var val)) return val;
+        if (v instanceof IntVal(int val)) return val;
         throw new RuntimeException("number expected");
     }
 }
@@ -2312,7 +2332,7 @@ Wir müssen die Typen der Zielsprache (hier Lispy) auf unsere Implementierungssp
 
 > [!IMPORTANT]
 >
-> **Wichtig**: `Expr` beschreibt die abstrakte Syntax, also die Struktur des Programms, und `Value` beschreibt die Ergebnisse der Auswertung. Diese Trennung hilft uns später auch bei Typprüfung und Fehlerbehandlung.
+> **Wichtig**: `Expr` beschreibt die abstrakte Syntax, also die Struktur des Programms, und `Value` beschreibt die Ergebnisse der Auswertung zur Laufzeit. Diese Trennung hilft uns später auch bei Typprüfung und Fehlerbehandlung.
 
 ##### Tree-Walking-Interpreter: Grundidee
 
@@ -2349,7 +2369,7 @@ public class InterpreterLint {
 }
 ```
 
-Hier sehen wir die konkrete Implementierung unseres L-Int-Interpreters.
+Hier sehen wir die (teilweise) Implementierung unseres L-Int-Interpreters.
 
 Die `eval()`-Methode bildet das Kernstück des (AST-traversierenden) Interpreters für Ausdrücke. Hier wird passend zum aktuellen AST-Knoten die passende Methode des Interpreters aufgerufen.
 
@@ -2381,9 +2401,13 @@ Wir bekommen im AST also Knoten vom Typ `AddExpr` für eine Addition bzw. vom Ty
 
 Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv aus und kombinieren die Ergebnisse passend. Das entspricht genau der mathematischen Intuition von Addition und Subtraktion, nur eben explizit im Code ausgedrückt.
 
+**Wichtig**: Die Subtraktion (Auswertung von `SubExpr`) fehlt hier und dient als kleine Übung.
+
 > [!IMPORTANT]
 >
-> **Wichtig**: Die meisten möglichen Fehlerzustände sind bereits durch den Lexer und Parser (und in späteren Sprachstufen während der semantischen Analyse) abgefangen worden. Falls zur Laufzeit die Auswertung der beiden Summanden keine Zahl ergibt, würde eine Java-Exception geworfen, die der Aufrufer an geeigneter Stelle fangen und behandeln muss. Der Interpreter soll sich ja nicht mit einem Stack-Trace verabschieden, sondern soll eine Fehlermeldung präsentieren und danach normal weiter machen ...
+> ###### Fehlerbehandlung und Fehlermeldungen
+>
+> Die meisten möglichen Fehlerzustände sind bereits durch den Lexer und Parser (und in späteren Sprachstufen während der semantischen Analyse) abgefangen worden. Falls zur Laufzeit die Auswertung der beiden Summanden keine Zahl ergibt, würde eine Java-Exception geworfen, die der Aufrufer an geeigneter Stelle fangen und behandeln muss. Der Interpreter soll sich ja nicht mit einem Stack-Trace verabschieden, sondern soll eine Fehlermeldung präsentieren und danach normal weiter machen ...
 >
 > Die hier gezeigte Fehlerbehandlung ist nur sehr rudimentär, um nicht zu sehr von den Kernkonzepten für unsere Veranstaltung abzulenken. In der Praxis würde man hier deutlich komplexere Fehlerbehandlung machen, beispielsweise auf die Zeile und Spalte in der Eingabe hinweisen. Gute Fehlerbehandlung ist eine Wissenschaft für sich. Vergleichen Sie einmal die Fehler, die Python ausgibt, und die Meldungen beispielsweise von Rust.
 
@@ -2391,11 +2415,9 @@ Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv 
 >
 > ###### REPL: Read-Eval-Print-Loop
 >
-> In den folgenden Beispielen wird davon ausgegangen, dass ein komplettes Programm eingelesen, geparst, vorverarbeitet und dann interpretiert wird.
+> In den Beispielen in dieser Veranstaltung wird immer davon ausgegangen, dass ein komplettes Programm eingelesen, geparst, vorverarbeitet und dann interpretiert wird.
 >
-> Für einen interaktiven Interpreter würde man in einer Schleife die Eingaben lesen, parsen und vorverarbeiten und dann interpretieren. Dabei würde jeweils der AST und die Symboltabelle *ergänzt*, damit die neuen Eingaben auf frühere verarbeitete Eingaben zurückgreifen können. Durch die Form der Schleife "Einlesen - Verarbeiten
->
-> -   Auswerten" hat sich auch der Name "*Read-Eval-Loop*" bzw. "*Read-Eval-Print-Loop*" (**REPL**) eingebürgert.
+> Für einen interaktiven Interpreter würde man in einer Schleife die Eingaben lesen, parsen und vorverarbeiten und dann interpretieren. Dabei würden jeweils der AST und die Symboltabelle und das Environment *ergänzt*, damit die neuen Eingaben auf frühere verarbeitete Eingaben zurückgreifen können. Durch die Form der Schleife "Einlesen - Verarbeiten - Auswerten" hat sich auch der Name "*Read-Eval-Loop*" bzw. "*Read-Eval-Print-Loop*" (**REPL**) eingebürgert.
 
 > [!TIP]
 >
@@ -2403,11 +2425,11 @@ Für `AddExpr` und `SubExpr` werten wir zunächst die beiden Operanden rekursiv 
 >
 > In Programmiersprachen unterscheiden wir häufig **Expressions** (*Ausdrücke*) und **Statements** (*Anweisungen*).
 >
-> Expressions sind dabei syntaktische Konstrukte einer Programmiersprache, die (in einem gegebenen Kontext) zu einem Wert **evaluiert** werden können. Typische Expressions sind beispielsweise Ausdrücke wie `(+ 2 3)` oder `(foo 42)`... In manchen Sprachen sind beispielsweise auch Zuweisungen Expressions: `v = 42 + 7;` würde in C der Variablen `v` den Wert 49 zuweisen, dies ist gleichzeitig auch der Wert des gesamten Ausdrucks. Man könnte in C also Dinge formulieren wie `if (v = 42 + 7) ...` (wobei das Interpretieren eines Integers in einem bool'schen Kontext nochmal ein anderes Problem ist).
+> Expressions sind dabei syntaktische Konstrukte einer Programmiersprache, die (in einem gegebenen Kontext) zu einem Wert **evaluiert** werden können. Typische Expressions sind beispielsweise Ausdrücke wie `(+ 2 3)` oder `(foo 42)` ... In manchen Sprachen sind beispielsweise auch Zuweisungen Expressions: `v = 42 + 7;` würde in C der Variablen `v` den Wert 49 zuweisen, dies ist gleichzeitig auch der Wert des gesamten Ausdrucks. Man könnte in C also Dinge formulieren wie `if (v = 42 + 7) ...` (wobei das Interpretieren eines Integers in einem bool'schen Kontext nochmal ein anderes Problem ist).
 >
 > Statements sind syntaktische Konstrukte in Programmiersprachen, die **ausgeführt** werden können und dabei in der Regel einen Zustand im Programm verändern, also einen Seiteneffekt haben. Die Ausführung eines Statements hat normalerweise keinen Wert an sich. Typische Beispiele sind Zuweisungen `v = 7`, Kontrollfluss `if (...) then {...} else {...}`, Schleifen `for x in foo: ...`, `switch/case`-Statements. (Es gibt aber auch Programmiersprachen, wo ein `if/then/else`-Konstrukt eine Expression ist, also bei der Ausführung einen Wert ergibt.) Expressions können in den meisten Programmiersprachen Teile von Statements bilden: In `v = 42 + 7` ist die gesamte Zuweisung eine Anweisung (Seiteneffekt: die Variable `v` hat danach einen anderen Zustand), und der Teil `42 + 7` ist ein Ausdruck, der ausgewertet werden kann und üblicherweise den Wert 49 ergibt (außer man beauftragt ein LLM mit der Auswertung). In C-ähnlichen Sprachen kann durch Hinzufügen eines Semikolons aus dem Ausdruck `42 +7` eine Anweisung gemacht werden ...
 >
-> Vergleiche auch Nystrom ([2021](#ref-Nystrom2021)), Kapitel 6 "Parsing Expressions", Kapitel 7 "Evaluating Expressions" und Kapitel 8 "Statements and State", aber auch [Wikipedia: Expression](https://en.wikipedia.org/wiki/Expression_(computer_science)) und [Wikipedia: Statement](https://en.wikipedia.org/wiki/Statement_(computer_science)). Wir werden uns an späterer Stelle noch darum kümmern.
+> Vergleiche auch ([Nystrom 2021](#ref-Nystrom2021)), Kapitel 6 "Parsing Expressions", Kapitel 7 "Evaluating Expressions" und Kapitel 8 "Statements and State", aber auch [Wikipedia: Expression](https://en.wikipedia.org/wiki/Expression_(computer_science)) und [Wikipedia: Statement](https://en.wikipedia.org/wiki/Statement_(computer_science)). Wir werden uns an späterer Stelle noch darum kümmern.
 
 ##### Interpreter in Aktion
 
@@ -2495,7 +2517,7 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 >
 > Diskutieren Sie:
 >
-> -   Kann`Value.asInt(...)` bei einem AST, der nur aus den aktuell definierten L-Int-Knoten besteht, tatsächlich fehlschlagen?
+> -   Kann `Value.asInt(...)` bei einem AST, der nur aus den aktuell definierten L-Int-Knoten besteht, tatsächlich fehlschlagen?
 > -   Warum könnte die Methode trotzdem einen Laufzeitfehler prüfen und nicht einfach einen Cast verwenden?
 > -   Was ist der Unterschied zwischen einem `Expr`-Knoten und einem `Value`?
 >
@@ -2531,11 +2553,11 @@ Aus dem Eingabe(-quell-)text
 
 erstellt der Lexer (oder auch Scanner genannt) eine Sequenz von Token:
 
-    <LPAREN, "("> <PLUS, "+"> <INT, "1"> <INT, "222"> <RPAREN, ")">
+    <LPAREN, "(">   <PLUS, "+">   <INT, "1">   <INT, "222">   <RPAREN, ")">
 
-Wir wollen den Eingabetext in abstraktere Einheiten aufsplitten: die Token.
+Wir wollen den Eingabetext (Zeichenstrom) in *abstraktere Einheiten* aufsplitten: die **Token**.
 
-Jedes Token hat einen Typ und speichert ein Lexem - das ist der Teil der Eingabe, der zu dem Token gematcht wurde.
+Jedes Token hat einen **Typ** und speichert ein **Lexem** - das ist der Teil der Eingabe, der zu dem Token gematcht wurde.
 
 Der Lexer versucht anhand von Regeln (reguläre Ausdrücke) zu erkennen, welche Token in der Eingabe vorkommen. In der Regel geht man zeichenweise von links nach rechts durch die Eingabe und versucht anhand des aktuellen Zeichens zu erkennen, welches Token hier beginnt. Bei Mehrdeutigkeiten muss man entsprechend noch weitere folgende Zeichen mit einbeziehen.
 
@@ -2549,7 +2571,7 @@ INT   ::= [0-9]+
 ``` java
 public enum TokenKind {
     PLUS, MINUS, LPAREN, RPAREN, SEMI,
-    INT, // [0-9]+
+    INT,  // [0-9]+
     EOF
 }
 
@@ -2562,7 +2584,7 @@ public record Token(TokenKind kind, String lexeme) {}
 >
 > Es gibt verschiedene Möglichkeiten, Token zu modellieren.
 >
-> Aus der C-Welt stammt die gezeigte Modellierung: Man nutzt ein Enum, um die Tokenarten zu modellieren. (Wir werden dieses Enum im Laufe des Semesters noch deutlich ergänzen.) Für die Repräsentation der Token nutzt man dann eine gemeinsame Daten-Klasse, die einfach die Tokenart und das Lexem kombiniert. Das ist übersichtlich, allerdings muss man für Token wie `PLUS` das Lexem "+" dann nochmal explizit mit speichern.
+> Aus der C-Welt stammt die gezeigte Modellierung: Man nutzt ein Enum, um die Tokenarten zu modellieren. (Wir werden dieses Enum im Laufe des Semesters noch deutlich ergänzen.) Für die Repräsentation der Token nutzt man dann eine gemeinsame Daten-Klasse, die einfach die Tokenart und das Lexem kombiniert. Das ist übersichtlich, allerdings muss man für Token wie `PLUS` das Lexem "+" dann unnötigerweise nochmal explizit mit speichern.
 
 > [!IMPORTANT]
 >
@@ -2570,12 +2592,12 @@ public record Token(TokenKind kind, String lexeme) {}
 >
 > Token enthalten oft auch Positionen oder Quelltextbereiche (Zeile, Spalte, Start- und Endindex). Das erleichtert Fehlermeldungen erheblich.
 >
-> `EOF` ist ein synthetisches Token und hat kein Lexem aus dem Quelltext. "<EOF>" ist eine mögliche Debug-Darstellung, aber kein tatsächliches Lexem.
+> `EOF` ist ein synthetisches Token und hat kein Lexem aus dem Quelltext. Das hier verwendete "`<EOF>`" ist eine mögliche Debug-Darstellung, aber kein tatsächliches Lexem.
 
-##### Grundstruktur eines Lexers
+##### Grundstruktur eines Lexers für L-Int
 
 ``` java
-public abstract class BaseLexer {
+public class LispyLexerLint {
     protected String source;
     protected int current;
 
@@ -2583,95 +2605,105 @@ public abstract class BaseLexer {
         source = input;  current = 0;
         List<Token> tokens = new ArrayList<>();
 
-        while (!isAtEnd()) {
-            while (skipIrrelevant()) {}
-            if (!isAtEnd()) tokens.add(nextToken());
-        }
-        tokens.add(new Token(EOF, "<EOF>"));
+        do tokens.add(nextToken());
+        while (tokens.getLast().kind() != EOF);
+
         return tokens;
     }
 
-    protected abstract Token nextToken();
-
-    // Hilfsmethoden: isAtEnd(), peek(), advance() ...
+    // Arbeitsmethode: nextToken()
+    // Hilfsmethoden:  isAtEnd(), peek(), advance() ...
 }
 ```
 
-Der Lexer läuft über den Eingabestring und erzeugt eine vollständige Liste mit Token. Irrelevante Zeichen wie Whitespace und Kommentare werden immer wieder entfernt.
+Der Lexer läuft über den Eingabestring und erzeugt eine vollständige Liste mit Token. Irrelevante Zeichen wie Whitespace und Kommentare werden dabei immer wieder entfernt (s.u.).
 
 Die Einsprungsfunktion `scan()` stützt sich dabei auf der zentralen Hilfsmethode `nextToken()` ab, die das nächste Token an der aktuellen Eingabeposition bildet. Die Implementierung ist algorithmisch einfach: Wir schauen uns das aktuelle Zeichen an, entscheiden, um welchen Token-Typ es sich handelt, und rücken den Positionszeiger entsprechend vor. Falls nötig, ziehen wir weitere Zeichen in diese Entscheidung mit ein.
 
-*Anmerkung*: In Lispy werden Whitespaces und Kommentare in späteren Verarbeitungsstufen nicht mehr benötigt und deshalb entfernt. In Sprachen wie Python spielen Whitespaces aber eine wichtige syntaktische Rolle und werden deshalb geeignet als Token erfasst und an den Parser weitergegeben.
-
-> [!TIP]
->
-> Der gezeigte Aufbau wirkt zunächst unnötig komplex, insbesondere die `while`-Schleife in `scan()`. Dies liegt u.a. daran, dass wir für die nächsten Sprachstufen jeweils eigene Klassen anlegen, die von den Klassen der Vorgängerstufe erben. Für den Lexer wäre dies beispielsweise `class LispyLexerLexpr extends LispyLexerLint` usw. Dabei wird das neue Verhalten durch Überschreiben der entsprechenden Methoden erreicht und für das bisherige Verhalten nur `super.xyz()` aufgerufen. Das orientiert sich am Vorgehen in ([Siek 2023](#ref-Siek2023python)) und ist relativ elegant, kommt aber mit dem Preis, dass man bei Zustandsveränderungen gut aufpassen muss - wenn die überschreibende Methode ein `advance()` macht und dann ihre Basisimplementierung aufruft, dann fehlt dort das bereits gelesene Zeichen ...
+**Anmerkung**: In Lispy werden Whitespaces und Kommentare in späteren Verarbeitungsstufen nicht mehr benötigt und deshalb entfernt. In Sprachen wie Python spielen Whitespaces aber eine wichtige syntaktische Rolle und werden deshalb geeignet als Token erfasst und an den Parser weitergegeben.
 
 > [!TIP]
 >
 > ###### Design-Diskussion: Schnittstelle Lexer
 >
-> In der gezeigten Variante verarbeitet der Lexer den kompletten Input und erzeugt (falls möglich) eine vollständige Liste mit den zur Eingabe gehörenden Token. Der nachfolgende Parser kann damit vom Lexer entkoppelt werden und bekommt als Input einfach eine Liste mit Token und arbeitet auf dieser Liste - die Parserimplementierung muss nicht wissen, dass es eine Klasse `Lexer` gibt und wie diese aussieht. Der Preis ist dabei möglicher Mehrbedarf an Speicher und möglicherweise schlechtere Fehlermeldungen.
+> In der gezeigten Variante verarbeitet der Lexer den *kompletten* Input und erzeugt (falls möglich) eine *vollständige Liste* mit den zur Eingabe gehörenden Token. Der nachfolgende Parser kann damit vom Lexer entkoppelt werden und bekommt als Input einfach eine Liste mit Token und arbeitet auf dieser Liste - die Parserimplementierung muss nicht wissen, dass es eine Klasse `Lexer` gibt und wie diese aussieht. Der Preis ist dabei möglicher Mehrbedarf an Speicher und möglicherweise schlechtere Fehlermeldungen.
 
 ##### Beispielimplementierung Lexer für L-Int
 
 ``` java
-public class LispyLexerLint extends BaseLexer {
-
-  protected Token nextToken() {
-    return switch (peek()) {
-      case '(' -> new Token(LPAREN, advance());
-      case '+' -> new Token(PLUS, advance());
-      default -> scanLiteral(); // Integer Literals
-    };
-  }
-
-  protected Token scanLiteral() {
-    if (Character.isDigit(peek())) {
-      String lexeme = readWhile(Character::isDigit);
-      return new Token(INT, lexeme);
+protected Token nextToken() {
+    skipIrrelevant();
+    if (!isAtEnd()) {
+        char c = advance();
+        if (Character.isDigit(c)) {
+            String lexeme = c + readWhile(Character::isDigit);
+            return Token.from(INT, lexeme);
+        }
+        return switch (c) {
+            case '(' -> Token.from(LPAREN);
+            case '+' -> Token.from(PLUS);
+            default -> throw error("unexpected character: '" + c + "'");
+        };
     }
-
-    throw new RuntimeException("unexpected character: '" + peek() + "'");
-  }
+    return Token.from(EOF);
 }
 ```
 
-Hier ist eine mögliche Implementierung von `nextToken()`. In der aufrufenden Methode `scan()` hatten wir Whitespaces und Kommentare übersprungen und geprüft, ob wir am Ende der Eingabe sind. Wir können hier also unbesorgt das aktuelle Zeichen lesen und entscheiden, welches Token hier vorliegt (oder beginnt). Gelesene Zeichen werden aus der Eingabe "entfernt": Beim Aufruf von `advance()` wird der Index `current` inkrementiert (falls möglich).
+Hier ist eine mögliche Implementierung von `nextToken()`.
+
+Irrelevante Zeichen wie Whitespace und Kommentare werden zu Beginn entfernt (übersprungen). Falls wir danach nicht am Ende der Eingabe sind, können wir das aktuelle Zeichen lesen und entscheiden, welches Token hier vorliegt (oder beginnt). Gelesene Zeichen werden aus der Eingabe "entfernt": Beim Aufruf von `advance()` wird der Index `current` inkrementiert (falls möglich).
 
 Wenn das aktuelle Zeichen eine Ziffer ist, lesen wir so lange weiter, bis keine Ziffer mehr folgt, und erzeugen ein `INT`-Token. Andernfalls unterscheiden wir anhand des Zeichens die Operatoren und Klammern. Unbekannte Zeichen führen zu einem Fehler. Das ist im Kern das, was auch generierte Lexer tun.
 
-**Wichtig**: Die Subtraktion fehlt hier und dient als kleine Übung.
+Falls wir am Ende der Eingabe angelangt sind, erzeugen wir das synthetische Token `EOF` für den Parser.
+
+**Wichtig**: Die Subtraktion und die Behandlung der schließenden Klammer fehlen hier und dienen als kleine Übung.
 
 *Anmerkung*: Häufig findet man im Lexer keinen "schönen" objektorientierten Ansatz. Das hat häufig Performancegründe ...
 
-##### Hilfsfunktionen im Lexer I: Zeichenhandling
+> [!TIP]
+>
+> ###### Nützliche Hilfsmethoden
+>
+> Um beim Erzeugen der Token nicht immer wieder `new` schreiben zu müssen, und um nicht bei Token mit festem Lexem dieses immer wieder extra angeben zu müssen, kann man sich einige statische Hilfsmethoden im Enum `Token` definieren (im Beispiel die Methode `from()`), die aus dem Tokentyp das passende Token erzeugen.
+
+##### Hilfsfunktionen im Lexer: Zeichenhandling
 
 ``` java
-public abstract class BaseLexer {
+protected final boolean isAtEnd() { return current >= source.length(); }
 
-    protected final boolean isAtEnd() { return current >= source.length(); }
+protected final char peek() { return peek(0); }
+protected final char peek(int la) {
+    if (la < 0 || current + la >= source.length()) return '\0';
+    return source.charAt(current + la);
+}
 
-    protected final char peek() { return peek(0); }
-    protected final char peek(int la) {
-        if (la < 0 || current + la >= source.length()) return '\0';
-        return source.charAt(current + la);
-    }
+protected final char advance() {
+    if (isAtEnd()) return '\0';  return source.charAt(current++);
+}
 
-    protected final char advance() {
-        if (isAtEnd()) return '\0';
-        return source.charAt(current++);
-    }
+protected final boolean skipIrrelevant() {}  // Homework
+
+protected final String readWhile(Predicate<Character> pred) {
+    StringBuilder sb = new StringBuilder();
+    while (!isAtEnd() && pred.test(peek())) sb.append(advance());
+    return sb.toString();
 }
 ```
 
+Um nicht immer wieder manuell mit dem Index `current` und der Eingabe `source` hantieren zu müssen (das hat sich als sehr fehlerträchtig herausgestellt), definiert man sich typischerweise einige Hilfsmethoden. Die hier gezeigten Namen sind tatsächlich relativ verbreitet, aber man findet beispielsweise auch oft `consume()` statt `advance()`.
+
 Wir müssen im Lexer immer wieder erkennen, ob bereits alle Zeichen im Input abgearbeitet sind. Um nicht immer wieder den Index `current` mit der Länge des Inputs `source` vergleichen zu müssen, kapselt man dies in der Hilfsmethode `isAtEnd()`. Diese liefert `true`, sobald wir alle Zeichen im Input-String `source` bearbeitet haben.
 
-In der Hauptschleife `nextToken()` müssen wir auf das aktuelle Zeichen schauen. Auch hier bietet es sich an, dies nicht immer wieder manuell über `source.charAt(current)` zu tun, sondern dies über eine Hilfsmethode `peek()` zu tun. Im obigen Beispiel ist auch gleich eine Implementierung für ein `peek()` mit Lookahead gezeigt - wir werden später auch das nächste und übernächste Zeichen nach dem aktuellen Zeichen benötigen.
+In der Hauptschleife `nextToken()` müssen wir auf das aktuelle Zeichen schauen. Auch hier bietet es sich an, dies nicht immer wieder manuell über `source.charAt(current)` zu tun, sondern dies über eine Hilfsmethode `peek()` zu kapseln. Im obigen Beispiel ist auch gleich eine Implementierung für ein `peek()` mit Lookahead gezeigt - wir werden später auch das nächste und übernächste Zeichen nach dem aktuellen Zeichen benötigen.
 
 Für das Weiterschalten gibt es die Methode `advance()`. Diese gibt das aktuelle Zeichen zurück und schaltet auf das nächste Zeichen, d.h. ein nachfolgendes `peek()` liefert dann das nächste Zeichen. Damit wir nicht über den Input-String hinaus laufen, wird die Weiterschaltung nur gemacht, wenn wir noch nicht am Ende des Inputs sind. Anderenfalls liefern wir ein Null-Zeichen (`\0`) zurück.
 
-*Anmerkung*: Der gezeigte Lexer verändert den Eingabestring nicht: Er verschiebt lediglich den Index `current`. "Zeichen werden aus der Eingabe entfernt" bedeutet hier also, dass der Index `current` inkrementiert wird.
+Der Aufruf von `skipIrrelevant()` "entfernt" vom aktuellen Zeichen an alle nicht benötigten Zeichen wie Whitespace und Kommentare und stoppt, sobald ein benötigtes Zeichen auftaucht. Dabei muss die Funktion selbst prüfen, ob überhaupt noch gelesen werden darf, oder ob bereits das Ende des Inputs erreicht ist. Falls Zeichen entfernt wurden, wird `true` zurückgegeben. (In unserer Implementierung springt der Index `current` weiter, es werden keine Zeichen physisch entfernt.)
+
+Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so lange, wie das aktuelle Zeichen diesen Test erfüllt und das Ende der Eingabe nicht erreicht ist. Jedes gelesene Zeichen wird an einen StringBuilder angehängt und am Ende als String zurückgeliefert. Diese Funktion ist sehr praktisch, wenn man beispielsweise aufeinander folgende Ziffern einlesen will: `String lexeme = readWhile(Character::isDigit);` liest so lange, wie Ziffern in der Eingabe vorkommen und liefert diese zunächst als String zurück.
+
+**Anmerkung**: Der gezeigte Lexer verändert den Eingabestring nicht: Er verschiebt lediglich den Index `current`. "Zeichen werden aus der Eingabe entfernt" bedeutet hier also, dass der Index `current` inkrementiert wird.
 
 > [!TIP]
 >
@@ -2683,54 +2715,34 @@ Für das Weiterschalten gibt es die Methode `advance()`. Diese gibt das aktuelle
 >
 > Im obigen Beispiel habe ich die Rückgabe eines besonderen Null-Zeichens gewählt, dies stammt aus der C-Welt und bedeutet dort "wir sind am Ende des Strings angekommen".
 >
-> Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende des Strings noch ein `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich, zumal wir unsere Lexer für die Sprachstufen schrittweise aufbauen und voneinander ableiten werden.
+> Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende der Eingabe noch ein weiteres `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich ...
 
-##### Read-Ahead: Unterscheiden von "=" und "=="
+##### Exkurs Read-Ahead: Unterscheiden von "=" und "=="
 
 ``` java
 protected Token nextToken() {
+    ...
     return switch (peek()) {
 
         case '=' -> {
             advance();  // consume first '='
             if (peek() == '=') {
                 advance();  // consume second '='
-                yield new Token(EQEQ, "==");
+                yield Token.from(EQEQ);
             }
-            else yield new Token(EQUAL, "=");
+            else yield Token.from(EQUAL);
         }
 
-        default -> super.nextToken();
+        ...
     };
 }
 ```
 
-Um die Token "`=`" und "`==`" unterscheiden zu können, müssen wir ein Zeichen vorausschauen: Wenn nach dem ersten "`=`" noch ein zweites "`=`" kommt, ist es "`==`", sonst "`=`".
+Um die Token `'='` und `'=='` unterscheiden zu können, müssen wir ein zusätzliches Zeichen vorausschauen: Wenn nach dem ersten "=" noch ein zweites "=" kommt, ist es `'=='` (`EQEQ`), sonst `'='` (`EQUAL`).
 
 Erinnerung: Die Funktion `advance()` liefert das aktuelle Zeichen aus der Eingabe zurück und schaltet zum nächsten Zeichen.
 
 **Hinweis**: In der `if`-Abfrage im `case '='` könnte man auch `peek(1)` einsetzen, dann müsste man nur die Reihenfolge der `advance()` anpassen.
-
-##### Hilfsfunktionen im Lexer II: Lese solange ...
-
-``` java
-public abstract class BaseLexer {
-
-    protected final boolean skipIrrelevant() {}  // Homework
-
-    protected final String readWhile(Predicate<Character> pred) {
-        StringBuilder sb = new StringBuilder();
-        while (!isAtEnd() && pred.test(peek())) sb.append(advance());
-        return sb.toString();
-    }
-}
-```
-
-Wir brauchen noch zwei weitere komplexere Hilfsfunktionen im Lexer: `skipIrrelevant()` und `readWhile()`.
-
-Der Aufruf von `skipIrrelevant()` "entfernt" vom aktuellen Zeichen an alle nicht benötigten Zeichen wie Whitespace und Kommentare und stoppt, sobald ein benötigtes Zeichen auftaucht. Dabei muss die Funktion selbst prüfen, ob überhaupt noch gelesen werden darf, oder ob bereits das Ende des Inputs erreicht ist. Falls Zeichen entfernt wurden, wird `true` zurückgegeben. (In unserer Implementierung springt der Index `current` weiter, es werden keine Zeichen physisch entfernt.)
-
-Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so lange, wie das aktuelle Zeichen diesen Test erfüllt und das Ende der Eingabe nicht erreicht ist. Jedes gelesene Zeichen wird an einen StringBuilder angehängt und am Ende als String zurückgeliefert. Diese Funktion ist sehr praktisch, wenn man beispielsweise aufeinander folgende Ziffern einlesen will: `String lexeme = readWhile(Character::isDigit);` liest so lange, wie Ziffern in der Eingabe vorkommen und liefert diese zunächst als String zurück.
 
 ##### Typische Muster für Erstellung von Token
 
@@ -2761,6 +2773,8 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
     Normalerweise benötigt man Kommentare und Whitespaces in den folgenden Stufen nicht und entfernt diese deshalb aus dem Eingabestrom. Dabei könnte man etwa Whitespaces in den Pattern der restlichen Token berücksichtigen, was die Pattern aber sehr komplex macht. Die Alternative sind zusätzliche Pattern, die auf die Whitespace und anderen nicht benötigten Inhalt matchen und diesen "geräuschlos" entfernen. Mit diesen Pattern werden keine Token erzeugt, d.h. der Parser und die anderen Stufen bemerken nichts von diesem Inhalt.
 
     Gelegentlich benötigt man aber auch Informationen über Whitespaces, beispielsweise in Python. Dann müssen diese Token wie normale Token an den Parser weitergereicht werden.
+
+###### Anmerkung: Hilfsfunktionen für Token
 
 Jedes Token hat üblicherweise ein Attribut, in dem das Lexem gespeichert wird. Bei eindeutigen Token (etwa bei eigenen Token je Schlüsselwort oder bei den Interpunktions-Token) kann man sich das Attribut auch sparen, da das Lexem durch die Tokenart eindeutig rekonstruierbar ist. Bei unserer Implementierung in Java müsste man dann entweder zwei verschiedene Klassen zur Modellierung der Token nutzen (was eher umständlich ist), oder man spendiert der `Token`-Klasse Hilfsfunktionen, die ein Token bauen: einmal vollständig (mit Token-Typ und Lexem) und einmal nur mit dem Token-Typ:
 
@@ -2827,7 +2841,7 @@ Optionen:
 
 <!-- -->
 
--   Fehler-Regeln: Matche typische Typos
+-   Fehler-Regeln: Matche typische Typos (Fehler-Token)
 
     Gelegentlich findet man in den Grammatiken für den Lexer extra Regeln, die häufige bzw. typische Typos matchen und dann passend darauf reagieren.
 
@@ -2884,7 +2898,7 @@ Optionen:
 >
 > **Token-Strom vorhersagen: Wo endet das Lexem?**
 >
-> Bestimmen Sie für jede Eingabe den Token-Strom, den der Lexer erzeugen sollte. Geben Sie jeweils Tokenart und Lexem an; das synthetische EOF-Token können Sie dazuschreiben.
+> Bestimmen Sie für jede Eingabe den Token-Strom, den der Lexer erzeugen sollte. Geben Sie jeweils Tokenart und Lexem an; das synthetische `EOF`-Token können Sie dazuschreiben.
 >
 > ``` clojure
 > (+ 12 345)
@@ -2896,7 +2910,7 @@ Optionen:
 > Diskussionsfragen:
 >
 > -   Gehört ein Vorzeichen zum Integer-Literal oder ist es ein eigenes Token? Begründen Sie Ihre Entscheidung anhand der Tokenregeln für L-Int.
-> -   Was passiert bei der letzten Eingabe: Erkennt der Lexer "12a" als ein fehlerhaftes Integer-Literal, oder liest er zunächst "12" als INT?
+> -   Was passiert bei der letzten Eingabe: Erkennt der Lexer "12a" als ein fehlerhaftes Integer-Literal, oder liest er zunächst "12" als `INT`?
 >
 > **nextToken() für L-Int vervollständigen**
 >
@@ -3739,13 +3753,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> f2c3272 2026-10-12 lint: draft b03-lint<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 12f0e1b 2026-10-15 lint lexer: improve wording and use simple lexer<br></sub></sup></p></blockquote>

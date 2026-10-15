@@ -5,11 +5,11 @@
 > <details open>
 > <summary><strong>🎯 TL;DR</strong></summary>
 >
-> Die **konkrete Grammatik** beschreibt, welche Texte gültige L-Int-Programme sind und welche Struktur ihr Parse-Tree hat. Ein L-Int-Ausdruck ist entweder ein Integer-Literal oder eine Addition beziehungsweise Subtraktion mit mindestens zwei Operanden.
+> Die **konkrete Grammatik** beschreibt, welche Texte gültige L-Int-Programme sind und welche Struktur ihr **Parse-Tree** hat. Ein L-Int-Ausdruck ist entweder ein Integer-Literal oder eine Addition beziehungsweise Subtraktion mit mindestens zwei Operanden.
 >
-> Die konkrete Syntax enthält Details wie Klammern und Hilfsregeln, die für die spätere Verarbeitung nicht immer benötigt werden. Die **abstrakte Grammatik** beschreibt stattdessen die wesentlichen Ausdrucksformen als `IntLiteral`, `AddExpr` und `SubExpr`. Daraus entsteht ein AST, in dem Klammern nicht als eigene Knoten vorkommen.
+> Die konkrete Syntax enthält Details wie Klammern und Hilfsregeln, die für die spätere Verarbeitung teilweise nicht mehr benötigt werden. Die **abstrakte Grammatik** beschreibt stattdessen die wesentlichen Ausdrucksformen als `IntLiteral`, `AddExpr` und `SubExpr`. Daraus entsteht ein **AST** (*abstract syntax tree*), in dem beispielsweise Klammern nicht als eigene Knoten vorkommen.
 >
-> Die AST-Knoten lassen sich in Java durch ein gemeinsames `Expr`-Interface und Records modellieren. Da der AST Addition und Subtraktion binär darstellt, muss festgelegt werden, wie Ausdrücke mit mehr als zwei Operanden in binäre Knoten übersetzt werden.
+> Die AST-Knoten lassen sich in Java durch ein gemeinsames `Expr`-Interface und Records modellieren. Da der AST Addition und Subtraktion binär darstellt, muss festgelegt werden, wie Ausdrücke mit mehr als zwei Operanden in binäre Knoten übersetzt werden - eine einfache Form von "Desugaring".
 >
 > </details>
 
@@ -43,19 +43,21 @@ INT   ::= [0-9]+
 L_int ::= eform EOF
 ```
 
-Diese Grammatik beschreibt die Struktur der Zeichenketten, die zulässige Ausdrücke in L-Int sind.
+Diese konkrete Grammatik beschreibt die Struktur (Syntax) der Zeichenketten, die zulässige Ausdrücke in L-Int sind.
 
-Ein Programm in L-Int besteht aus einer S-Expression `eform` ("e" wie "Expression" - diese `eform` sind Ausdrücke und evaluieren zu einem Wert), auf die ein EOF-Token folgt. Weitere Eingaben sind nicht zulässig.
+Ein Programm in L-Int besteht aus einer S-Expression `eform` ("e" wie "Expression" - diese `eform` sind Ausdrücke und evaluieren zu einem Wert), auf die ein `EOF`-Token folgt. Weitere Eingaben sind nicht zulässig.
 
 Ein `eform` besteht aus drei Alternativen:
 
--   eine S-Expression mit einem `+` als Operator (Addition),
--   eine S-Expression mit einem `-` als Operator (Subtraktion),
+-   eine S-Expression mit einem `'+'` als Operator (Addition),
+-   eine S-Expression mit einem `'-'` als Operator (Subtraktion),
 -   ein Integer-Literal.
 
 Das Integer-Literal ist ein Terminal-Symbol (Token) und wird über den regulären Ausdruck `[0-9]+` beschrieben. Es besteht aus mindestens einer oder beliebig vielen Ziffern. In der Definition von S-Expressions ist das ein "Atom".
 
-*Anmerkung*: Man kann hier zwischen der Tokenart (`INT`) und dem Lexem (konkrete Ziffernfolge, die im Lexer durch den regulären Ausdruck gematcht wird) unterscheiden. Das gilt auch für die "impliziten Token", die in der Grammatik direkt als Literal dargestellt werden, beispielsweise `(`: Dies ist die Tokenart `LPAREN` mit dem Lexem "(".
+> [!TIP]
+>
+> *Anmerkung*: Man kann hier zwischen der Tokenart (`INT`) und dem Lexem (konkrete Ziffernfolge, die im Lexer durch den regulären Ausdruck gematcht wird) unterscheiden. Das gilt auch für die "impliziten Token", die in der Grammatik direkt als Literal dargestellt werden, beispielsweise `'('`: Dies ist die Tokenart `LPAREN` mit dem Lexem "(".
 
 Die beiden Ausdrücke für Addition und Subtraktion haben die Klammern und den Operator als Terminal-Symbol (Token), und bestehen dann aus mindestens zwei weiteren `eform`-Ausdrücken - das sind die Operanden. Über das `eform+` erlauben wir auch mehr als zwei `eform` als Operanden, das `+` ist hierbei ein Wiederholungsoperator der Grammatik (ein- oder mehrfach). Ein `*` würde "kein- oder mehrfach" bedeuten, das `?` entsprechend "ein- oder keinmal". Bitte nicht mit dem `'+'` verwechseln: Dies ist ein "implizites" Token, also ein Token, dessen Lexem hier statt der Tokenart verwendet wird.
 
@@ -69,8 +71,12 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 >
 > -   klein geschrieben: Nichtterminale (Produktionsregeln) der konkreten Syntax, etwa `eform`
 > -   GROSS geschrieben: Terminal-Symbole (Token) des Lexers, etwa `INT` oder `EOF`
-> -   in einfachen 'Anführungszeichen': unbenannte Terminale als konkrete Zeichenketten, etwa `+` oder `(` - für diese gibt es ebenfalls Token im Lexer (`PLUS`, `LPAREN`)
+> -   in einfachen 'Anführungszeichen': unbenannte Terminale als konkrete Zeichenketten (implizite Token), etwa `'+'` oder `'('` - für diese gibt es ebenfalls Token im Lexer (`PLUS`, `LPAREN`)
 > -   UpperCamelCase: kommt in der konkreten Syntax ausschließlich für die Einstiegsregel vor: `L_int`
+> -   Wiederholungsoperatoren: beziehen sich auf den Ausdruck davor (ggf. klammern!)
+>     -   `?`: "ein- oder keinmal"
+>     -   `*`: "kein- oder mehrfach"
+>     -   `+`: "ein- oder mehrfach"
 
 > [!TIP]
 >
@@ -84,7 +90,7 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 
 > [!IMPORTANT]
 >
-> Die Grammatik zeigt die Token und wie der Lexer `INT`, `+`, `(` und `)` erkennt: Für `INT` wurde ein regulärer Ausdruck definiert, der zum Erkennen von `INT` angewendet wird. Die "impliziten" Token wie `(` werden direkt mit der angebenenen Zeichenfolge (hier "(") erkannt.
+> Die Grammatik zeigt die Token und wie der Lexer `INT`, `'+'`, `'('` und `')'` erkennt: Für `INT` wurde ein regulärer Ausdruck definiert, der zum Erkennen von `INT` angewendet wird. Die "impliziten" Token wie `'('` werden direkt mit der angegebenen Zeichenfolge (hier "(") erkannt.
 >
 > Whitespace (Leerzeichen, Tabs, Zeilenumbrüche) werden vom Lexer ignoriert. Kommentare `;; ...` (bis zum Zeilenende) werden ebenfalls vom Lexer ignoriert. Dies muss man für Tools wie ANTLR explizit formulieren; in der Darstellung der konkreten Syntax in den Vorlesungsunterlagen sparen wir uns dies zugunsten einer besseren Lesbarkeit.
 >
@@ -110,9 +116,11 @@ Parse-Tree:
                                ...           |
                                             "3"
 
-Wir starten mit der Startregel `L_int`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das `(` gefolgt von einem `-` passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer `)`. Der Teilausdruck `(+ 1 2)` passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die `3` passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und `3` zu der Alternative `INT` in `eform` passt.
+Wir starten mit der Startregel `L_int`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das "(" gefolgt von einem "-" passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer ")". Der Teilausdruck "(+ 1 2)" passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die "3" passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und "3" zu der Alternative `INT` in `eform` passt.
 
-Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei unserer einfachen L-Int-Grammatik und der kleinen Eingabe bereits relativ komplex.
+> [!TIP]
+>
+> **Beobachtung**: Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei unserer einfachen L-Int-Grammatik und der kleinen Eingabe bereits relativ komplex.
 
 ## Konkrete Grammatik - Eigenschaften
 
@@ -130,7 +138,7 @@ Der Parse-Tree spiegelt die Strukturen der Grammatik wider und wird selbst bei u
 
 Die konkrete Grammatik ist gut, um zu entscheiden: Gehört ein String zur Sprache, ja oder nein? Und sie ermöglicht es uns, einen Recursive-Descent-Parser aus der Grammatik abzuleiten. Sie liefert für eine Eingabe eines syntaktisch korrekt formulierten Programms einen dazu passenden Parse-Tree, der strukturell entsprechend den Regeln in der Grammatik aufgebaut ist.
 
-Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite Klammern, die wir im weiteren Verlauf für die Semantik nicht zwingend brauchen. Für die weitere Verarbeitung ist es oft besser, eine aufgeräumte, abstraktere Sicht auf das eingegebene Programm zu haben.
+Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite Klammern, die wir im weiteren Verlauf für die Semantik nicht zwingend brauchen. Für die weitere Verarbeitung ist es oft besser, eine aufgeräumtere und abstraktere Sicht auf das eingegebene Programm zu haben.
 
 ## Konkrete vs. abstrakte Grammatik
 
@@ -144,11 +152,11 @@ Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite 
     -   Wie wir den Code **im Programm** modellieren
     -   Fokus auf Bedeutungsträger (z.B. `AddExpr`, `SubExpr`, `IntLiteral`)
 
-Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen konkreter und abstrakter Grammatik.
+Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen **konkreter** und **abstrakter Grammatik**.
 
-Die konkrete Grammatik ist das, was der Parser sieht: der tatsächliche Text, inklusive aller Klammern und syntaktischen Konstrukte.
+Die konkrete Grammatik beschreibt das, was der Parser sieht: der tatsächliche Text, inklusive aller Klammern und syntaktischen Konstrukte.
 
-Die abstrakte Grammatik hingegen ist das Modell, das wir im Programm verwenden, um die Semantik zu definieren. Sie reduziert die Sprache auf die wesentlichen Knoten, die Bedeutung tragen.
+Die abstrakte Grammatik hingegen ist das Modell, das wir intern verwenden, um die Semantik zu definieren. Sie reduziert die Sprache auf die wesentlichen Knoten, die Bedeutung tragen.
 
 ## Abstrakte Grammatik für L-Int
 
@@ -199,11 +207,21 @@ Wir starten mit einer Subtraktion (`SubExpr`). Der linke Operand ist eine Additi
 >
 > ### Desugaring
 >
-> Wir haben für den AST nur *binäre* Knoten modelliert, während der Parse-Tree variadisch ist und mehr als zwei Operanden beispielsweise in der Addition erlaubt. Dies muss man an einer geeigneten Stelle entsprechend umformen, etwa im Parser oder in einem nachgelagerten Pass über den AST.
+> Wir haben für den AST nur *binäre* Knoten modelliert, während der Parse-Tree variadisch ist und mehr als zwei Operanden beispielsweise in der Addition erlaubt. Dies muss an einer geeigneten Stelle entsprechend umgeformt werden, beispielsweise noch direkt im Parser oder in einem nachgelagerten Lauf ("*Pass*") über den AST.
 >
-> Beispiel: Wenn wir den Ausdruck `(+ 1 2 3)` betrachten, würde der Parse-Tree hier einen `eform`-Knoten mit drei Operanden beinhalten. Dies können wir nicht direkt im AST repräsentieren. Dazu müssen wir beim Erzeugen des AST den Ausdruck geeignet klammern (typisch wäre hier eine Klammerung von links nach rechts): `(+ (+ 1 2) 3)` und dazu den AST erzeugen: `AddExpr(AddExpr(IntLiteral(1), IntLiteral(2)), IntLiteral(3))`.
+> Beispiel: Wenn wir den Ausdruck `(+ 1 2 3)` betrachten, würde der Parse-Tree hier einen `eform`-Knoten mit drei Operanden beinhalten. Dies können wir nicht direkt im AST repräsentieren. Dazu müssen wir beim Erzeugen des AST den Ausdruck geeignet klammern (typisch wäre hier eine Klammerung von links nach rechts): `(+ (+ 1 2) 3)` und dazu den passenden AST erzeugen:
 >
-> `(+ 1 2 3)` ist also nur "**syntaktischer Zucker**" für `(+ (+ 1 2) 3)`. Die gezeigte Vereinfachung ist eine besonders einfache Form des "**Desugaring**".
+> ``` java
+> AddExpr(
+>     AddExpr(
+>         IntLiteral(1),
+>         IntLiteral(2)
+>     ),
+>     IntLiteral(3)
+> )
+> ```
+>
+> `(+ 1 2 3)` ist also nur "**syntaktischer Zucker**" für `(+ (+ 1 2) 3)`. Die gezeigte Vereinfachung ist eine besonders einfache Form der Vereinfachung/Umformung (auch "**Desugaring**" genannt).
 
 ## AST in Java: Definition
 
@@ -219,11 +237,11 @@ public record IntLiteral(int value) implements Expr {}
 
 Die Regel `Expr` in der abstrakten Grammatik kann aus verschiedenen Alternativen bestehen. Wir modellieren `Expr` als Interface, von dem die Alternativen ableiten. Jede dieser Alternativen *ist* eine `Expr`.
 
-Für die Alternativen brauchen wir Datentypen, die ihrerseits Felder speichern können: `AddExpr(Expr, Expr)` muss zwei `Expr` als Kind-Ausdrücke speichern. Jede dieser Formen wird als `record` definiert, was uns Konstruktor, Zugriffsmethoden und `toString` automatisch mit liefert. So bekommen wir eine sehr knappe, typsichere AST-Repräsentation, die gut mit Pattern Matching zusammenspielt. (Wir könnten hier auch normale Klassen nutzen, müssten aber den ganzen Boilerplate-Code selbst schreiben.)
+Für die Alternativen brauchen wir Datentypen, die ihrerseits Felder speichern können: `AddExpr(Expr, Expr)` muss zwei `Expr` als Kind-Ausdrücke speichern. Jede dieser Formen wird als `record` definiert, was uns Konstruktor, Zugriffsmethoden und `toString` automatisch mitliefert. So bekommen wir eine sehr knappe, typsichere AST-Repräsentation, die gut mit Pattern Matching zusammenspielt. (Wir könnten hier auch normale Klassen nutzen, müssten aber den ganzen Boilerplate-Code selbst schreiben.)
 
-Diese Struktur bildet unseren AST.
+Diese Struktur bildet unseren AST in L-Int und wird in späteren Sprachstufen erweitert.
 
-Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus einem `Expr`-Ausdruck bestehen. Deshalb setzen wir diese nicht separat in Java um.
+Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus *einem* `Expr`-Ausdruck bestehen. Diese wird deshalb nicht in den AST-Typen umgesetzt, sondern findet später im Parser und Interpreter Beachtung.
 
 > [!TIP]
 >
@@ -241,7 +259,7 @@ Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Progra
 >
 > Das hat den Vorteil, dass wir später in den `switch`-Expressions keinen `default`-Zweig brauchen und der Compiler automatisch darauf achtet, dass wir immer alle Fälle abgedeckt haben.
 >
-> Da wir unsere Sprachstufen aber inkrementell aufeinander aufbauen, werden wir im Laufe der Zeit immer weitere AST-Knoten hinzufügen. Wenn unser gemeinsames Interface `Expr` nun `sealed` wäre, würden wir im alten Code entsprechend Fehler bekommen, weil wir dort ja noch nicht die neuen Fälle kennen (und auch nicht kennen wollen). D.h. wir müssten dann doch wieder mit `default` arbeiten - und damit ist `sealed` nur noch halb nützlich (schützt nur noch vor unbeabsichtigten Ableitungen).
+> Da wir unsere Sprachstufen aber inkrementell aufeinander aufbauen, werden wir im Laufe der Zeit immer weitere AST-Knoten hinzufügen. Wenn unser gemeinsames Interface `Expr` nun `sealed` wäre, würden wir im alten Code entsprechende Fehler bekommen, weil wir dort ja noch nicht die neuen Fälle kennen (und auch nicht kennen wollen). D.h. wir müssten dann doch wieder mit `default` arbeiten - und damit ist `sealed` nur noch halb so nützlich (schützt nur noch vor unbeabsichtigten Ableitungen).
 
 ## AST in Java: Beispielkonstruktion
 
@@ -385,4 +403,4 @@ Hier konstruieren wir den AST für `(- (+ 1 2) 3)` von Hand in Java. Das ist wic
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 91604b3 2026-10-11 lint: final format for beamer<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 4cbdc68 2026-10-15 lint grammar: improve wording<br></sub></sup></p></blockquote>

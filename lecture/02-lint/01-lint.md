@@ -7,7 +7,7 @@
 >
 > Lispy ist eine für diese Lehrveranstaltung frei erfundene Lisp-ähnliche Programmiersprache. Ihre Ausdrücke werden als S-Expressions in einer Klammer- und Präfixnotation geschrieben.
 >
-> L-Int ist dabei die Grundstufe von Lipsy, die lediglich Integer-Literale sowie Addition und Subtraktion umfasst. Ein Integer-Literal ist selbst ein Ausdruck, während eine Liste wie `(+ 1 2)` einen Operator und seine Operanden enthält.
+> L-Int ist dabei die Grundstufe von Lipsy und umfasst lediglich Integer-Literale sowie Addition und Subtraktion. Ein Integer-Literal ist bereits ein minimaler Ausdruck, während eine Liste wie `(+ 1 2)` einen Operator und seine Operanden enthält.
 >
 > Die Syntax legt fest, welche Ausdrücke gültig sind; die Semantik legt fest, welchen Wert ein gültiger Ausdruck ergibt.
 >
@@ -27,7 +27,7 @@
 
 Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 - 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
 
-Das wird uns durch die gesamte Vorlesung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
+Das wird uns durch die gesamte Veranstaltung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
 
 > [!IMPORTANT]
 >
@@ -39,7 +39,7 @@ Das wird uns durch die gesamte Vorlesung begleiten: **Vom Text (Eingabe) über S
 
 ## S-Expressions als syntaktische Grundform
 
-Ein Programm in L-Int besteht aus einem Ausdruck (*Expression*). Die Ausdrücke haben eine spezielle Form: Sie sind sogenannte [**S-Expressions**](https://en.wikipedia.org/wiki/S-expression).
+Ein Programm in L-Int besteht aus einem **Ausdruck** (*Expression*). Die Ausdrücke haben eine spezielle Form: Sie sind sogenannte [**S-Expressions**](https://en.wikipedia.org/wiki/S-expression).
 
 Eine S-Expression ist:
 
@@ -60,7 +60,7 @@ Eine S-Expression ist:
 >
 > Wir werden zur Beschreibung der Syntax verschiedene Grammatiken entwickeln. Die Auswertung wird über eine semantische Analyse und einen Interpreter erfolgen.
 
-In der *Vorlesung* werden wir für unsere aufeinander aufbauenden Sprachfamilien **S-Expressions** nutzen in Anlehnung an Clojure und Lisp. Das vereinfacht das Parsing deutlich und lässt die Konzepte im Skript und den Folien deutlicher hervortreten. Im Praktikum werden wir diese Konzepte auf einen Subdialekt von C++ anwenden und über das Semester hinweg in modernem Java einen Interpreter für C++ schreiben.
+In der *Vorlesung* werden wir für unsere aufeinander aufbauenden Sprachfamilien **S-Expressions** nutzen in Anlehnung an Clojure und Lisp. Das vereinfacht das Parsing deutlich und lässt die Konzepte im Skript und den Folien deutlicher hervortreten. Im Praktikum werden wir diese Konzepte auf einen Subdialekt von C++ anwenden und über das Semester hinweg in modernem Java einen Interpreter für dieses Mini-C++ schreiben.
 
 Lisp ist eine alte Sprachfamilie, die aus dem KI-Umfeld stammt, und ist eine Abkürzung für "*list processing*". In vielen Lisp-Dialekten werden Programme und viele Daten in einer gemeinsamen listenartigen Form ([S-Expressions](https://en.wikipedia.org/wiki/S-expression)) dargestellt ("Homoikonizität", "*code as data*") - einfach zu merken und gleichzeitig sehr mächtig.
 
@@ -241,4 +241,4 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 8ebc733 2026-10-11 lint: add challenges (lispy)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 7b061c2 2026-10-15 lint intro: improve wording<br></sub></sup></p></blockquote>
