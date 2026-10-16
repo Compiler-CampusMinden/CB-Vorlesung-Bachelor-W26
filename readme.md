@@ -99,6 +99,7 @@ Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablege
 
 #### Hinweise
 
+-   Die Parcoursprüfung und die Studienleistung sind zwei unabhängige Prüfungsleistungen und werden separat im CAT angemeldet. Die Studienleistung schaltet die Credits für das Modul frei, die Parcoursprüfung ergibt die Modulnote. Die Studienleistung ist **keine** Vorleistung für die Parcoursprüfung.
 -   Die Bearbeitung der Aufgaben erfolgt im Team.
 -   Ein Team umfasst 3 Personen.
 -   Im Praktikum beginnen wir gemeinsam mit der Bearbeitung der Übungsblätter, diskutieren über Lösungsansätze und erarbeiten Abnahmekriterien. Die Lösung soll anschließend teamweise fertiggestellt werden und kann auf Wunsch im nächsten Praktikum von Ihnen vorgestellt werden.
@@ -142,4 +143,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 6d5e09d 2026-10-11 orga: change room for lab session<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 1973e7b 2026-10-16 orga: clarify parcourspruefung vs studienleistung<br></sub></sup></p></blockquote>
