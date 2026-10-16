@@ -33,6 +33,8 @@ Der nächste Schritt: Aus dem AST wollen wir konkrete Ergebnisse berechnen. Dazu
 
 ## Value-Hierarchie: Motivation
 
+Erinnerung: Unsere konkrete Syntax für L-Int sah so aus:
+
 ``` ebnf
 Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
 L_int = Expr
@@ -52,11 +54,13 @@ Aktuell könnten wir streng genommen einfach `int` als Rückgabetyp verwenden. A
 
 ``` java
 public interface Value {
+
     static int asInt(Value v) {
         if (v instanceof IntVal(int val)) return val;
         throw new RuntimeException("number expected");
     }
 }
+
 
 public record IntVal(int v) implements Value {}
 ```
@@ -85,7 +89,7 @@ Wir müssen die Typen der Zielsprache (hier Lispy) auf unsere Implementierungssp
 
 Der Tree-Walking-Interpreter ist im Kern eine rekursive Funktion über dem AST. Für jeden Knotentyp - Literal, Addition, Subtraktion - definieren wir, wie er auszuwerten ist. Das ist eine direkte Implementierung der operationalen Semantik unserer Sprache: Wir sagen dem Rechner Schritt für Schritt, wie die Auswertung funktioniert.
 
-## Interpreter für Expressions in Java (Pattern Matching)
+## Interpreter für L-Int-Expressions in Java (Pattern Matching)
 
 ``` java
 public class InterpreterLint {
@@ -291,4 +295,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> c8fc057 2026-10-15 lint interpreter: improve wording<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 53e78e7 2026-10-16 lint interpreter: improve readability<br></sub></sup></p></blockquote>
