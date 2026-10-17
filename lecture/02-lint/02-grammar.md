@@ -403,4 +403,4 @@ Hier konstruieren wir den AST für `(- (+ 1 2) 3)` von Hand in Java. Das ist wic
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 4cbdc68 2026-10-15 lint grammar: improve wording<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> f2991a4 2026-10-17 lint grammar: improve slide formatting<br></sub></sup></p></blockquote>

@@ -117,7 +117,7 @@ protected Token nextToken() {
         return switch (c) {
             case '(' -> Token.from(LPAREN);
             case '+' -> Token.from(PLUS);
-            default -> throw error("unexpected character: '" + c + "'");
+            default -> throw new RuntimeException("unexpected character");
         };
     }
     return Token.from(EOF);
@@ -145,21 +145,19 @@ Falls wir am Ende der Eingabe angelangt sind, erzeugen wir das synthetische Toke
 ## Hilfsfunktionen im Lexer: Zeichenhandling
 
 ``` java
-protected final boolean isAtEnd() { return current >= source.length(); }
+protected boolean isAtEnd() { return current >= source.length(); }
 
-protected final char peek() { return peek(0); }
-protected final char peek(int la) {
+protected char peek() { return peek(0); }
+protected char peek(int la) {
     if (la < 0 || current + la >= source.length()) return '\0';
     return source.charAt(current + la);
 }
 
-protected final char advance() {
-    if (isAtEnd()) return '\0';  return source.charAt(current++);
-}
+protected char advance() { return isAtEnd() ? '\0' : source.charAt(current++); }
 
-protected final boolean skipIrrelevant() {}  // Homework
+protected boolean skipIrrelevant() {}  // Homework
 
-protected final String readWhile(Predicate<Character> pred) {
+protected String readWhile(Predicate<Character> pred) {
     StringBuilder sb = new StringBuilder();
     while (!isAtEnd() && pred.test(peek())) sb.append(advance());
     return sb.toString();
@@ -413,4 +411,4 @@ Optionen:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 94be9ed 2026-10-16 lint lexer: improve wording<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 98cf50a 2026-10-17 lint: improve readability of code snippets<br></sub></sup></p></blockquote>

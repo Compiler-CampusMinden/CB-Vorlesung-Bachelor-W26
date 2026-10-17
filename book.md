@@ -49,13 +49,13 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 #### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:----|:----|:-----------------------------------|:---------|:-----------------|
+|:----|:----|:----------------------------------|:----------|:-----------------|
 | Oktober | 12.10 | Orga \|\| [Überblick](#id-1df70a478502c95d7f7d1fa78f328a16640b3907) \| [Sprachen](#id-55cceb8d95eb4d3a67a6a18eb0e778b5695106a3) \| [Anwendungen](#id-315c4a6ad46ecd3cdd06bff39540497383b62904) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](#id-cb0be27b07154b726b38212279070d854085a4f8) | [B01](#id-6f673c2e093cdfc53b1f78baef11fd06cc8aa415) |  |
 |  | 26.10. | [Reguläre Sprachen 2](#id-e6527ca4572a4752c431b91119c87d78fa032789) \|\| [CFG](#id-7c0e930dad216729eeb1545678306ab9f0d6a57b) | [B02](#id-0db349230022c35e045dc3b052a4faea50fe5f40) |  |
 | November | 02.11. | [LL-Parser (Theorie)](#id-9aa1932181298bc40b56bb55a0bf53edf1c3aa88) | \- | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
 |  | 09.11. | L-Int (Teil 1): [Intro](#id-92efa03f813e51c04582d54092121544fac6d2f6) \| [Grammatik](#id-5b9897e3373f2ab9cb2db150c803f2e2f79b5bc5) \| [Interpreter](#id-d8a55d89d69aa672b84f607d0f4d791de1cb29a3) | **Station 1** |  |
-|  | 16.11. | L-Int (Teil 2): [Lexer](#id-ace9fbbfab20407167957763e345b4cb8130dc1b) \| [RD-Parser](#id-ebe1e096694731fb5532fdd9572b900a699e7eaf) | C-Int |  |
+|  | 16.11. | L-Int (Teil 2): [Lexer](#id-ace9fbbfab20407167957763e345b4cb8130dc1b) \| [RD-Parser](#id-ebe1e096694731fb5532fdd9572b900a699e7eaf) | [B03: C-Int](#id-c6885788e4bb28c92d66417730e18408254766a3) |  |
 |  | 23.11. | [L-Expr](#id-99cb41fc092ae89529d2cfd0281e8535a15dbfbf) | C-Expr |  |
 | Dezember | 30.11. | [L-Var](#id-f8afd3e3cb9ba1df1e2b5422b50bc32aaa3350c7) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
 |  | 07.12. | [L-If](#id-51bc1e52157fd6e296d145056356183c5f0620e5) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
@@ -2649,7 +2649,7 @@ protected Token nextToken() {
         return switch (c) {
             case '(' -> Token.from(LPAREN);
             case '+' -> Token.from(PLUS);
-            default -> throw error("unexpected character: '" + c + "'");
+            default -> throw new RuntimeException("unexpected character");
         };
     }
     return Token.from(EOF);
@@ -2677,21 +2677,19 @@ Falls wir am Ende der Eingabe angelangt sind, erzeugen wir das synthetische Toke
 ##### Hilfsfunktionen im Lexer: Zeichenhandling
 
 ``` java
-protected final boolean isAtEnd() { return current >= source.length(); }
+protected boolean isAtEnd() { return current >= source.length(); }
 
-protected final char peek() { return peek(0); }
-protected final char peek(int la) {
+protected char peek() { return peek(0); }
+protected char peek(int la) {
     if (la < 0 || current + la >= source.length()) return '\0';
     return source.charAt(current + la);
 }
 
-protected final char advance() {
-    if (isAtEnd()) return '\0';  return source.charAt(current++);
-}
+protected char advance() { return isAtEnd() ? '\0' : source.charAt(current++); }
 
-protected final boolean skipIrrelevant() {}  // Homework
+protected boolean skipIrrelevant() {}  // Homework
 
-protected final String readWhile(Predicate<Character> pred) {
+protected String readWhile(Predicate<Character> pred) {
     StringBuilder sb = new StringBuilder();
     while (!isAtEnd() && pred.test(peek())) sb.append(advance());
     return sb.toString();
@@ -2993,7 +2991,7 @@ Expr parseR() {
 -   Referenzen auf ein Terminal (Token) `T` werden durch den Aufruf der Methode `match(T)` aufgelöst
     -   `match(T)` "konsumiert" das aktuelle Token, falls dieses mit `T` übereinstimmt
     -   Anderenfalls löst `match()` eine Exception aus
--   Referenzen auf Nicht-Terminale (Regeln) `s` werden durch Methodenaufrufe `s()` aufgelöst
+-   Referenzen auf Nichtterminale (Regeln) `s` werden durch Methodenaufrufe `s()` aufgelöst
 
 ##### Alternative Subregeln
 
@@ -3010,7 +3008,7 @@ return switch (peek()) {
     case PredictingA -> parseA();
     case PredictingB -> parseB();
     case PredictingC -> parseC();
-    default -> throw new RuntimeException("expected expression, got: " + peek());
+    default -> throw new RuntimeException("expected expression");
 };
 ```
 
@@ -3030,37 +3028,42 @@ Für LL(1)-Parser betrachtet man immer das **aktuelle** Token (**genau *EIN* Loo
 > expr ::= ID '++' | ID '--'
 > ```
 >
-> Entweder benötigt man zwei Lookahead-Tokens, also einen LL(2)-Parser, oder man muss die Regel in eine äquivalente LL(1)-Grammatik umschreiben:
+> Hier benötigt man entweder **zwei Lookahead-Tokens**, also einen LL(2)-Parser, oder man muss die Regel in eine äquivalente LL(1)-Grammatik umschreiben ($\to$ **Linksfaktorisierung**, s.u.):
 >
 > ``` ebnf
 > expr ::= ID ('++' | '--')
 > ```
 
-##### RD-Parser: Grundgerüst
+##### Grundstruktur eines RD-Parsers
 
 ``` java
-public abstract class BaseParser {
+public class LispyParserLint {
     protected List<Token> tokens;
     protected int current;
 
-    protected void initParser(List<Token> tokenList) {
+    public Expr parse(List<Token> tokenList) {
         tokens = tokenList;  current = 0;
-        throwIf(tokenList.getLast().kind() != EOF, "last token must be EOF!");
+
+        Expr expr = parseEform();
+        if (!isAtEnd()) throw new RuntimeException("unexpected token");
+
+        return expr;
     }
 
-    // konkrete Parser: Expr parse(List<Token> tokens)
-
-    // Hilfsmethoden: isAtEnd(), peek(), advance(), match(), check() ...
+    // Arbeitsmethoden: parseEform(), parseAtom(), parseAddExpr(), parseSubExpr()
+    // Hilfsmethoden:   isAtEnd(), peek(), advance(), match(), check() ...
 }
 ```
 
 Der Parser sieht strukturell dem Lexer ähnlich: Er hat eine Eingabefolge - hier die Token-Liste `tokens` - und einen Positionszeiger (aktueller Index `current`).
 
-Der Einstieg in den Parser wird später eine Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Da wir im Laufe der Zeit einen anderen Rückgabetyp benötigen, können wir diese Methode nicht bereits im Basis-Parser anlegen (oder wir müssten unterschiedlich benannte Methoden definieren und später immer nur eine ableiten, was auch unschön ist).
+Den Einstieg in den Parser bildet die Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Diese Methode bildet die Startregel `L_int ::= eform EOF` der konkreten Grammatik ab.
+
+Die einzelnen Regeln der (von direkter Linksrekursion befreiten) konkreten Grammatik bilden wir auf die Arbeitsmethoden `parseEform()`, `parseAtom()`, `parseAddExpr()`, `parseSubExpr()` ab.
 
 Intern werden wir Hilfsmethoden wie `peek()`, `advance()` und `match()` verwenden, um die Tokens bequemer zu handhaben.
 
-##### Beispielimplementierung Parser für L-Int: Einstieg und `eform`-Regel
+##### Partielle Beispielimplementierung RD-Parser für L-Int
 
 Wir betrachten folgende konkrete Syntax in L-Int:
 
@@ -3071,7 +3074,7 @@ INT   ::= [0-9]+
 L_int ::= eform EOF
 ```
 
-Der Einstieg ist die Regel `L_int`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt.
+Der Einstieg ist die Regel `L_int`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt und wurde bereits in der Einstiegsmethode `parse()` umgesetzt.
 
 Eine `eform` kann entweder eine Addition, eine Subtraktion oder einfach nur ein Integer-Literal sein. Letzteres ist ein Terminal, d.h. hier können wir einfach mit `match()` das entsprechende Token abfragen.
 
@@ -3088,81 +3091,71 @@ Wir haben hier also konkret eine Daten-Klasse `IntLiteral` für die Repräsentat
 Analog für Addition und Subtraktion. Hier ist interessant, dass die vorgesehenen Knoten im AST nur binäre Knoten sind, in der konkreten Syntax aber jeweils zwei oder mehr Argumente für Addition und Subtraktion erlaubt sind. Ein reiner Parse-Tree würde diese Grammatik-Struktur im Baum widerspiegeln (siehe Challenge). Wir wollen hier einen abstrakteren Baum (AST) erzeugen und müssen entsprechend bereits beim Erzeugen des AST die Zielstruktur berücksichtigen.
 
 ``` java
-public class LispyParserLint extends BaseParser {
-
-    public Expr parseLint(List<Token> tokens) {
-        initParser(tokens);
-        Expr expr = parseEForm();
-        if(!isAtEnd()) throw new RuntimeException("unexpected token");
-        return expr;
+protected Expr parseEform() {
+    if (check(LPAREN)) {
+        return switch (peek(1).kind()) {
+            case PLUS -> parseAddExpr();
+            default -> throw new RuntimeException("unexpected token");
+        };
     }
 
-    protected Expr parseEForm() {
-        if (check(LPAREN)) {
-            return switch (peek(1).kind()) {
-                case PLUS -> parseAddExpr();
-                default -> throw new RuntimeException("expected expression");
-            };
-        }
-        return parseAtomExpr();
-    }
+    return parseAtom();
+}
+
+
+protected Expr parseAtom() {
+    Token t = match(INT);
+    return new IntLiteral(Integer.parseInt(t.lexeme()));
 }
 ```
 
-Für die Regeln `L_int` und `eform` werden die beiden Methoden `parseLint()` und `parseEForm()` angelegt, die direkt den beiden Grammatikregeln entsprechen.
+Für die Regel `eform` wird eine `parseEform()` angelegt, die direkt der Grammatikregel entspricht.
 
-Die Sichtbarkeit ist `public` für die Einstiegsmethode `parseLint()` - diese Methode soll später zum Starten des Parsers genutzt werden. Die anderen (internen) Methoden bekommen die Sichtbarkeit `protected`, damit wir sie bei Bedarf in ableitenden Parser-Klassen überschreiben können. Wenn wir uns ganz sicher sind, dass wir eine interne Methode nie überschreiben wollen, können wir natürlich auch wie immer auf `private` gehen.
+> [!TIP]
+>
+> Die Sichtbarkeit ist `public` für die Einstiegsmethode `parse()` - diese Methode soll später zum Starten des Parsers genutzt werden. Die anderen (internen) Methoden bekommen die Sichtbarkeit `protected`, damit wir sie bei Bedarf in ableitenden Parser-Klassen überschreiben können. Wenn wir uns ganz sicher sind, dass wir eine interne Methode nie überschreiben wollen, können wir natürlich auch wie immer auf `private` gehen.
 
-Wir unterscheiden in `parseEForm()` anhand des aktuellen Tokens, ob es sich um die Alternativen für Addition (und Subtraktion, nicht gezeigt) handeln könnte (beide starten mit `(`). Ansonsten muss es sich um die letzte Alternative `INT` handeln:
+Wir unterscheiden in `parseEform()` anhand des aktuellen Tokens, ob es sich um die Alternativen für Addition (und Subtraktion, nicht gezeigt) handeln könnte (beide starten mit `'('`). Ansonsten muss es sich um die letzte Alternative `INT` handeln:
 
 -   Liegt ein `LPAREN` vor, entfällt die letzte Alternative. Es kann sich nur noch um eine Addition oder Subtraktion handeln.
 
-    Da diese Alternativen beide mit `(` beginnen, schauen wir nun auf das nächste Token:
+    Da diese Alternativen beide mit `'('` beginnen, schauen wir nun auf das nächste Token:
 
-    -   Finden wir ein `ADD`- oder `SUB`-Token, rufen wir entsprechend die Regeln `parseAddExpr()` bzw. `parseSubExpr()` auf.
+    -   Finden wir ein `ADD`- oder `SUB`-Token, rufen wir entsprechend die Regeln `parseAddExpr()` bzw. `parseSubExpr()` (nicht gezeigt) auf.
     -   Anderenfalls melden wir einen Fehler, weil wir `LPAREN` gesehen haben, aber nichts, was laut unserer Grammatik darauf folgen müsste.
 
 -   Liegt *kein* `LPAREN` vor, kann es sich nur um die letzte Alternative `INT` handeln.
 
-    Hier handelt es sich um ein Terminal-Symbol, welches wir in `parseAtomExpr()` mit `match(INT)` überprüfen und gleichzeitig aus dem Tokenstrom entfernen. Wenn das aktuelle Token dabei nicht `INT` ist, würde `match(INT)` einen Fehler auslösen.
+    Hier handelt es sich um ein Terminal-Symbol, welches wir in `parseAtom()` mit `match(INT)` überprüfen und gleichzeitig aus dem Tokenstrom "entfernen". Wenn das aktuelle Token dabei nicht `INT` ist, würde `match(INT)` einen Fehler auslösen.
 
 **Wichtig**: Die Subtraktion fehlt hier und dient als kleine Übung.
 
-**Wichtig**: Wir haben damit in `parseEForm()` effektiv **zwei Tokens Lookahead** verwendet! Vgl. auch die nachfolgende Diskussion zur Linksfaktorisierung.
+**Wichtig**: Wir haben damit in `parseEform()` effektiv ***zwei* Tokens Lookahead** verwendet! Vgl. auch die nachfolgende Diskussion zur Linksfaktorisierung.
+
+Die Methode `parseAtom()` entspricht genau dem weiter oben gezeigten Muster. Wir erwarten ein `INT`-Token, also rufen wir die Hilfsmethode `match()` mit diesem Parameter auf. `match()` prüft, ob das aktuelle Token wirklich diesen Typ hat und "entfernt" es aus dem Tokenstrom (inkrementiert den `current`-Index) und liefert es zurück. Anderenfalls würde `match()` eine entsprechende Exception werfen.
+
+Das Lexem nutzen wir und konvertieren es in einen Java-Integer und erzeugen einen neuen AST-Knoten vom Typ `IntLiteral` - da dieser Typ vom Interface `Expr` ableitet, haben wir hier also den einfachsten möglichen AST gebildet.
 
 > [!TIP]
 >
 > ###### Exkurs Linksfaktorisierung
 >
-> Wir haben in `parseEForm()` *implizit* **Linksfaktorisierung** angewendet: Wenn mehrere Alternativen einer Regel den gleichen Anfang haben, kann man diesen "heraus klammern":
+> Wir haben in `parseEform()` *implizit* **Linksfaktorisierung** angewendet: Wenn mehrere Alternativen einer Regel den gleichen Anfang haben, kann man diesen "heraus klammern":
 >
 > ``` ebnf
 > ruleA ::= a b1 | ... | a bm
 > ```
 >
-> Hier könnte man den gemeinsamen Start "ausklammern":
+> Hier könnte man den gemeinsamen Start `a` "ausklammern":
 >
 > ``` ebnf
 > ruleA  ::= a ruleAA
 > ruleAA ::= b1 | ... | bm
 > ```
 >
-> Bei uns im Beispiel war der gemeinsame Start für mehrere Alternativen die Klammer `(`. Statt die Grammatik umzubauen, haben wir das hier über das `if` und das Lookahead `peek(1)` gelöst. Mit der Umformung hätten wir eine weitere Hilfsfunktion im Parser, würden dann aber wieder mit `peek()` und damit einem Token Lookahead auskommen (statt jetzt zwei).
+> Bei uns im Beispiel war der gemeinsame Start für mehrere Alternativen die Klammer `'('`. Statt die Grammatik umzubauen, hatten wir das über das `if` und das nachfolgende extra Lookahead `peek(1)` gelöst. Mit der Umformung hätten wir eine weitere Hilfsfunktion im Parser, würden dann aber wieder mit `peek()` bzw. `peek(0)` und damit einem Token Lookahead auskommen (statt jetzt zwei).
 
-##### Details Parser für L-Int: `parseAddExpr()` und `parseAtomExpr()`
-
-``` java
-protected Expr parseAtomExpr() {
-    Token t = match(INT);
-    return new IntLiteral(Integer.parseInt(t.lexeme()));
-}
-```
-
-Diese Methode entspricht genau dem weiter oben gezeigten Muster. Wir erwarten ein `INT`-Token, also rufen wir die Hilfsmethode `match()` mit diesem Parameter auf. `match()` prüft, ob das aktuelle Token wirklich diesen Typ hat und entfernt es aus dem Tokenstrom (inkrementiert den `current`-Index) und liefert es zurück. Anderenfalls würde `match()` eine entsprechende Exception werfen.
-
-Das Lexem nutzen wir und konvertieren es in einen Java-Integer und erzeugen einen neuen AST-Knoten vom Typ `IntLiteral` - da dieser Typ vom Interface `Expr` ableitet, haben wir hier also den einfachsten möglichen AST gebildet.
-
-Wir werden später diese Regel erweitern um andere atomare Ausdrücke (beispielsweise Variablen) und für die alten Fälle immer `super.parseAtomExpr()` aufrufen.
+##### Details Parser für L-Int: `parseAddExpr()`
 
 ``` java
 protected Expr parseAddExpr() {
@@ -3170,15 +3163,16 @@ protected Expr parseAddExpr() {
     match(PLUS);
 
     List<Expr> ops = new ArrayList<>();
-    ops.add(parseEForm());
-    while (!check(RPAREN)) ops.add(parseEForm());
+    ops.add(parseEform());
+    while (!check(RPAREN)) ops.add(parseEform());
+
     match(RPAREN);
 
     return ops.stream().reduce(AddExpr::new).orElseThrow();
 }
 ```
 
-Auch hier haben wir das eingangs skizzierte Muster: Für jedes Terminal wird `match()` mit dem gesuchten Token-Typ aufgerufen. Danach müssen wir die Operanden parsen: Solange nicht ein `)`-Token auftaucht, rufen wir rekursiv die Regel `parseEForm()` auf. Jeder Operand muss ja selbst eine `eform` sein. Anschließend matchen wir noch die schließende rechte Klammer, und die Addition ist im Prinzip fertig geparst.
+Auch hier sehen wir wieder das eingangs skizzierte Muster: Für jedes Terminal wird `match()` mit dem gesuchten Token-Typ aufgerufen. Danach müssen wir die Operanden parsen: Solange nicht ein `')'`-Token auftaucht, rufen wir rekursiv die Regel `parseEform()` auf. Jeder Operand muss ja selbst eine `eform` sein. Anschließend matchen wir noch die schließende rechte Klammer, und die Addition ist im Prinzip fertig geparst.
 
 Nun müssen wir aber noch den Baum mit binären `AddExpr`-Knoten bauen. Dazu laufen wir über die Liste der geparsten Operanden und reduzieren den Stream. Dabei würde `(+ 1 2 3)` von links nach rechts geklammert: `(+ (+ 1 2) 3)`.
 
@@ -3190,47 +3184,35 @@ Nun müssen wir aber noch den Baum mit binären `AddExpr`-Knoten bauen. Dazu lau
 >
 > Diese Auflösung ist ein einfaches Beispiel für ***Desugaring*** - hier wird aus einer komplexeren Operation mit potentiell beliebig vielen Operanden eine Folge von einfacheren binären Operationen gemacht. Wir werden noch komplexere Beispiele sehen, wenn wir in L-If über Kontrollstrukturen sprechen.
 
-##### Hilfsfunktionen im Parser I: Tokenhandling
+##### Hilfsfunktionen im Parser: Tokenhandling
 
 ``` java
-public abstract class BaseParser {
+protected boolean isAtEnd() { return peek().kind() == EOF; }
 
-    protected final boolean isAtEnd() { return peek().kind() == EOF; }
+protected Token peek() { return peek(0); }
+protected Token peek(int la) {
+    if (la < 0 || current + la >= tokens.size()) return tokens.getLast();  // EOF
+    return tokens.get(current + la);
+}
 
-    protected final Token peek() { return peek(0); }
-    protected final Token peek(int la) {
-        if (la < 0 || current + la >= tokens.size()) return tokens.getLast(); // EOF
-        return tokens.get(current + la);
-    }
+protected Token advance() {
+    return isAtEnd() ? tokens.getLast() : tokens.get(current++);
+}
 
-    protected final Token advance() {
-        if (isAtEnd()) return tokens.getLast(); // EOF
-        return tokens.get(current++);
-    }
+protected boolean check(TokenKind... expected) {
+    return Arrays.stream(expected).anyMatch(e -> e == peek().kind());
+}
+protected Token match(TokenKind... expected) {
+    if (check(expected)) return advance();
+    throw new RuntimeException("unexpected token: " + peek());
 }
 ```
 
 Man definiert sich gern eine Handvoll von Hilfsfunktionen im Parser, die das Handling mit den Token erleichtern. Im Prinzip können diese Funktionen relativ symmetrisch zu den Pendants im Lexer implementiert werden - allerdings arbeitet man hier im Parser mit Token statt mit Zeichen.
 
-Der auffälligste Unterschied zum Lexer: Wir verlassen uns nicht auf die Länge der Tokenliste, sondern behandeln das `EOF`-Token als Sentinel. Sobald wir dieses Token erreicht haben, brechen wir den weiteren Fortschritt mit `advance()` o.ä. ab. Deshalb gibt es in der `initParser()`-Methode des Basis-Parsers sicherheitshalber den expliziten Check, ob das letzte Token in der Liste ein `EOF`-Token ist.
+Der auffälligste Unterschied zum Lexer: Wir verlassen uns nicht auf die Länge der Tokenliste, sondern behandeln das `EOF`-Token als Sentinel. Sobald wir dieses Token erreicht haben, brechen wir den weiteren Fortschritt mit `advance()` o.ä. ab.
 
-##### Hilfsfunktionen im Parser II: *match()* und *check()*
-
-``` java
-public abstract class BaseParser {
-
-    protected final boolean check(TokenKind... expected) {
-        return Arrays.stream(expected).anyMatch(e -> e == peek().kind());
-    }
-
-    protected final Token match(TokenKind... expected) {
-        if (check(expected)) return advance();
-        throw error("unexpected token: " + peek());
-    }
-}
-```
-
-Zusätzlich zu `isAtEnd()`, `peek()` und `advance()` haben wir noch weitere Hilfsmethoden, die `peek()` und `advance()` unterschiedlich kombinieren. Wir werden in Zukunft häufig wissen wollen, ob das aktuelle Token in einer Menge von erlaubten Token vorkommt, weshalb `check()` und `match()` mit variadischen Parametern realisiert sind: Hier kann man einfach ein oder mehrere Tokentypen übergeben, ohne die Funktionen umständlich überladen zu müssen oder vorher Listen bilden zu müssen. `check()` prüft dabei nur, ob das aktuelle Token vom Typ her in der `expected` ist und liefert einen Boolean zurück, während `match()` im Fall des Zutreffens das aktuelle Token "konsumiert" und anderenfalls einen Fehler wirft.
+Zusätzlich zu `isAtEnd()`, `peek()` und `advance()` haben wir noch zwei weitere Hilfsmethoden, die `peek()` und `advance()` unterschiedlich kombinieren. Wir werden in Zukunft häufig wissen wollen, ob das aktuelle Token in einer Menge von erlaubten Token vorkommt, weshalb `check()` und `match()` mit variadischen Parametern realisiert sind: Hier kann man einfach ein oder mehrere Tokentypen übergeben, ohne die Funktionen umständlich überladen zu müssen oder vorher Listen bilden zu müssen. `check()` prüft dabei nur, ob das aktuelle Token vom Typ her in der `expected` ist und liefert einen Boolean zurück, während `match()` im Fall des Zutreffens das aktuelle Token "konsumiert" und anderenfalls einen Fehler wirft.
 
 ##### Auflösen von (links-) rekursiven Grammatiken
 
@@ -3238,17 +3220,19 @@ Wir wollen die folgenden Ausdrucksvarianten erlauben:
 
 `1`, `1 + 2`, `1 + 2 + 3`, ...
 
-Die dazu formulierte Grammatik hat zwei Probleme:
+Nun definieren wir eine einfache Grammatik, die diese Ausdrücke akzeptiert:
 
 ``` ebnf
 expr ::= expr '+' expr | INT
 ```
 
+Diese intuitiv erscheinende Grammatik erlaubt zwar die gewünschten Ausdrücke, hat aber zwei Probleme!
+
 ###### Problem 1: Mehrdeutigkeit
 
-Diese Grammatik ist mehrdeutig!
+**Diese Grammatik ist mehrdeutig!**
 
-`1 + 2 + 3` kann sowohl als `(1 + 2) + 3` oder als `1 + (2 + 3)` geparst werden. So etwas wollen wir im Compiler generell vermeiden, auch wenn das hier konkret keine Probleme verursachen würde.
+`1 + 2 + 3` kann mit der Grammatik sowohl als `(1 + 2) + 3` (*linksassoziativ*) als auch als `1 + (2 + 3)` (*rechtsassoziativ*) geparst werden. So etwas wollen wir im Compiler generell vermeiden, auch wenn das hier konkret keine Probleme verursachen würde.
 
 Die folgende umgeformte Grammatik akzeptiert die gleiche Sprache und ist nicht mehr mehrdeutig:
 
@@ -3256,7 +3240,7 @@ Die folgende umgeformte Grammatik akzeptiert die gleiche Sprache und ist nicht m
 expr ::= expr '+' INT | INT
 ```
 
-Hier erzwingen wir die Klammerung von links her (**linksassoziativ**): `1 + 2 + 3` kann nur noch als `(1 + 2) + 3` geparst werden.
+Hier erzwingen wir die übliche **Klammerung von links** her (**linksassoziativ**): `1 + 2 + 3` kann nur noch als `(1 + 2) + 3` geparst werden.
 
 ###### Problem 2: Linksrekursion
 
@@ -3270,14 +3254,14 @@ Expr parseExpr() {
 
     try {
         // first alternative: expr ::= expr '+' INT
-        Expr left = parseExpr(); // Waily waily!!!
+        Expr left = parseExpr();  // Waily waily!!!
         match(PLUS);
         Expr right = parseInt();
         return new AddExpr(left, right);
 
     } catch (ParseException e) {
         // second alternative: expr ::= INT
-        position(start); // roll back token stream
+        position(start);  // roll back token stream
         return parseInt();
     }
 }
@@ -3308,6 +3292,8 @@ ruleA  ::= b1 ruleAA | ... | bn ruleAA
 ruleAA ::= a1 ruleAA | ... | am ruleAA | eps
 ```
 
+(Mit `eps` als das leere Wort $\epsilon$.)
+
 Damit können wir unsere Grammatik umschreiben:
 
 ``` ebnf
@@ -3315,7 +3301,7 @@ expr  ::= INT expr'
 expr' ::= '+' INT expr' | eps
 ```
 
-Dies können wir hier noch abkürzen zu:
+Dies können wir hier noch weiter abkürzen zu:
 
 ``` ebnf
 expr  ::= INT ('+' INT)*
@@ -3326,7 +3312,7 @@ Mit dieser umgeformten Regel können wir jetzt unseren RD-Parser wie gewohnt auf
 ``` java
 Expr parseExpr() {
     Expr e = parseInt();
-    while (peek(PLUS)) {
+    while (check(PLUS)) {
         advance();
         e = new AddExpr(e, parseInt());
     }
@@ -3347,9 +3333,9 @@ Expr parseInt() {
 String source = "(- (+ 1 2) 3)";
 
 List<Token> tokens = new LispyLexerLint().scan(source);
-Expr ast = new LispyParserLint().parseLint(tokens);
+Expr ast = new LispyParserLint().parse(tokens);
 
-Value result = new InterpreterLint().interpret(ast);
+Value result = new InterpreterLint().eval(ast);
 // result: IntVal(0)
 ```
 
@@ -3420,8 +3406,9 @@ Implementierung als RD-Parser:
 >     match(PLUS);
 >
 >     List<Expr> ops = new ArrayList<>();
->     ops.add(parseEForm());
->     while (!check(RPAREN)) ops.add(parseEForm());
+>     ops.add(parseEform());
+>     while (!check(RPAREN)) ops.add(parseEform());
+>
 >     match(RPAREN);
 >
 >     return ops.stream().reduce(AddExpr::new).orElseThrow();
@@ -3430,24 +3417,24 @@ Implementierung als RD-Parser:
 >
 > 1.  Was passiert in den Randfällen?
 >
-> -   Ist `(+ 1)` erlaubt? Falls ja, was produziert der Parser?
-> -   Ist `(+)` erlaubt? Falls ja, was produziert der Parser?
+>     -   Ist `(+ 1)` erlaubt? Falls ja, was produziert der Parser?
+>     -   Ist `(+)` erlaubt? Falls ja, was produziert der Parser?
 >
-> 2.  Wird damit der Teil der Regel `eform ::= '(' '+' eform eform+ ')'` korrekt umgesetzt? Warum (nicht)?
+> 2.  Wird damit der Teil der Regel `eform ::= '(' '+' eform eform+ ')'` korrekt umgesetzt? Warum (nicht)? Falls "nein", wie müsste der Code korrigiert werden?
 >
 > **Parser-Ablauf nachvollziehen**
 >
-> Verfolgen Sie den Aufruf von parseEForm() für die Eingabe:
+> Verfolgen Sie den Aufruf von `parseEform()` für die Eingabe:
 >
 > ``` clojure
 > (+ 1 (+ 2 3))
 > ```
 >
-> Erstellen Sie dazu eine mit diesen Spalten: Schritt, Aufgerufene Methode, Aktuelles Token, Aktion. Tragen Sie insbesondere ein, wann `parseEForm()` rekursiv aufgerufen wird und welche Methode die einzelnen Tokens konsumiert. Sie müssen noch nicht den vollständigen AST ausrechnen.
+> Erstellen Sie dazu eine Tabelle/Liste mit diesen Spalten: Schritt, Aufgerufene Methode, Aktuelles Token, Aktion. Tragen Sie insbesondere ein, wann `parseEform()` rekursiv aufgerufen wird und welche Methode die einzelnen Tokens konsumiert. Sie müssen noch nicht den vollständigen AST ausrechnen.
 >
 > **Subtraktion ergänzen**
 >
-> Ergänzen Sie den im Skript gezeigten Parser so, dass auch Subtraktionen geparst werden. Skizzieren Sie die nötigen Änderungen in `parseEForm()` und eine passende Methode `parseSubExpr()`.
+> Ergänzen Sie den im Skript gezeigten Parser so, dass auch Subtraktionen geparst werden. Skizzieren Sie die nötigen Änderungen in `parseEform()` und eine passende Methode `parseSubExpr()`.
 >
 > Prüfen Sie Ihren Entwurf gedanklich an diesen Eingaben:
 >
@@ -3460,7 +3447,7 @@ Implementierung als RD-Parser:
 >
 > **Den gemeinsamen Anfang ausklammern**
 >
-> Die Alternativen für Addition und Subtraktion beginnen beide mit `(`. Formulieren Sie die Grammatik mit einer zusätzlichen Regel für den Operator so um, dass die Auswahl zwischen den äußeren Alternativen von `eform` nur **ein** Lookahead-Token benötigt.
+> Die Alternativen für Addition und Subtraktion beginnen beide mit `'('`. Formulieren Sie die Grammatik mit einer zusätzlichen Regel für den Operator so um, dass die Auswahl zwischen den äußeren Alternativen von `eform` nur **ein** Lookahead-Token benötigt.
 >
 > Skizzieren Sie anschließend, wie die Parsermethoden zu dieser umgeformten Grammatik aussehen könnten. Die akzeptierte Sprache und die AST-Knoten sollen gleich bleiben.
 >
@@ -3667,6 +3654,286 @@ $$L = \lbrace a^ib^jc^k \; | \; i = j \lor j = k \rbrace$$
 
 Zeigen Sie, dass die Grammatik mehrdeutig ist. Entwickeln Sie einen PDA für diese Sprache.
 
+<a id="id-c6885788e4bb28c92d66417730e18408254766a3"></a>
+
+### Blatt 03: C-Int
+
+> [!IMPORTANT]
+>
+> Für die erfolgreiche Bearbeitung dieses Übungsblattes müssen mindestens alle mit `*` und `**` markierten Aufgaben gelöst werden.
+>
+> Die Aufgaben mit `***` sind als Vertiefung gedacht.
+
+#### (\*) Java-Projekt für L-Int einrichten
+
+Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
+
+Falls gewünscht, können Sie eines der folgenden Templates als Ausgangspunkt nutzen:
+
+-   Gradle: https://github.com/Compiler-CampusMinden/student-support-code-template
+-   Maven: https://github.com/Compiler-CampusMinden/student-support-code-template-maven
+
+Rekonstruieren Sie die in der Vorlesung gezeigten Bausteine für L-Int in Ihrem Projekt (Pakete, Klassen, Interfaces) und übernehmen Sie die gezeigte Funktionalität so, dass Ihr Projekt kompilierbar ist. Fehlende Funktionalität ergänzen Sie in den folgenden Aufgaben.
+
+#### (\*\*) L-Int Lexer: Funktion `skipIrrelevant()`
+
+In der Vorlesung wurde die Funktion `skipIrrelevant()` eingeführt, mit der nicht benötigte Zeichen wie Whitespace und Kommentare übersprungen werden. Sie wird immer zu Beginn von `nextToken()` aufgerufen:
+
+``` java
+protected boolean skipIrrelevant() {}  // Homework
+```
+
+1.  Wie könnte diese Methode aussehen? Geben Sie eine Implementierung in Java an.
+2.  Sammeln Sie in der Übung gemeinsam sinnvolle Testfälle und notieren Sie diese für später (s.u.).
+
+#### (\*) Subtraktion für L-Int ergänzen
+
+L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
+
+1.  Sprache verstehen
+
+    Klärung in der Übung (gemeinsam):
+
+    -   Welche Eingaben sind **gültige** L-Int-Ausdrücke?
+
+    -   Wie werden mehrere Operanden einer Addition oder Subtraktion gruppiert?
+
+    -   Welche Werte ergeben die folgenden Ausdrücke?
+
+        ``` clojure
+        (+ 1 2)
+        (- 8 3)
+        (- 20 5 3)
+        (- 10 (+ 3 5))
+        ```
+
+2.  Ungültige Eingaben
+
+    Notieren Sie mindestens zwei **ungültige** L-Int-Eingaben. Mindestens eine davon soll eine Operation mit weniger als zwei Operanden sein.
+
+3.  Pipeline um Subtraktion erweitern
+
+    Ergänzen Sie Ihre L-Int-Pipeline vollständig um die Subtraktion (Lexer, RD-Parser, Interpreter).
+
+#### (\*\*) Tests für L-Int
+
+Schreiben Sie JUnit-Tests für Ihre L-Int-Implementierung. Testen Sie mindestens:
+
+-   ein Integer-Literal,
+-   eine (zweistellige) Addition,
+-   eine (zweistellige) Subtraktion,
+-   einen geschachtelten Ausdruck,
+-   eine mehrstellige Addition mit Linksassoziativität,
+-   eine mehrstellige Subtraktion mit Linksassoziativität,
+-   mindestens eine ungültige Eingabe.
+
+Ein weiterer Test soll aufdecken, ob bei der Subtraktion versehentlich linker und rechter Operand vertauscht wurden. Testen Sie daher beispielsweise sowohl `(- 7 2)` als auch `(- 2 7)`.
+
+Testen Sie nach Möglichkeit nicht nur die Auswertung, sondern auch die erzeugten Token und ASTs. Dadurch können Sie Fehler in den einzelnen Phasen der Pipeline besser voneinander unterscheiden.
+
+#### (\*) C++ ausprobieren: Compiler und ein erstes Programm
+
+Wir werden in dieser Veranstaltung Schritt für Schritt C++ kennenlernen und einen Interpreter in Java für einen kleinen C++-Ausschnitt entwickeln.
+
+In dieser Aufgabe geht es zunächst darum,
+
+-   einen C++-Compiler einzurichten,
+-   ein kleines Programm zu schreiben,
+-   dieses mit clang++ oder g++ zu übersetzen und auszuführen.
+
+##### Schritt 1: Compiler überprüfen und installieren
+
+Prüfen Sie in einem Terminal, ob ein C++-Compiler verfügbar ist:
+
+    clang++ --version
+    g++ --version
+
+Falls kein Compiler gefunden wird:
+
+-   Unter **macOS**: Installation der Xcode Command Line Tools.
+-   Unter **Linux**: Installation von clang++ oder g++ über die Paketverwaltung.
+-   Unter **Windows**: z.B. WSL mit Ubuntu und dort clang++/g++ oder eine andere C++-Toolchain.
+
+> [!TIP]
+>
+> Für C++ verwenden wir **clang++** beziehungsweise **g++**, nicht clang beziehungsweise gcc. Umgangssprachlich meint "gcc" in diesem Kontext "g++", und "clang" meint tatsächlich "clang++". Bei der Installation von clang/gcc sind i.d.R. beide Varianten (C und C++) dabei.
+
+##### Schritt 2: Erstes Programm übersetzen und ausführen
+
+Speichern Sie das folgende Programm als `hello.cpp`:
+
+``` cpp
+#include <iostream>
+
+int main() {
+    int result = ((1 + 2) - 3);
+    std::cout << "hello world: ";
+    std::cout << result << '\n';
+    return 0;
+}
+```
+
+Übersetzen und starten Sie das Programm mit clang++:
+
+    clang++ hello.cpp -o hello
+    ./hello
+
+Oder mit g++:
+
+    g++ hello.cpp -o hello
+    ./hello
+
+Unter Windows heißt die ausführbare Datei meist `hello.exe`, Start in PowerShell:
+
+    .\hello.exe
+
+Variieren Sie den arithmetischen Ausdruck in `result` und überprüfen Sie die Ausgabe für mindestens drei Beispiele.
+
+> [!TIP]
+>
+> ##### Mini-Waschzettel: `hello.cpp` im Vergleich zu L-Int / C-Int / Java
+>
+> Zum Verständnis von `hello.cpp` benötigen Sie hier nur wenige Konstrukte:
+>
+> | Zweck | C++ | Java | L-Int | C-Int |
+> |:----------------|:-------------------|:-------------|:----------|:----------|
+> | Integer-Variable anlegen | `int result = 42;` | `int result = 42;` | n.a. | n.a. |
+> | Addition | `1 + 2` | `1 + 2` | `(+ 1 2)` | `1 + 2` |
+> | Subtraktion | `7 - 2` | `7 - 2` | `(- 7 2)` | `7 - 2` |
+> | Klammerung | `(1 + 2)` | `(1 + 2)` | `(+ 1 2)` | `(1 + 2)` |
+> | Ausgabe einer Variablen | `std::cout << result << '\n';` | `IO.println(result)` | n.a. | n.a. |
+> | Zeilenkommentar | `// Kommentar` | `// Kommentar` | `;; Kommentar` | `// Kommentar` |
+> | Import von Bibliotheken | `#include <iostream>` | `import ...;` | n.a. | n.a. |
+
+#### (\*\*) C-Int: Addition und Subtraktion für Integer in C++
+
+Wir legen nun mit **C-Int** die Basis für den Mini-C++-Interpreter, den wir über das Semester hinweg erweitern.
+
+C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subtraktion** erlauben, aber in C++-üblicher Infix-Notation.
+
+> [!IMPORTANT]
+>
+> ##### Waschzettel: In C++ sieht es so aus ...
+>
+> | Sprachelement   | L-Int                    | C-Int                    |
+> |:----------------|:-------------------------|:-------------------------|
+> | Integer-Literal | `42`                     | `42`                     |
+> | Addition        | `(+ 1 2)`, `(+ 1 2 3 4)` | `1 + 2`, `1 + 2 + 3 + 4` |
+> | Subtraktion     | `(- 7 2)`, `(- 7 2 1)`   | `7 - 2`, `7 - 2 - 1`     |
+> | Klammerung      | `(+ 1 2)`                | `(1 + 2)`                |
+> | Zeilenkommentar | `;; Kommentar`           | `// Kommentar`           |
+>
+> Beispiele (mit Ergebnis im Kommentar):
+>
+>     2          // => 2
+>
+>     1+2        // => 3
+>     (1+2)      // => 3
+>
+>     7-2        // => 5
+>     7-2-1      // => 4
+>
+>     1+2+3      // => 6
+>     (1+2)+3    // => 6
+>     ((1+2)+3)  // => 6
+>
+> Ein L-Int-Ausdruck wie (- (+ 1 2) 3) entspricht in C-Int etwa:
+>
+>     ((1 + 2) - 3)
+>     (1 + 2) - 3
+>     1 + 2 - 3
+>
+> Addition und Subtraktion sind *linksassoziativ*, d.h. es wird von links nach rechts geklammert (sofern keine expliziten Klammern vorhanden sind).
+>
+> **Wichtig**: Für die Übersetzung mit einem C++-Compiler müssen diese Ausdrücke noch in einen Rahmen eingefügt werden, beispielsweise in eine `main()`-Funktion und in passende Statements (Zuweisung, Ausgabe, ...).
+>
+> Syntaktisch und semantisch betrachten wir im Laufe des Semesters folgende Abstufung:
+>
+>     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Expr <: C-Int
+>
+> In diesem Semester enden wir (voraussichtlich) bei C-Self.
+
+##### Schritt 1: Java-Projekt für C-Int einrichten
+
+Legen Sie ein neues Java-Projekt für Ihren C-Int-Interpreter an (analog zur ersten Aufgabe für L-Int). Nutzen Sie ein eigenes Package, z.B. `cint`.
+
+##### Schritt 2: Konkrete Syntax für C-Int
+
+Definieren Sie analog zur Vorlesung die **konkrete Syntax für C-Int**. Sie legen damit fest, welche Programme von Ihrem Lexer und Parser akzeptiert werden.
+
+Rahmenbedingungen:
+
+-   Whitespace darf zwischen den Bestandteilen eines Ausdrucks stehen und wird übersprungen.
+-   Zeilenkommentare `// ...` bis zum Zeilenende werden unterstützt und übersprungen.
+-   Addition und Subtraktion haben immer zwei Integer-Operanden: `1-2`.
+-   Mehrfach verkettete Ausdrücke wie `1+2+3+4` sind erlaubt.
+-   Ausdrücke dürfen geklammert sein.
+-   Nicht geklammerte Ausdrücke werden implizit **von links nach rechts** gruppiert.
+
+Diskutieren Sie in der Übung:
+
+-   Welche konkreten Eingaben soll die Grammatik zulassen, welche nicht?
+-   Welche Teile gehören zur **konkreten** Syntax (Token, Schlüsselwörter, Symbole)?
+
+##### Schritt 3: Abstrakte Syntax für C-Int
+
+Definieren Sie analog zur Vorlesung die **abstrakte Syntax** (AST) für **C-Int**.
+
+Diskussionspunkte:
+
+-   Welche Informationen aus dem Parse-Tree müssen im AST erhalten bleiben?
+-   Warum müssen Klammern im AST nicht als eigene Knoten vorkommen?
+
+##### Schritt 4: Interpreter-Pipeline für C-Int
+
+Erstellen Sie analog zur L-Int-Pipeline für C-Int:
+
+-   eine Tokendefinition,
+-   AST-Klassen und -Interfaces,
+-   einen Lexer,
+-   einen RD-Parser,
+-   einen Interpreter.
+
+Verwenden Sie hierfür **keinen** generierten ANTLR-Parser, sondern eine handgeschriebene Java-Implementierung wie in der Vorlesung.
+
+##### Schritt 5: Tests für C-Int
+
+Schreiben Sie JUnit-Tests für Ihre C-Int-Pipeline. Testen Sie mindestens:
+
+-   ein Integer-Literal,
+-   eine Addition,
+-   eine Subtraktion,
+-   einen geschachtelten Ausdruck,
+-   Whitespace an unterschiedlichen Stellen,
+-   ein zusätzliches Token nach einem vollständigen Ausdruck,
+-   eine fehlende schließende Klammer,
+-   einen ungültigen Operator oder ein unerwartetes Zeichen.
+
+Testen Sie, wenn möglich, wieder getrennt Token-Liste, AST und Auswertung (Interpreter).
+
+##### Schritt 6: C-Int-Ergebnisse mit nativem C++ vergleichen
+
+Schreiben Sie zu den folgenden Ausdrücken jeweils ein vollständiges C++-Programm mit `main()`, das den Ausdruck berechnet und das Ergebnis ausgibt:
+
+    42
+    (1 + 2)
+    ((1 + 2) - 3)
+    (10 - (3 + 5))
+
+Übersetzen und starten Sie Ihre Programme mit clang++ oder g++.
+
+Vergleichen Sie die Ausgaben mit den Ergebnissen Ihres C-Int-Interpreters und notieren Sie kurz:
+
+-   Zwei Gemeinsamkeiten zwischen der Auswertung im nativen C++-Programm und der Auswertung durch Ihren Interpreter.
+-   Zwei Unterschiede zwischen den beiden Verarbeitungswegen (z.B. Laufzeit, Fehlermeldungen, Komfort).
+
+#### (\*\*\*) Vertiefung: Interpreter für L-Int mit Visitor-Pattern
+
+In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Matching und `switch`-Expressions implementiert.
+
+1.  Übertragen Sie dies auf das Visitor-Pattern.
+2.  Skizzieren Sie Vor- und Nachteile des Visitor-Patterns im Vergleich zur `switch`-Variante aus der Vorlesung.
+
 ------------------------------------------------------------------------
 
 > [!NOTE]
@@ -3730,13 +3997,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 1973e7b 2026-10-16 orga: clarify parcourspruefung vs studienleistung<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> f9605da 2026-10-17 lint b03: rework wording, improve readability<br></sub></sup></p></blockquote>

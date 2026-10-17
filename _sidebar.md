@@ -25,3 +25,4 @@
 - **Praktikum**
   - [Blatt 01: Reguläre Sprachen](homework/sheet01.md)
   - [Blatt 02: CFG](homework/sheet02.md)
+  - [Blatt 03: C-Int](homework/sheet03-lint.md)
