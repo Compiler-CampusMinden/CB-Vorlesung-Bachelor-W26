@@ -55,7 +55,7 @@ Welche Sprache generiert die folgende Grammatik?
 $$\begin{eqnarray}
 S &\rightarrow& a A \ | \ b B            \nonumber \\
 A &\rightarrow& b S \ | \ c              \nonumber \\
-B &\rightarrow& a S \ | \ b              \nonumber \\
+B &\rightarrow& a S \ | \ b              \nonumber
 \end{eqnarray}$$
 
 Können Sie einen regulären Ausdruck oder einen DFA dafür angeben?
@@ -66,4 +66,4 @@ Können Sie einen regulären Ausdruck oder einen DFA dafür angeben?
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 4fef2a5 2026-10-18 sheet01: clarify and rework wording (#457)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 897f91d 2026-10-19 sheet01: reformat markdown<br></sub></sup></p></blockquote>
