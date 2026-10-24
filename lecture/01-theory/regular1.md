@@ -276,4 +276,4 @@ Hier entsteht ein Tafelbild.
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 372b105 2026-10-20 lecture: add link to annotated slides (regular1) (#461)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 902dcde 2026-10-24 lexpr: finalise intro<br></sub></sup></p></blockquote>

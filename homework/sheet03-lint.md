@@ -6,6 +6,14 @@
 >
 > Die Aufgaben mit `***` sind als Vertiefung gedacht.
 
+Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
+
+-   L-Int: Die Sprache Lispy
+-   L-Int: Konkrete und abstrakte Syntax
+-   L-Int: Lexer - Handcodierte Implementierung
+-   L-Int: LL-Parser mit Recursive Descent
+-   L-Int: Von Ausdrücken zum Interpreter
+
 ## (\*) Java-Projekt für L-Int einrichten
 
 Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
@@ -157,7 +165,7 @@ C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subt
 >
 > ### Waschzettel: In C++ sieht es so aus ...
 >
-> | Sprachelement   | L-Int                    | C-Int                    |
+> | Sprachelement   | L-Int (Lispy)            | C-Int (Mini-C++)         |
 > |:----------------|:-------------------------|:-------------------------|
 > | Integer-Literal | `42`                     | `42`                     |
 > | Addition        | `(+ 1 2)`, `(+ 1 2 3 4)` | `1 + 2`, `1 + 2 + 3 + 4` |
@@ -234,7 +242,7 @@ Erstellen Sie analog zur L-Int-Pipeline für C-Int:
 -   AST-Klassen und -Interfaces,
 -   einen Lexer,
 -   einen RD-Parser,
--   einen Interpreter.
+-   einen Interpreter `InterpreterCint`.
 
 Verwenden Sie hierfür **keinen** generierten ANTLR-Parser, sondern eine handgeschriebene Java-Implementierung wie in der Vorlesung.
 
@@ -282,4 +290,4 @@ In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Ma
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> f9605da 2026-10-17 lint b03: rework wording, improve readability<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 000155e 2026-10-24 l-int: add some hints to sheet 03<br></sub></sup></p></blockquote>

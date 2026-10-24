@@ -49,14 +49,14 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 #### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:----|:----|:----------------------------------|:----------|:-----------------|
+|:---|:----|:---------------------------------------|:---------|:-------------|
 | Oktober | 12.10 | Orga \|\| [Überblick](#id-1df70a478502c95d7f7d1fa78f328a16640b3907) \| [Sprachen](#id-55cceb8d95eb4d3a67a6a18eb0e778b5695106a3) \| [Anwendungen](#id-315c4a6ad46ecd3cdd06bff39540497383b62904) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](#id-cb0be27b07154b726b38212279070d854085a4f8) | [B01](#id-6f673c2e093cdfc53b1f78baef11fd06cc8aa415) |  |
 |  | 26.10. | [Reguläre Sprachen 2](#id-e6527ca4572a4752c431b91119c87d78fa032789) \|\| [CFG](#id-7c0e930dad216729eeb1545678306ab9f0d6a57b) | [B02](#id-0db349230022c35e045dc3b052a4faea50fe5f40) |  |
 | November | 02.11. | [LL-Parser (Theorie)](#id-9aa1932181298bc40b56bb55a0bf53edf1c3aa88) | \- | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
-|  | 09.11. | L-Int (Teil 1): [Intro](#id-92efa03f813e51c04582d54092121544fac6d2f6) \| [Grammatik](#id-5b9897e3373f2ab9cb2db150c803f2e2f79b5bc5) \| [Interpreter](#id-d8a55d89d69aa672b84f607d0f4d791de1cb29a3) | **Station 1** |  |
+|  | 09.11. | L-Int (Teil 1): [Intro L-Int](#id-92efa03f813e51c04582d54092121544fac6d2f6) \| [Grammatik](#id-5b9897e3373f2ab9cb2db150c803f2e2f79b5bc5) \| [Interpreter](#id-d8a55d89d69aa672b84f607d0f4d791de1cb29a3) | **Station 1** |  |
 |  | 16.11. | L-Int (Teil 2): [Lexer](#id-ace9fbbfab20407167957763e345b4cb8130dc1b) \| [RD-Parser](#id-ebe1e096694731fb5532fdd9572b900a699e7eaf) | [B03: C-Int](#id-c6885788e4bb28c92d66417730e18408254766a3) |  |
-|  | 23.11. | [L-Expr](#id-99cb41fc092ae89529d2cfd0281e8535a15dbfbf) | C-Expr |  |
+|  | 23.11. | L-Expr: [Intro L-Expr](#id-9fb6f7eb249b8f4638db93995fb9ed91174500e2) \| [Vorrang](#id-3b77e4be5a2314d1b8ca4913379e49498c040ad0) \| [ANTLR Grammatik](#id-2e5ecf5bc552fd7f2cdf3903747b45e30328286a) \| [ANTLR Visitor](#id-f47140a0e1424b798887e57fe5e33325a47a4010) | [B04: C-Expr](#id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f) |  |
 | Dezember | 30.11. | [L-Var](#id-f8afd3e3cb9ba1df1e2b5422b50bc32aaa3350c7) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
 |  | 07.12. | [L-If](#id-51bc1e52157fd6e296d145056356183c5f0620e5) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
 |  | 14.12. | [L-Fun](#id-d5e1d626434b082efe6661d1c3dbae47343aaa38) | C-Fun |  |
@@ -3497,6 +3497,1365 @@ Implementierung als RD-Parser:
 -   RD+Pratt
 -   InterpreterLExpr
 
+<a id="id-9fb6f7eb249b8f4638db93995fb9ed91174500e2"></a>
+
+#### L-Expr: Multiplikation/Division und unäres Minus
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> Wir erweitern die Sprachstufe L-Int zu L-Expr, indem wir Multiplikation, Division und ein unäres Minus hinzufügen. In der Lispy-Notation bedeutet das vor allem, dass wir der konkreten Grammatik neue Operatorformen `(* e e)`, `(/ e e)` und `(- e)` hinzufügen.
+>
+> Die abstrakte Syntax (AST) wird um zwei neue Knotentypen `MulExpr` und `DivExpr` erweitert; unäres Minus wird nicht als eigener Knotentyp modelliert, sondern beim AST-Bau auf vorhandene Knoten desugart.
+>
+> Jede neue Sprachstufe baut auf der vorherigen auf: L-Expr *erweitert* L-Int. Entsprechend leiten in der Implementierung die Bausteine der neuen Stufe von den Bausteinen der alten ab, überschreiben bei Bedarf Methoden und rufen für das bisherige Verhalten `super.XYZ()` auf (z.B. `class InterpreterLexpr extends InterpreterLint`).
+>
+> Wir verwenden für Division in allen Sprachstufen dieselbe Semantik wie in Java: ganzzahlige Division von `int`-Werten, bei der der Rest verworfen wird.
+>
+> </details>
+
+##### Rückblick: L-Int
+
+-   Konkrete Syntax:
+
+    ``` ebnf
+    eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+    INT   ::= [0-9]+
+
+    L_int ::= eform EOF
+    ```
+
+-   Abstrakte Syntax:
+
+    ``` ebnf
+    Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+
+    L_int = Expr
+    ```
+
+-   AST:
+
+    ``` java
+    public interface Expr {}
+
+    public record AddExpr(Expr left, Expr right) implements Expr {}
+    public record SubExpr(Expr left, Expr right) implements Expr {}
+    public record IntLiteral(int value) implements Expr {}
+    ```
+
+##### Erweiterung zu L-Expr: Multiplikation und Division
+
+Wir bleiben bei **Integer-Ausdrücken**, fügen aber Multiplikation und Division hinzu.
+
+-   Beispiel:
+
+        (* 2 (+ 3 4))
+
+<!-- -->
+
+-   **Neue konkrete Syntax in Lispy**:
+
+    ``` ebnf
+    eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+    INT    ::= [0-9]+
+    ---
+
+    eform  ::= '(' '*' eform eform+ ')'
+             | '(' '/' eform eform+ ')'
+             | '(' '-' eform ')'
+
+    L_expr ::= eform EOF
+    ```
+
+Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für die `eform`-Regel mit neuen Operatoren hinzu. Semantisch bleiben wir bei Integer-Werten und mehrstelligen Operationen.
+
+> [!IMPORTANT]
+>
+> ###### Hinweis zum Lesen der Regeln
+>
+> In dem obigen Beispiel wurden über den `---` die bisherigen Regeln aus L-Int übernommen. Unter dem `---` sehen wir die neuen Regeln, die in L-Expr hinzukommen. Dies soll zum einen die Features der neuen Sprachstufe hervorheben. Zum anderen soll es auch deutlich machen, dass L-Expr tatsächlich L-Int plus ein paar neue Fähigkeiten ist.
+>
+> Für eine formale Grammatik wären normalerweise zwei Regeln mit dem selben Namen nicht erlaubt. Man muss also die beiden `eform`-Regeln (eine aus L-Int, eine neu in L-Expr) **gedanklich mergen**:
+>
+> ``` ebnf
+> eform  ::= '(' '+' eform eform+ ')'
+>          | '(' '-' eform eform+ ')'
+>          | '(' '*' eform eform+ ')'
+>          | '(' '/' eform eform+ ')'
+>          | '(' '-' eform ')'
+>          | INT
+>
+> INT    ::= [0-9]+
+>
+> L_expr ::= eform EOF
+> ```
+>
+> **Dieses Prinzip werden wir ab L-Expr für die konkreten und abstrakten Grammatiken anwenden.**
+>
+> Aus Platzgründen werden wir aber irgendwann darauf verzichten, alle bisherigen Regeln erneut über den `---` aufzuschreiben.
+
+##### Abstrakte Syntax für L-Expr
+
+``` ebnf
+Expr   = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+---
+
+Expr   = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
+
+L_expr = Expr
+```
+
+``` java
+public interface Expr {}
+```
+
+Zusätzlich zu den Klassen aus L-Int
+
+``` java
+public record AddExpr(Expr left, Expr right) implements Expr {}
+public record SubExpr(Expr left, Expr right) implements Expr {}
+public record IntLiteral(int value) implements Expr {}
+```
+
+bekommen wir durch/in L-Expr:
+
+``` java
+public record MulExpr(Expr left, Expr right) implements Expr {}
+public record DivExpr(Expr left, Expr right) implements Expr {}
+```
+
+> [!IMPORTANT]
+>
+> ###### Hinweis zu den AST-Klassen
+>
+> Jede Sprachstufe wird auf der Vorgängersprachstufe aufbauen, d.h. jede Stufe übernimmt die Regeln und fügt neue hinzu. Wir haben also eine Art Vererbungsbeziehung: Die aktuelle Stufe erbt von der Vorgängerstufe und fügt neue Features hinzu.
+>
+> Bei den AST-Klassen bedeutet das, dass wir weitere Klassen ergänzen, um die neuen Features im Baum repräsentieren zu können. D.h. wir bleiben zunächst bei `Expr` als Obertyp für die AST-Knoten und fügen nur die neu benötigten Knoten `MulExpr` und `DivExpr` hinzu.
+
+##### Interpreter: Erinnerung an L-Int
+
+``` java
+public class InterpreterLint {
+
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case IntLiteral(var v) -> new IntVal(v);
+
+            case AddExpr(var l, var r) -> {
+                int a = Value.asInt(eval(l));
+                int b = Value.asInt(eval(r));
+                yield new IntVal(a + b);
+            }
+
+            default -> throw new RuntimeException("unexpected expression: " + expr);
+        };
+    }
+}
+```
+
+> [!TIP]
+>
+> **Erinnerung**: Die Subtraktion war Teil des L-Int-Übungsblattes und ist hier nicht gezeigt.
+
+##### Interpreter L-Expr: Erben von L-Int und Ergänzen der neuen Funktionalität
+
+``` java
+public class InterpreterLexpr extends InterpreterLint {
+
+    @Override
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case MulExpr(var l, var r) -> {
+                int a = Value.asInt(eval(l));
+                int b = Value.asInt(eval(r));
+                yield new IntVal(a * b);
+            }
+
+            default -> super.eval(expr);
+        };
+    }
+}
+```
+
+> [!IMPORTANT]
+>
+> ###### Hinweis zur Vererbung der Bausteine
+>
+> L-Expr *ist* L-Int plus Multiplikation, Division und ein unäres Minus.
+>
+> Unser Interpreter für L-Expr braucht also die Fähigkeiten des L-Int-Interpreters und muss Multiplikation und Division \*ergänzen. Dies können wir in objektorientierten Sprachen wie Java leicht erreichen, indem der L-Expr-Interpreter vom L-Int-Interpreter ableitet: `class InterpreterLexpr extends InterpreterLint`. In der Methode `eval()` wollen wir die neuen Fälle ergänzen, deshalb überschreiben wir die geerbte Methode und fügen die neuen Fälle hinzu. Damit die alten Fälle weiterhin funktionieren, rufen wir im `default`-Zweig einfach `super.eval(expr);` auf und bekommen damit das in `InterpreterLint` implementierte bisherige Verhalten.
+>
+> **Das werden wir von nun an in allen Bausteinen unserer Interpreter-Pipeline so machen!** Wir nutzen analog zu ([Siek 2023](#ref-Siek2023python)) Vererbung als einfachen Mechanismus zur Wiederverwendung von Verhalten.
+>
+> Jede neue Sprachstufe "erbt" von der Vorgängersprachstufe:
+>
+> -   In den Grammatiken nutzen wir die alten Regeln weiter und ergänzen neue Regeln/Alternativen (unter dem `---`)
+> -   Bei den Java-Bausteinen (Klassen, Interfaces) leiten die Klassen der aktuellen Sprachstufe jeweils von den Klassen der Vorgängersprachstufe ab und erweitern das Verhalten durch Überschreiben und `super.XYZ()` für das bisherige Verhalten
+> -   Die JUnit-Tests leiten ebenfalls von den Tests der Vorgängerstufe ab, um das bisherige Verhalten immer mitzutesten
+
+###### Unäres Minus
+
+Das unäre Minus taucht nicht im AST auf.
+
+Das ist eine Design-Entscheidung, um die Anzahl der AST-Typen möglichst klein und die notwendigen Transformationen möglichst einfach zu halten.
+
+Beim Parsen oder beim Erzeugen des AST aus dem Parse-Tree kann man ein unäres Minus auf den bereits vorhandenen Subtraktionsknoten `SubExpr` "reduzieren". ... Ein weiterer Fall von *Desugaring* ...
+
+> [!TIP]
+>
+> **Hinweis**: Das Einbauen des unären Minus bzw. des *Desugaring* ist Teil der Challenges und/oder des L-Expr-Übungsblattes und ist hier nicht gezeigt.
+
+###### Semantik der Division: Integer-Division wie in Java
+
+Wir bleiben in allen Sprachstufen bei **Ganzzahlen** und nutzen überall dieselbe Divisions-Semantik wie in Java:
+
+-   Operanden: `int`
+-   Ergebnis: `int`
+-   Rest wird **abgeschnitten** (Division mit Abrunden Richtung 0)
+
+Beispiele:
+
+    (/ 7 3)         ;; => 2
+    (/ (-7) 3)      ;; => -2
+    (/ 7 (-3))      ;; => -2
+    (/ (-7) (-3))   ;; => 2
+
+**Wichtig:**
+
+-   In Lispy-Formen (`(/ 7 3)`) und in Java-ähnlichen Ausdrücken (`7 / 3`) verwenden wir dieselbe Integer-basierte Semantik wie in Java.
+-   Division durch 0 führt zu einem **Laufzeitfehler** (in Java `ArithmeticException`). Wir behandeln diesen Fall nicht besonders in der Sprache.
+
+> [!TIP]
+>
+> **Hinweis**: Das Einbauen der Division ist Teil der Challenges und/oder des L-Expr-Übungsblattes und ist hier nicht gezeigt.
+
+##### Wrap-up
+
+-   L-Expr = L-Int + Multiplikation, Division und unäres Minus (nur Integer-Ausdrücke)
+
+<!-- -->
+
+-   Konkrete Syntax: neue Lispy-Formen `(* e1 e2 ...)`, `(/ e1 e2 ...)`, `(- e)`
+-   Abstrakte Syntax: neue AST-Knoten `MulExpr` und `DivExpr` für binäre Operationen
+-   Unäres Minus wird beim AST-Bau auf vorhandene Knoten desugart (z.B. `(- e)` → `SubExpr(IntLiteral(0), e)`)
+
+<!-- -->
+
+-   Sprachstufen bauen schrittweise aufeinander auf:
+    -   Grammatiken übernehmen alte Regeln und ergänzen neue Alternativen
+    -   Java-Klassen leiten von Vorgängerstufe ab, überschreiben Methoden und nutzen `super.XYZ()` für bestehendes Verhalten
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Im ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den Unterschied zwischen konkreter und abstrakter Syntax am Beispiel von L-Int und L-Expr erklären.
+> -   k2: Ich kann beschreiben, wie L-Expr die Sprachstufe L-Int um Multiplikation, Division und unäres Minus erweitert.
+> -   k3: Ich kann die konkrete Lispy-Grammatik von L-Int so erweitern, dass Multiplikation, Division und unäres Minus korrekt erkannt werden.
+> -   k3: Ich kann die abstrakte Syntax (AST) von L-Int um neue Knotentypen für Multiplikation und Division ergänzen und den Interpreter entsprechend anpassen.
+> -   k3: Ich kann unäres Minus beim AST-Bau auf vorhandene AST-Knoten desugaren und die Auswirkungen dieser Design-Entscheidung erläutern.
+> -   k4: Ich kann erklären und am Beispiel zeigen, wie Vererbung zwischen Interpreter-Klassen (z.B. `InterpreterLexpr extends InterpreterLint`) die Wiederverwendung von Implementierungen zwischen Sprachstufen ermöglicht.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Unäres Minus als Desugaring modellieren**
+>
+> Wir haben in L-Expr eine neue konkrete Form `(- e)` für unäres Minus eingeführt.
+>
+> 1.  Skizzieren Sie eine Regel, wie `(- e)` beim AST-Bau in einen vorhandenen AST-Knoten übersetzt werden kann (z.B. in einen `SubExpr`). Schreiben Sie diese Regel textuell oder in einer Art Pseudocode auf.
+> 2.  Diskutieren Sie in der Gruppe: Welche Vor- und Nachteile hat es, kein eigenes `UnaryMinusExpr` einzuführen, sondern unäres Minus auf bestehende AST-Knoten zu desugaren?
+>
+> **Mehrstellige Operatoren im AST**
+>
+> In Lispy können Sie `(+ 1 2 3 4)` oder `(* 2 3 4)` schreiben, also Operatoren mit mehr als zwei Operanden. Unsere abstrakte Syntax für `AddExpr`, `MulExpr` usw. ist aber binär (jeweils genau zwei Operanden).
+>
+> 1.  Skizzieren Sie, wie der AST für `(+ 1 2 3 4)` mit nur binären `AddExpr`-Knoten aussehen könnte (zeichnen Sie den Baum oder schreiben Sie die verschachtelte Struktur auf).
+> 2.  Überlegen Sie, ob Sie diesen Baum eher links-assoziativ `((((1 + 2) + 3) + 4))` oder rechts-assoziativ `((1 + (2 + (3 + 4))))` bauen würden. Diskutieren Sie kurz, ob das hier (bei Addition/Multiplikation) semantisch einen Unterschied macht und in welchen Fällen Assoziativität wichtig werden könnte.
+>
+> **Design der Interpreter-Hierarchie**
+>
+> Die Interpreter-Klassen sind so aufgebaut, dass jede neue Sprachstufe von der vorherigen erbt, z.B. `InterpreterLexpr extends InterpreterLint`.
+>
+> 1.  Skizzieren Sie in einem Mini-Klassendiagramm, wie die Interpreter-Hierarchie in den ersten beiden Sprachstufen aussieht (nur Klassenname und `eval`-Methode).
+> 2.  Diskutieren Sie in der Gruppe:
+>     -   Was sind Vorteile dieser Vererbungsstrategie, wenn wir viele aufeinander aufbauende Sprachstufen haben?
+>     -   Welche Schwierigkeiten könnten auftreten, wenn eine spätere Sprachstufe ein Verhalten der Basisstufe ändern statt nur erweitern möchte?
+>
+> </details>
+
+<a id="id-3b77e4be5a2314d1b8ca4913379e49498c040ad0"></a>
+
+#### L-Expr: Vorrang und Assoziativität
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> In Lispy mit Präfix-Notation und vielen Klammern gibt es keine Mehrdeutigkeit: Die Struktur des Ausdrucks ist durch die Klammerung eindeutig vorgegeben.
+>
+> In einer Java- oder C++-ähnlichen Infix-Notation dagegen brauchen wir **Vorrangregeln** und **Assoziativität**, damit Ausdrücke wie `1+2*3` eindeutig interpretiert werden. Multiplikation und Division sollen stärker binden als Addition und Subtraktion, und alle diese Operatoren verhalten sich in unseren Beispielen **linksassoziativ** (also `1-2-3 = (1-2)-3`).
+>
+> Diese Informationen kodieren wir nicht "irgendwo im Parser", sondern **direkt in der konkreten Grammatik**. Dazu verwenden wir eine **gestufte Grammatik** mit mehreren Ebenen wie `expr`, `term` und `atom`, wobei `expr` die Operatoren mit der niedrigsten Priorität und `atom` die mit der höchsten Priorität beschreibt. Die Wiederholung `(...)*` in diesen Regeln erzeugt dabei automatisch **linksassoziative** Parse-Bäume. So erreichen wir, dass z.B. `1+2*3` immer als `1+(2*3)` und nicht als `(1+2)*3` geparst wird.
+>
+> </details>
+
+##### Java-artige Infix-Syntax: Vorrangregeln
+
+In Lispy gibt es durch die Präfix-Notation und die Klammern **keine Vorrangprobleme**:
+
+-   `(* (+ 1 2) 3)` ist immer eindeutig
+
+In Java-ähnlicher Infix-Syntax:
+
+-   `1+2*3   ==   1+(2*3)   !=   (1+2)*3`
+
+<!-- -->
+
+-   Multiplikation/Division binden **stärker** als Addition/Subtraktion.
+
+Die Eingabe `1+2*3` muss als `1+(2*3)` interpretiert werden, da `*` Vorrang vor `+` hat.
+
+##### Assoziativität (Klammerung)
+
+Nicht nur der **Vorrang** (Multiplikation/Division vor Addition/Subtraktion) ist wichtig, sondern auch die **Assoziativität** der Operatoren.
+
+Für unsere Infix-Ausdrücke gilt:
+
+`+`, `-`, `*`, `/` sind **linksassoziativ**: (werden von **links** geklammert)
+
+    1 - 2 - 3   =   (1 - 2) - 3
+    8 / 4 / 2   =   (8 / 4) / 2
+    1 + 2 + 3   =   (1 + 2) + 3
+
+##### Vorrang und Assoziativität: Gestufte Grammatik-Regeln
+
+Um Vorrang und Assoziativität zu berücksichtigen, formuliert man traditionell in der konkreten Grammatik "gestufte" Regeln. Dabei tauchen die Operatoren mit der kleinsten Priorität ganz oben auf, und die Operatoren mit höherer Priorität folgen in den tieferen Stufen, und ganz unten kommen die Operatoren mit der höchsten Priorität. Diese letzte Regel nennt man oft `atom` oder `primary` oder auch `factor`.
+
+``` ebnf
+expr  ::= term ('+' term)*
+term  ::= atom ('*' atom)*
+atom  ::= '-' atom
+        | INT
+```
+
+> [!TIP]
+>
+> **Hinweis**: Das Einbauen von Subtraktion und Division sind aus Gründen der Übersichtlichkeit hier nicht gezeigt. Wir betrachten das als Teil der Challenges und/oder des L-Expr-Übungsblattes.
+
+> [!TIP]
+>
+> **Hinweis**: Geklammerte Ausdrücke haben ebenfalls wie das unäre Minus die höchste Priorität. Wir werden das als Teil der Challenges und/oder des L-Expr-Übungsblattes einbauen.
+
+<p align="right">Beispiel Parsen “1+2*3” und “1+2+3”</p>
+
+Diese etwas komplex anmutende Struktur ist ein Standardmuster, das Sie in vielen Parsern wiederfinden werden, und soll sicherstellen, dass die Vorrangregeln für Addition und Multiplikation korrekt beachtet werden, d.h. dass `2+3*4` als `2+(3*4)` geparst wird und nicht fälschlicherweise als `(2+3)*4` erkannt wird.
+
+Zusätzlich muss bei LL-Parsern Links-Rekursion vermieden werden: Die Parser-Regeln werden in Funktionsaufrufe übersetzt, d.h. bei einer Links-Rekursion würde man dieselbe Regel immer wieder aufrufen, ohne ein Token aus dem Token-Strom zu entnehmen.
+
+Eigenschaften:
+
+-   Vorrang über die **Struktur**:
+
+    -   `expr` = schwächste Ebene (`+`, `-`)
+    -   `term` = mittlere Ebene (`*`, `/`)
+    -   `atom` = stärkste Ebene (`INT`, unäres Minus)
+
+-   Assoziativität über das `(...)*`: Wiederholung nach rechts $\to$ linksassoziative Bäume. Jede Wiederholung von rechts hängt einen neuen Operator rechts an den bereits aufgebauten Teilausdruck - dadurch landen die früheren Operatoren weiter oben im Baum, und der Baum wird links-astig: `((1+2)+3)`.
+
+##### Wrap-up
+
+-   In Infix-Notation brauchen wir:
+    -   **Vorrang**: `*` und `/` binden stärker als `+` und `-`
+    -   **Assoziativität**: `+`, `-`, `*`, `/` sind linksassoziativ, z.B. `1-2-3 = (1-2)-3`
+
+<!-- -->
+
+-   **Gestufte konkrete Grammatik** (`expr -> term -> atom`) modelliert Vorrang:
+    -   `expr`: Ebene mit `+` und `-`
+    -   `term`: Ebene mit `*` und `/`
+    -   `atom`: Ebene mit Literalen, Klammern und unärem Minus
+
+<!-- -->
+
+-   Muster `X ::= Y (op Y)*` erzeugt **linksassoziative** Bäume
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Im ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann erklären, warum Infix-Notation ohne Vorrangregeln und Assoziativität mehrdeutig ist.
+> -   k2: Ich kann beschreiben, wie eine gestufte Grammatik (`expr`/`term`/`atom`) Operatorvorrang modelliert.
+> -   k3: Ich kann eine gegebene flache Grammatik für arithmetische Ausdrücke so umschreiben, dass Vorrang und Linksassoziativität korrekt berücksichtigt werden.
+> -   k3: Ich kann zu einem Ausdruck wie `1+2*3-4` anhand der Grammatik die zugehörige Klammerung und den Parse-Tree konstruieren.
+> -   k2: Ich kann erläutern, wie das Wiederholungsmuster `(...)*` in Grammatikregeln zu linksassoziativen Parse-Bäumen führt.
+> -   k4: Ich kann verschiedene Varianten einer Expression-Grammatik vergleichen und begründen, ob sie mehrdeutig sind oder nicht.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Ambiguität der "flachen" Grammatik**
+>
+> Gegeben sei:
+>
+> ``` ebnf
+> expr ::= expr '+' expr
+>        | expr '*' expr
+>        | INT
+> ```
+>
+> 1.  Zeigen Sie, dass diese Grammatik für den Ausdruck `1+2*3` mehrdeutig ist.
+> 2.  Zeichnen Sie zwei verschiedene Parse-Trees für `1+2*3`, die aus dieser Grammatik entstehen können.
+> 3.  Welche der beiden Klammerungen entspricht der gewünschten Interpretation in Java/C++? Welche nicht?
+> 4.  Formulieren Sie in Worten, welches Problem hier auftritt und wie eine gestufte Grammatik dieses Problem löst.
+>
+> **Assoziativität sichtbar machen**
+>
+> Betrachten Sie erneut die Grammatik aus dem Beispiel:
+>
+> ``` ebnf
+> expr  ::= term ('+' term)*
+> term  ::= atom ('*' atom)*
+> atom  ::= '-' atom
+>         | INT
+> ```
+>
+> 1.  Zeichnen Sie die Parse-Trees für die folgenden Eingaben nach dieser Grammatik:
+>     -   `1 + 2 + 3`
+>     -   `2 * 3 * 4`
+>     -   `1 + 2 * 3`
+>     -   `8 * 4 * 2`
+>     -   `-3 * 4`
+> 2.  Schreiben Sie zu jedem Parse-Tree die explizite Klammerung des Ausdrucks dazu, z.B. `(1 + 2) + 3`.
+> 3.  Diskutieren Sie in der Gruppe:
+>     -   Warum sind die Bäume links-astig?
+>     -   Wie würde eine Grammatik aussehen, die `+` (oder `*`) **rechtsassoziativ** parst?
+>
+> **Vorrang durch Umformung der Grammatik**
+>
+> Starten Sie erneut mit der folgenden Grammatik:
+>
+> ``` ebnf
+> expr ::= expr '+' expr
+>        | expr '*' expr
+>        | INT
+> ```
+>
+> 1.  Formulieren Sie eine neue Grammatik, die:
+>
+>     -   Multiplikation und Division stärker bindet als Addition und Subtraktion (wie in Java/C++),
+>     -   alle vier Operatoren linksassoziativ macht, und
+>     -   geklammerte Ausdrücke erlaubt.
+>
+> 2.  Verwenden Sie dazu die drei Stufen `expr`, `term`, `atom`.
+>
+> 3.  Testen Sie Ihre Grammatik gedanklich an den Ausdrücken:
+>
+>         1 + 2 * 3
+>         4 * 5 + 6
+>         7 + 8 + 9
+>
+> 4.  Notieren Sie für jeden Ausdruck die Klammerung, die Ihre Grammatik erzwingt.
+>
+> </details>
+
+<a id="id-2e5ecf5bc552fd7f2cdf3903747b45e30328286a"></a>
+
+#### L-Expr: ANTLR-Grammatik und Vorrangregeln
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> ANTLR ist ein Parser‑Generator, der aus einer Grammatik einen Lexer, einen LL(\*)‑Parser und Hilfsklassen für die Traversierung des Parse-Trees in verschiedenen Zielsprachen (Java, Python, C++, ...) generiert.
+>
+> In einer ANTLR-Grammatik werden **Lexer-Regeln** mit **Großbuchstaben** geschrieben. Jede Lexer-Regel definiert einen regulären Ausdruck und liefert einen Token-Typ zurück, dessen Name der Regelname ist. Der Lexer wählt immer den **längsten Match**; bei Gleichstand gewinnt die **zuerst definierte** Regel.
+>
+> **Parser-Regeln** beginnen mit einem **Kleinbuchstaben** und bestehen aus einem Regelnamen (linke Seite) und einer Produktion (rechte Seite). Auf der rechten Seite können Token-Typen (Lexer-Regeln oder implizite Tokens in `'...'`) und andere Parser-Regeln in beliebiger Reihenfolge kombiniert werden. Parser-Regeln werden in Methoden des generierten Parsers übersetzt (vergleichbar zu einem rekursiv‑absteigenden Parser).
+>
+> Parser-Regeln können mehrere **Alternativen** haben, getrennt durch `|`. Bei Mehrdeutigkeiten entscheidet ANTLR zugunsten der **ersten passenden Alternative**. Mit `?`, `*` und `+` lassen sich optionale, beliebig oft oder mindestens einmal wiederholte Teile formulieren.
+>
+> ANTLR4 erlaubt im Gegensatz zu vielen klassischen LL(1)- bzw. handgeschriebenen rekursiv‑absteigenden Parsern auch **direkte Linksrekursion** in Parser-Regeln und nutzt diese u.a. zur automatischen Behandlung von **Operatorpräzedenz** und **Assoziativität**.
+>
+> </details>
+
+##### Von klassischer CFG zur ANTLR‑Grammatik
+
+Erinnerung an "Programmieren 2":
+
+-   ANTLR ist eine Java-Bibliothek
+-   Generiert aus einer Grammatik einen Lexer und LL(\*)-Parser
+-   Eingabe-String plus Lexer/Parser $\to$ Parse-Tree mit Kontextklassen
+-   Zusätzlich: Klassen für Visitor-Pattern
+
+In [Prog2](https://github.com/Programmiermethoden-CampusMinden/Prog2-Lecture-S26/blob/master/lecture/tooling/antlr.md) haben wir bereits ANTLR als Java-Bibliothek kennengelernt. Wir haben uns dort angeschaut, wie wir das Tool in einem Java-Projekt über Gradle einbinden können, wie wir die generierten Lexer und Parser aufrufen, und wir haben sogar die zu den Grammatik-Regeln generierten Kontextklassen betrachtet und das Visitor-Pattern zum Ablaufen der Parse-Trees benutzt.
+
+Wir benutzen hier ANTLR in der Version **4**, manchmal auch als "ANTLR4" geschrieben.
+
+Jetzt wollen wir auf die ANTLR-Grammatik schauen.
+
+##### Erinnerung: Konkrete Syntax für L-Expr
+
+``` ebnf
+eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+INT    ::= [0-9]+
+---
+
+eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
+
+L_expr ::= eform EOF
+```
+
+Im Prinzip sieht unsere konkrete Grammatik bereits der ANTLR-Grammatik recht ähnlich. Wir müssen zunächst die `::=` durch einen einfachen Doppelpunkt `:` ersetzen. Zusätzlich muss jede Regel mit einem Semikolon `;` abgeschlossen werden.
+
+Darüber hinaus kommen noch Namenskonventionen, die die Art der Regel erkennen lassen: Kleingeschriebene Regeln gelten für den Parser, großgeschriebene Regeln sind Lexer-Regeln. Die Reihenfolge der Regeln ist u.a. für Prioritäten bei Mehrdeutigkeiten relevant.
+
+##### ANTLR-Grammatik für L-Expr (Parser-Teil)
+
+``` antlr
+grammar Lispy;
+
+lexpr       : eform EOF ;
+
+eform       : atom                              #atomExpr
+            | '(' '-' eform ')'                 #unaryMinusExpr
+            | '(' '+' eform eform+ ')'          #addExpr
+            | '(' '-' eform eform+ ')'          #subExpr
+            | '(' '*' eform eform+ ')'          #mulExpr
+            | '(' '/' eform eform+ ')'          #divExpr
+            ;
+
+atom        : INT ;
+```
+
+-   `lexpr` ist der Einstiegspunkt
+-   `eform` entspricht unseren Ausdrücken
+
+Hier sehen Sie den Parser-Teil einer ANTLR-Grammatik für L-Expr.
+
+Als erste Zeile findet man immer die **Deklaration** `grammar <NAME>;`, wobei der Name `<NAME>` auch der Dateiname ist (`NAME.g4`) und später den Präfix für die generierten Lexer-/Parser-/Visitor-Klassen bildet. Unsere Grammatik würde also in der Datei `Lispy.g4` erwartet.
+
+**Parser-Regeln** beginnen in ANTLR mit einem **Kleinbuchstaben** und können andere Parser-Regeln "aufrufen" und auch Lexer-Regeln beinhalten. Jede Regel endet mit einem Semikolon.
+
+Wir haben eine Parser-Regel `lexpr` als **Einstiegspunkt** (erste Regel), die genau eine `eform` gefolgt vom Token `EOF` erwartet.
+
+Die `eform`-Regel entspricht ziemlich direkt unserer konkreten EBNF-Grammatik. ANTLR4 kommt mit (direkter) Linksrekursion zurecht, weshalb wir die Grammatik relativ intuitiv formulieren können. Eine `eform` kann also entweder ein `atom` sein, oder eine `'(' '-' eform ')'` usw.
+
+Nach den Parser-Regeln folgen üblicherweise die Lexer-Regeln (siehe nächste Folie).
+
+###### Formen der Subregeln
+
+####### Standardregeln
+
+Jede Regel hat einen Kopf (Regelname) und nach dem ":" den Regelkörper. Darin können Token wie `ID` oder Literale (implizite Token) `'='` und `';'` gematcht werden und andere Regeln "aufgerufen" werden wie `expr`. Jede Regel wird mit einem Semikolon abgeschlossen.
+
+``` antlr
+stmt  : ID '=' expr ';' ;
+```
+
+Um die Regel `stmt` anwenden zu können, müssen alle Elemente auf der rechten Seite der Regel erfüllt werden. Dabei müssen die Token wie `ID`, `'='` und `';'` in angegebenen Reihenfolge matchen und die Subregel `expr` muss erfüllt werden können.
+
+Das abschließende Semikolon am Ende einer ANTLR-Regel markiert für ANTLR das Ende der Regel und dient als Hilfe beim Parsen der Grammatik und bezieht sich nicht auf den Input.
+
+####### Alternativen
+
+Wie auch im RD-Parser können wir in ANTLR-Grammatiken Alternativen ausdrücken:
+
+``` antlr
+stmt  : ID '=' expr ';' | expr ';' ;
+```
+
+**Alternativen** werden durch ein `|` getrennt. Hier muss genau eine Alternative erfüllt werden. Falls nötig, trennt man die Alternativen durch Einschließung in runden Klammern vom Rest der Regel ab (Gruppierung): `r : a (b | c) d ;`.
+
+####### Wiederholungen (Multiplizitäten)
+
+Teile der Regeln können wiederholt werden. Die Parser-Regeln nutzen die aus regulären Ausdrücken bekannten Operatoren `+` (einmal oder öfter) und `*` (beliebig oft) bzw. `?` (einmal oder keinmal: "optional").
+
+``` antlr
+expr  : term ('+' term)* ;
+```
+
+Der durch den `*` gekennzeichnete Teil kann beliebig oft vorkommen oder auch fehlen. Entsprechend würde eine `expr` dann erfüllt sein, wenn ein `term` vorliegt, oder auch wenn ein `term` und ein `'+'` und ein weiterer `term` gematcht wurde, oder auch mit mehrfachen Wiederholungen von `'+' term`.
+
+Bei einem `+` müsste der Teil mind. einmal vorkommen, und bei einem `?` entsprechend einmal oder gar nicht.
+
+(vgl. [github.com/antlr/antlr4/blob/master/doc/parser-rules.md](https://github.com/antlr/antlr4/blob/master/doc/parser-rules.md#subrules))
+
+###### Reihenfolge in Grammatik definiert Priorität
+
+Falls mehr als eine Parser-Regel (oder Alternative) die selbe Input-Sequenz matcht, löst ANTLR diese Mehrdeutigkeit auf, indem es die erste Regel/Alternative nimmt, die an der Entscheidung beteiligt ist.
+
+``` antlr
+start : stmt ;
+
+stmt  : expr | ID  ;
+expr  : ID   | NUM ;
+```
+
+Bei der Eingabe "foo" würde die Alternative `ID` in der Regel `expr` "gewinnen", weil sie in der Grammatik vor der Alternative `ID` in der Regel `stmt` kommt und damit Vorrang hat.
+
+###### Benannte Alternativen (Label)
+
+Man kann Alternativen in einer Produktionsregel auch individuell benennen über "`#...`". Das `#` leitet dabei die Benennung ein, gefolgt vom Label: `#foo` wäre also das Label `foo` für eine Alternative. Wenn man das nutzt, müssen immer **alle** Alternativen einer Regel benannt werden.
+
+Benannte Alternativen sind später recht praktisch, da ANTLR benannte Alternativen im generierten Visitor wie normale Regeln behandelt und eigene `visitXYZ`-Methoden für die Label generiert.
+
+Man kann die Label aber nicht in der Grammatik wie andere Regeln verwenden.
+
+##### ANTLR-Grammatik für L-Expr (Lexer-Teil)
+
+``` antlr
+...
+
+
+INT         : [0-9]+ ;
+
+COMMENT     : ';;' ~[\r\n]* -> skip ;
+WS          : [ \t\r\n,]+ -> skip ;
+```
+
+-   Token-Typen: `INT`, `'('`, `'-'`, ...
+-   Whitespace und Kommentare werden ignoriert
+
+Der Lexer-Teil der Grammatik definiert, wie ANTLR den Eingabetext in Tokens aufteilt. Üblicherweise findet man diese Regeln nach den Parser-Regeln (siehe vorige Folie).
+
+**Lexer-Regeln** beginnen mit einem **Grossbuchstaben** und definieren einen regulären Ausdruck, der auf den Eingabetext angewendet wird.
+
+``` antlr
+INT : [0-9]+ ;
+WS  : [ \t\n]+ -> skip ;
+```
+
+Jede Lexer-Regel entspricht einem (benannten) **Token**. Im Beispiel gibt es die Regel `INT`, die den regulären Ausdruck `[0-9]+` anwendet. Damit matcht das Token `INT` auf alle Zeichenfolgen, die aus einer oder mehreren Ziffern bestehen.
+
+Die Whitespace-Token (`WS`) werden im Beispiel zwar gematcht, aber danach **verworfen** (`-> skip`) - wir müssen diese zwar erkennen und aus der Eingabe entfernen, brauchen sie aber nicht für die weitere Prüfung der Strukturen.
+
+Zusätzlich gibt es auch nicht benannte Token ("**implizite Token**", s.u.), das sind die in `'` eingeschlossenen Zeichenketten, beispielsweise `'='` oder `';'`.
+
+Das Ergebnis ist ein Strom von Tokens, auf dem der Parser aufbaut.
+
+###### Implizite Token
+
+Statt `PLUS` kann man in Parser-Regeln auch direkt `'+'` schreiben, d.h. das Lexem direkt ausschreiben und in **einfache** Anführungszeichen einschließen. ANTLR erzeugt dann automatisch ein unbenanntes Token (deshalb auch "implizites Token" genannt).
+
+Die Länge der Zeichenkette spielt dabei keine Rolle, es werden hier immer einfache Anführungszeichen verwendet.
+
+###### To EOF not to EOF?
+
+Startregeln müssen nicht unbedingt den gesamten Input "konsumieren". Sie müssen per Default nur eine der Alternativen in der Startregel erfüllen.
+
+####### Ohne EOF: Es darf ein Rest vom Input übrig bleiben
+
+Betrachten wir noch einmal einen leicht modifizierten Ausschnitt aus der obigen Grammatik:
+
+``` antlr
+start : stmt ;
+```
+
+Die Startregel wurde so geändert, dass sie nur noch genau ein Statement akzeptieren soll.
+
+In diesem Fall würde die Startregel bei der Eingabe "aa bb" nur den ersten Teil "aa" konsumieren (als Token `ID`) und das folgende "bb" ignorieren. **Das wäre in diesem Fall aber auch kein Fehler.**
+
+####### Mit EOF: Der gesamte Input muss passen
+
+Wenn der **gesamte Eingabestrom** durch die Startregel erklärt werden soll, dann muss das vordefinierte Token `EOF` am Ende der Startregel eingesetzt werden:
+
+``` antlr
+start : stmt EOF;
+```
+
+Hier würde die Eingabe "aa bb" zu einem Fehler führen, da nur der Teil "aa" durch die Startregel abgedeckt ist (Token `ID`), und der Rest "bb" zwar sogar ein gültiges Token wäre (ebenfalls `ID`), aber eben nicht mehr von der Startregel akzeptiert. Durch das `EOF` soll die Startregel aber den gesamten Input konsumieren und erklären, was hier nicht geht und entsprechend zum Fehler führt.
+
+(vgl. [github.com/antlr/antlr4/blob/master/doc/parser-rules.md](https://github.com/antlr/antlr4/blob/master/doc/parser-rules.md#start-rules-and-eof))
+
+> [!TIP]
+>
+> ###### Reservierte Schlüsselwörter
+>
+> Die folgenden Strings stellen reservierte Schlüsselwörter von ANTLR dar und dürfen nicht als Token, Regel oder Label genutzt werden:
+>
+>     import, fragment, lexer, parser, grammar, returns, locals, throws, catch, finally, mode, options, tokens
+>
+> `rule` ist zwar kein Schlüsselwort, wird aber als Methodenname bei der Codegenerierung verwendet. =\> Wie ein Schlüsselwort behandeln!
+>
+> (vgl. [github.com/antlr/antlr4/blob/master/doc/lexicon.md](https://github.com/antlr/antlr4/blob/master/doc/lexicon.md))
+
+##### Arbeitsweise von ANTLR
+
+-   ANTLR generiert aus der Grammatik: Lexer, Parser, Visitor, ...
+-   Lexer konsumiert Input und erzeugt Tokenstrom
+-   Parser konsumiert Tokenstrom und erzeugt Parse-Tree
+
+``` java
+var source = "(+ 1 2)";
+
+var input = CharStreams.fromString(source);
+var lexer = new LispyLexer(input);
+var tokens = new CommonTokenStream(lexer);
+
+var parser = new LispyParser(tokens);
+var tree = parser.lexpr();
+```
+
+<p align="right"><a href="http://lab.antlr.org/">Web: Lispy (Grammatik und Regeln, Eingabe und Parse-Tree)</a></p>
+
+##### Verhalten des Lexers
+
+1.  **Längster Match**
+
+    Primäres Ziel: Erkennen der längsten Zeichenkette
+
+    ``` antlr
+    INT  : [0-9]+ ;
+    ID   : [a-zA-Z][a-zA-Z0-9]* ;
+    ```
+
+    Eingabe "foo42": Token `ID` (nicht `ID`, `INT`)
+
+    Die Regel, die den längsten Match für die aktuelle Eingabesequenz produziert, "gewinnt".
+
+2.  **Reihenfolge** in Grammatik definiert Priorität
+
+    ``` antlr
+    FOR : 'for' ;
+    ID  : [a-z][a-zA-Z]* ;
+    ```
+
+    Eingabe "for": Token `FOR`
+
+    Falls mehr als eine Lexer-Regel die selbe Inputsequenz matcht, dann hat die in der Grammatik zuerst genannte Regel Priorität.
+
+3.  **Implizite Token**: haben höchste Priorität
+
+    ``` antlr
+    foo  : '0' | NUM EOF ;
+
+    NUM  : [0-9]+ ;
+    WS   : [ \t\r\n]+ -> skip ;
+    ```
+
+    Eingabe "0": Token `'0'` (nicht `NUM`)
+
+    Implizite Tokens (`'...'`) werden intern **vor** expliziten Lexer‑Regeln einsortiert und bekommen dadurch eine noch höhere Priorität.
+
+##### Berücksichtigung von Präzedenz im Parser
+
+Wir können die gestufte konkrete Grammatik, die die Operator-Präzedenz berücksichtigt, direkt nach ANTLR übersetzen:
+
+-   **konkrete Grammatik** (gestuft):
+
+    ``` ebnf
+    expr  ::= term ('+' term)*
+    term  ::= atom ('*' atom)*
+    atom  ::= '-' atom
+            | INT
+    ```
+
+<!-- -->
+
+-   **ANTLR**-Grammatik:
+
+    ``` antlr
+    expr  : term ('+' term)* ;
+    term  : atom ('*' atom)* ;
+    atom  : '-' atom
+          | INT
+          ;
+    ```
+
+Die Präzedenz wird dabei durch die Struktur berücksichtigt: `expr` über `term` über `atom`.
+
+Die gewünschte Linksassoziativität für die Operatoren `+`und `*` wird durch die Formulierung `(...)*` berücksichtigt.
+
+##### Direkte Linksrekursion und ANTLR - automatische Präzedenz
+
+ANTLR4 kann **direkte Linksrekursion** automatisch auflösen. Die Regel `r : r T U | V ;` kann also in ANTLR4 verarbeitet werden.
+
+ANTLR nutzt beim Auflösen der direkten Linksrekursion die Strategie des ["*precedence climbing*"](https://www.antlr.org/papers/Clarke-expr-parsing-1986.pdf) und löst nach der **Reihenfolge der linksrekursiven Alternativen** in einer Regel auf. Dies kann man ausnutzen, um über die Reihenfolge der linksrekursiven Alternativen die Operator-Präzedenz abzubilden:
+
+Aus der Grammatik mit gestuften Regeln zur Berücksichtigung von Präzedenz und (Links-) Assoziativität ...
+
+``` antlr
+expr  : term ('+' term)* ;
+term  : atom ('*' atom)* ;
+atom  : '-' atom
+      | INT
+      ;
+```
+
+... wird eine Grammatik mit linksrekursiven Alternativen, wo sich der Vorrang über die Reihenfolge der linksrekursiven Alternativen bestimmt (von oben nach unten):
+
+``` antlr
+expr  : expr '*' expr
+      | expr '+' expr
+      | '-' atom
+      | INT
+      ;
+```
+
+Unter den beiden linksrekursiven Alternativen `expr '*' expr` und `expr '+' expr` hat die erste Alternative die höhere Priorität und würde beim Parsen wie gewünscht weiter unten im Baum landen.
+
+Beide Varianten sind machbar. Entscheiden Sie selbst, was (für Sie) lesbarer ist.
+
+> [!CAUTION]
+>
+> ###### Indirekte Linksrekursion nicht erlaubt
+>
+> Mit **indirekter** Linksrekursion kann ANTLR (v4) **nicht** umgehen:
+>
+> ``` antlr
+> expr : expM | ... ;
+> expM : expr '*' expr ;
+> ```
+>
+> Hier würden sich die Regeln `expM` und `expr` gegenseitig aufrufen und kein Token aus dem Tokenstrom entfernen, so dass der generierte LL-Parser hier in einer Endlosschleife stecken bleiben würde. Mit indirekter Linksrekursion kann ANTLR nicht umgehen.
+>
+> **Indirekte Linksrekursion ist nicht erlaubt!**
+
+###### Assoziativität
+
+Per Default werden Operatoren wie `+` von ANTLR automatisch als **linksassoziativ** behandelt, da bei Mehrdeutigkeiten in der Grammatik stets die erste passende Regel/Alternative genommen wird. Dadurch wird die übliche Klammerung von `+` und `*` berücksichtigt, d.h. `1+2+3` wird mit der gezeigten Grammatik wie erwartet als `(1+2)+3` geparst.
+
+Die Eingabe `2^3^4` sollte aber als `2^(3^4)` geparst werden. Analog sollte `a=b=c` in C/C++ als `a=(b=c)` verstanden werden. Für *rechts-assoziative* Operatoren muss man ANTLR dies explizit mit `<assoc=right>` in der Grammatik mitteilen:
+
+``` antlr
+expr : <assoc=right> expr '^' expr
+     | INT
+     ;
+```
+
+##### Ausblick
+
+Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR sind noch viele weitere Dinge möglich. Bitte nutzen Sie aktiv die Dokumentation auf [github.com/antlr/antlr4](https://github.com/antlr/antlr4).
+
+##### Wrap-up
+
+-   Lexer-Regeln beginnen mit **Großbuchstaben**
+    -   Längster Match gewinnt, bei Gleichstand: zuerst definierte Regel
+    -   Implizite Tokens (`'...'`) haben Vorrang vor expliziten Lexer-Regeln
+
+<!-- -->
+
+-   Parser-Regeln beginnen mit **Kleinbuchstaben**
+    -   Regeln können Token-Typen (Lexer-Regeln oder `'...'`) und andere Parser-Regeln kombinieren
+    -   Regeln können Alternativen haben (`|`) sowie optionale/mehrfache Teile (`?`, `*`, `+`)
+    -   Bei Mehrdeutigkeit: Vorrang für die erste passende Alternative
+    -   Startregel + `EOF` erzwingt, dass der **gesamte** Input konsumiert wird
+    -   ANTLR4 erlaubt **direkte** Linksrekursion (indirekte nicht)
+
+<!-- -->
+
+-   Vorrang und Assoziativität für Ausdrücke in ANTLR:
+    -   Gestufte Grammatik-Regeln (`expr` / `term` / `atom`) kodieren Präzedenz strukturell
+    -   Linksrekursive Regel mit geordneter Alternativenliste (Reihenfolge der linksrekursiven Alternativen steuert den Vorrang der Operatoren)
+    -   Linksassoziativität ist Standard; Rechtsassoziativität kann mit `<assoc=right>` deklariert werden
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Sie finden auf der [ANTLR-Homepage](https://www.antlr.org) Links zur Dokumentation und auch zum [ANTLR-Projekt](https://github.com/antlr/antlr4) auf GitHub.
+>
+> Eine ältere, aber dennoch interessante Quelle vom "Kopf" hinter ANTLR (Terence Parr) ist ([Parr 2014](#ref-Parr2014)), die auch online verfügbar ist.
+>
+> Die [ANTLR-Dokumentation](https://github.com/antlr/antlr4/blob/master/doc/index.md) und die [ANTLR-FAQ](https://github.com/antlr/antlr4/blob/master/doc/faq/index.md) bieten ebenfalls interessante Einstiegspunkte zur Vertiefung für Fortgeschrittene.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den grundsätzlichen Aufbau einer ANTLR-Grammatik (Lexer-Teil, Parser-Teil, Startregel) erklären.
+> -   k2: Ich kann das Verhalten des ANTLR-Lexers bzgl. längstem Match, Regelreihenfolge und impliziten Tokens beschreiben.
+> -   k3: Ich kann eine gegebene EBNF-Grammatik für arithmetische Ausdrücke in eine äquivalente ANTLR-Grammatik übersetzen.
+> -   k3: Ich kann in ANTLR Parser-Regeln mit Alternativen sowie optionalen und wiederholten Teilen formulieren.
+> -   k3: Ich kann Operatorpräzedenz und Linksassoziativität entweder über gestufte Regeln (`expr`/`term`/`atom`) oder über eine linksrekursive `expr`-Regel in einer ANTLR-Grammatik umsetzen.
+> -   k4: Ich kann für eine gegebene ANTLR-Grammatik begründen, wie eine konkrete Eingabe (z.B. `2+3*4`) geparst wird, und den entstehenden Parse-Tree grob skizzieren.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Von EBNF zu ANTLR mit impliziten Tokens**
+>
+> Gegeben sei die folgende EBNF-Grammatik für einfache logische Ausdrücke mit C‑ähnlicher Präzedenz (`not` bindet am stärksten):
+>
+> ``` ebnf
+> expr   ::= disj
+> disj   ::= conj ('or' conj)*
+> conj   ::= atom ('and' atom)*
+> atom   ::= 'not' atom
+>          | '(' expr ')'
+>          | ID
+> ```
+>
+> Dabei soll eine `ID` mit einem kleinen Buchstaben beginnen und danach beliebig viele kleine/große Buchstaben und Ziffern beinhalten. Eine ID besteht dabei aus mindestens einem Zeichen.
+>
+> Übersetzen Sie diese Grammatik in eine ANTLR-Grammatik (`Logic.g4`) mit:
+>
+> -   einer Startregel `expr`
+> -   impliziten Tokens für die Schlüsselwörter und Klammern
+> -   einer expliziten Lexer-Regel für `ID`,
+> -   einer Lexer-Regel für Whitespace; dieser soll verworfen werden
+>
+> **Präzedenzfehler finden und korrigieren**
+>
+> Betrachten Sie die folgende ANTLR-Grammatik für arithmetische Ausdrücke:
+>
+> ``` antlr
+> grammar ArithWrong;
+>
+> expr : term (('+' | '-') term)* ;
+> term : atom (('*' | '/') atom)* ;
+> atom : '-' expr
+>      | INT
+>      | '(' expr ')'
+>      ;
+> ```
+>
+> mit `INT` ein oder mehrere Ziffern (wie üblich).
+>
+> 1.  Überlegen Sie, wie der Ausdruck `-1*2` mit dieser Grammatik geparst wird. Skizzieren Sie grob den Parse-Tree (nur mit den Regeln `expr`, `term`, `atom`).
+> 2.  Diskutieren Sie: Entspricht das der üblichen Bedeutung von `-1*2` in C/Java?
+> 3.  Ändern Sie nur die Definition von `atom` so, dass das unäre Minus mit höherer Präzedenz als `*` und `/` behandelt wird (und der Rest weiterhin funktioniert).
+>
+> **Implizite Tokens und Lexer-Priorität**
+>
+> Gegeben sei ein Ausschnitt einer ANTLR-Grammatik:
+>
+> ``` antlr
+> grammar Mini;
+>
+> start : 'if' '(' ID ')' EOF ;
+> ```
+>
+> Dabei soll eine `ID` mit einem kleinen Buchstaben beginnen und danach beliebig viele kleine/große Buchstaben und Ziffern beinhalten. Eine ID besteht dabei aus mindestens einem Zeichen.
+>
+> 1.  Welche Tokenfolge erzeugt der Lexer für die Eingabe `if(x)`?
+>
+> 2.  Diskutieren Sie: Was würde passieren, wenn Sie statt `'if'` in der Startregel eine explizite Lexer-Regel `IF : 'if' ;` und die Startregel als `start : IF '(' ID ')' EOF ;` schreiben würden?
+>
+> 3.  Variieren Sie nun die Reihenfolge der Lexer-Regeln: `antlr  ID : [a-z][a-zA-Z0-9]* ;  IF : 'if' ;` Diskutieren Sie:
+>
+>     -   Welche Tokenfolge erzeugt der Lexer nun für die Eingabe `if(x)`?
+>     -   Warum macht es aus Sicht der ANTLR-Spezifikation trotzdem einen Unterschied, ob Sie `'if'` als implizites Token oder als explizite Lexer-Regel schreiben?
+>
+> **Linksrekursion und Vorrang**
+>
+> Betrachten Sie die folgende typische ANTLR-Grammatik für Expressions:
+>
+> ``` antlr
+> program : expr EOF ;
+>
+> expr
+>   : expr ('*'|'/') expr
+>   | expr ('+'|'-') expr
+>   | INT
+>   ;
+> ```
+>
+> In der gezeigten Schreibweise wird implizit ein Vorrang unter den Alternativen dieser direkt links-rekursiven Regel `expr` definiert und die Eingabe `2+3*4` würde korrekt als `2+(3*4)` geparst.
+>
+> Was passiert, wenn man nun versucht, die Operatoren auszuklammern und in eine eigene Regel zu verlagern?
+>
+> Betrachten Sie die folgende leicht geänderte Grammatik:
+>
+> ``` antlr
+> program : expr_ EOF ;
+>
+> expr_
+>   : expr_ operator expr_
+>   | INT
+>   ;
+> operator
+>   : ('*'|'/')
+>   | ('+'|'-')
+>   ;
+> ```
+>
+> Was passiert hier bei der Eingabe von `2+3*4`?
+>
+> </details>
+
+<a id="id-f47140a0e1424b798887e57fe5e33325a47a4010"></a>
+
+#### L-Expr: ANTLR-Visitoren und Rückgabewerte
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> ANTLR erzeugt aus der Eingabe auf Basis der Grammatik einen Parse-Tree: Token sind die Blätter, jede angewendete Parser-Regel liefert einen inneren Knoten. Dieser Parse-Tree ist noch kein AST, eignet sich aber als Grundlage, um daraus einen AST zu konstruieren.
+>
+> Für die Verarbeitung des Parse-Tree stellt ANTLR generierte Visitor-Klassen bereit. Die Traversierung steuern wir beim Visitor selbst: Die geerbte Methode `visit()` übernimmt nur den Dispatch und ruft je nach Knotentyp die passende `visitRegelName()`-Methode auf. Dort müssen wir explizit entscheiden, welche Kindknoten besucht werden und wie aus deren Ergebnissen ein AST-Knoten aufgebaut wird.
+>
+> ANTLR übergibt an jede `visitRegelName()`-Methode ein Kontextobjekt `RegelNameContext`, das den Zugriff auf die Bestandteile der jeweiligen Regel erlaubt (z.B. weitere Kontexte oder Token über Methoden wie `ctx.eform()` oder `ctx.INT()`). Benannte Alternativen (`#label`) und Regel-Elemente mit Namen (`x=expr`) sind hilfreich, weil sie zu eigenen Kontextklassen `LabelContext` bzw. Zugriffsmethoden `visitLabel()` führen und so den Visitor-Code übersichtlicher machen.
+>
+> Der generische Parameter `<T>` der Visitor-Klassen legt den Rückgabetyp aller `visitXYZ()`-Methoden fest (z.B. `Expr` für einen AST-Builder oder `Object` für flexibel erweiterbare Builder-Hierarchien). Die Default-Implementierung in `BaseVisitor` ruft die vordefinierte Methode `visitChildren(ctx)` auf, das alle Kinder besucht und typischerweise das Ergebnis des letzten Kindes zurückgibt.
+>
+> Für Regeln mit eigener Semantik (Operatoren, Kontrollstrukturen, Klammern entfernen, ...) müssen wir `visitXYZ()` überschreiben und selbst festlegen, wie die Ergebnisse der Kindknoten kombiniert werden. Nur bei reinen Durchleitungsregeln reicht meist die Default-Implementierung.
+>
+> </details>
+
+##### Erinnerung: ANTLR-Toolchain: Von String zum Parse-Tree
+
+``` java
+var source = "(+ 1 2)";
+
+var input = CharStreams.fromString(source);
+var lexer = new LispyLexer(input);
+var tokens = new CommonTokenStream(lexer);
+
+var parser = new LispyParser(tokens);
+var tree = parser.lexpr();
+```
+
+Ergebnis: ein **Parse-Tree**, noch kein AST
+
+##### ANTLR: Generierte Klassen
+
+-   Grammatik: `Lispy.g4`
+    -   mit Regel `eform : '(' '+' eform eform+ ')' ;`
+
+<!-- -->
+
+-   ANTLR generiert:
+    -   `LispyLexer`, `LispyParser`
+
+    -   `LispyBaseVisitor<T>` mit
+
+        ``` java
+        T visitAddExpr(LispyParser.AddExprContext ctx) {
+            return visitChildren(ctx);
+        }
+        ```
+
+Wir haben bereits in Prog2 darüber gesprochen: [Einführung in ANTLR](https://github.com/Programmiermethoden-CampusMinden/Prog2-Lecture-S26/blob/master/lecture/tooling/antlr.md)
+
+Hier nur kurz zur Erinnerung: ANTLR generiert uns aus der Grammatik `Lispy.g4` einen Visitor `LispyVisitor<T>` mit einer "leeren" Basisimplementierung `LispyBaseVisitor<T>`. Für jede Regel und benannte Alternative finden wir da eine `visitName()`-Methode, die in der Basisimplementierung einfach nur die Kinder der Kontextklasse (also die Bestandteile der Grammatikregel) rekursiv besucht. Dabei wird das letzte Ergebnis dann zurückgegeben.
+
+Wenn wir unseren AST-Builder schreiben wollen, können wir genau hier ansetzen. Wir leiten von `LispyBaseVisitor<T>` ab und überschreiben alle relevanten `visitName()`-Methoden. Für jede Regel im Parser, die für unsere abstrakte Grammatik relevant ist, überschreiben wir die passende `visit()`-Methode und konstruieren dort den entsprechenden AST-Knoten.
+
+Der generische Parameter `T` sollte dem gewünschten Rückgabetyp der `visitName()`-Methoden entsprechen. In unserem Fall auf der Sprachstufe L-Expr wäre das ein `Expr`. In den nächsten Sprachstufen wollen wir von unserem AST-Builder aber später erneut ableiten und die neuen Regeln überschreiben und wir werden dann andere/weitere Rückgabetypen benötigen. Deshalb ist `Object` die passende Wahl (auch wenn wir dann explizit casten müssen).
+
+##### AST-Builder: Beispiel Int-Literal und Addition
+
+``` java
+public class LispyAstBuilderLexpr extends LispyBaseVisitor<Object> {
+
+    @Override
+    public Expr visitLexpr(LexprContext ctx) { return asExpr(visit(ctx.eform())); }
+
+    @Override
+    public Expr visitIntLit(IntLitContext ctx) {
+        int value = Integer.parseInt(ctx.INT().getText());
+        return new IntLiteral(value);
+    }
+
+    @Override
+    public Expr visitAddExpr(AddExprContext ctx) {
+        List<Expr> ops = ctx.eform().stream().map(this::visit).map(this::asExpr).toList();
+        return ops.stream().reduce(AddExpr::new).orElseThrow();
+    }
+}
+```
+
+Wir leiten von `LispyBaseVisitor` ab und setzen den generischen Typ-Parameter auf `Object`. Wie oben diskutiert, wäre für L-Expr der Typ `Expr` die bessere Wahl - aber wir wollen später von diesem AST-Builder weiter ableiten (`class LispyAstBuilderLvar extends LispyAstBuilderLexpr`) und brauchen noch weitere Rückgabetypen. Deshalb nehmen wir in Kauf, dass wir entsprechend casten müssen. Im obigen Beispiel wurde dazu eine Hilfsmethode `Expr asExpr(Object o)` definiert und eingesetzt. (**Hinweis**: Implementierung von `asExpr()` siehe Challenges.)
+
+Für jede Regel und für jedes Label haben wir eine `visitName()`-Methode in `LispyBaseVisitor`. Wir überschreiben die für uns relevanten Methoden, um den AST zu bauen.
+
+Zu jeder Regel und jedem Label wird ein passendes Kontextobjekt generiert, mit dem man die Bestandteile der Regel abfragen kann. Zur Regel `s : expr ;` würde also ein `SContext`-Objekt erzeugt bzw. der `visitS()`-Methode übergeben, und man könnte darauf über `expr()` den `ExprContext` abfragen. Ein `eform : '(' '+' eform eform+ ')' #addExpr ;` generiert analog zum Label `addExpr` eine `visitAddExpr()`-Methode und eine Klasse `AddExprContext`.
+
+Wir betrachten im Folgenden exemplarisch das Behandeln der Startregel, der Addition und der Regel für Integer-Literale.
+
+###### Start: visitLexpr
+
+Wir hatten die Startregel `lexpr : eform EOF ;`. In der zugehörigen Methode `visitLexpr()` bekommen wir den Kontext dieser Regel `LexprContext`. Auf das Element `eform` können wir hier mit `ctx.eform()` zugreifen.
+
+Um die rekursive Traversierung anzustoßen, rufen wir die geerbte Methode `visit()` auf dieser `eform` auf und liefern das Ergebnis als `Expr` zurück. Die geerbte Methode `visit()` erledigt den Dispatch für die Parse-Tree-Knoten und sorgt dafür, dass jeweils die richtige `visitXYZ()`-Methode aufgerufen wird.
+
+> [!TIP]
+>
+> ###### Stilfrage: Kovariante Rückgabetypen
+>
+> Eigentlich ist wg. `LispyBaseVisitor<Object>` der Rückgabetyp aller `visitXYZ()`-Methoden ebenfalls `Object`. Wir liefern hier in der ableitenden Klasse `LispyAstBuilderLexpr` mit `Expr` einen spezialisierteren Typ (`Expr` leitet implizit von `Object` ab) zurück, und Java erlaubt uns, dies auch in der Signatur der Methode kenntlich zu machen. Das nennt man auch "**kovariante Rückgabetypen**".
+>
+> **Hinweis**: Wir könnten andersherum natürlich auch eine gemeinsame Oberklasse für alle (auch zukünftige) AST-Knoten definieren und diese hier statt `Object` als generischen Typparameter und damit für die Rückgabetypen nutzen. Letztlich müssten wir dann aber ebenfalls immer wieder nach dem dynamischen Typ prüfen ...
+
+###### Blätter: Int-Literale
+
+In `visitIntLit` bekommen wir ein `IntLitContext` für die Regel `atom : INT #intLit ;` (also für das Label).
+
+Das einzige Kind in dieser Regel ist das Token `INT`, welches wir über `ctx.INT()` abfragen und das Lexem mit `getText()` holen. Dann müssen wir nur noch einen Java-Integer daraus machen, um ein neues `IntLiteral` für unseren AST erzeugen zu können.
+
+Eine weitere Traversierung ist hier nicht notwendig, die Int-Literale bilden die Blätter im Parse-Tree.
+
+###### Zwischenknoten: Addition
+
+Für die Addition überschreiben wir die Methode `visitAddExpr`. Die Regel war `eform : '(' '+' eform eform+ ')' #addExpr ;`, weshalb im `AddExprContext` die Zugriffsmethode `eform()` vorhanden ist - allerdings haben wir mehrere `eform`-Kinder in dieser Regel, entsprechend liefert `eform()` eine `List<EformContext>`.
+
+Was müssen wir nun tun? Wir wollen für immer zwei Summanden ein neues `AddExpr` als AST-Knoten erzeugen (d.h. von links klammern). Entsprechend machen wir eine Schleife über alle `eform`-Kinder der Regel/des Parse-Tree-Knotens, stoßen für diese jeweils die rekursive Verarbeitung mit `visit()` an und bekommen so für jedes Kind einen AST, der in der Ergebnisliste `List<Expr>` gesammelt wird. In einem zweiten Schritt iterieren wir über diese Liste und erzeugen von links her immer aus dem letzten `AddExpr` und dem aktuellen Eintrag ein neues `AddExpr` (dabei ruft `AddExpr::new` den Konstruktor `AddExpr(Expr left, Expr right)` auf) - dies entspricht in der funktionalen Programmierung einer `reduce`-Operation. Im ersten Schritt haben wir noch kein voriges `AddExpr` und würden entsprechend die ersten beiden Listeneinträge in ein `AddExpr` verpacken. Falls es keine Kinder gegeben haben sollte, würden wir hier eine Exception auslösen.
+
+> [!CAUTION]
+>
+> ###### `visit()` vs. `visitChildren()` vs. `visitXYZ()`
+>
+> Innerhalb unserer überschriebenen `visitXYZ()`-Methoden sollten wir für das Traversieren von Kindknoten in der Regel **immer `visit(...)` verwenden**.
+>
+> -   `visit(node)` ist der zentrale Einstiegspunkt des Visitor-Patterns: Es führt den dynamischen Dispatch aus und ruft je nach tatsächlichem Knotentyp automatisch die passende `visitXYZ()`-Methode für das Argument `node` auf.
+> -   `visitChildren(ctx)` ist eine **fertige Default-Strategie**: Sie besucht *alle* **Kinder** des Knotens nacheinander und kombiniert deren Rückgabewerte (in der Standardimplementierung meist: "nimm das letzte Ergebnis"). Diese Methode ist dafür gedacht, in der Basisklasse als Default zu dienen - nicht als allgemeiner Ersatz für gezielte Kind-Verarbeitung in unseren eigenen `visitXYZ()`-Methoden.
+> -   Ein **direkter Aufruf** von konkreten Methoden wie `visitAddExpr(ctx)` innerhalb anderer `visitXYZ()`-Methoden ist unflexibel: Er umgeht den normalen Dispatch-Mechanismus und koppelt den Code unnötig eng an konkrete Kontextklassen. Spätere Erweiterungen oder Umbenennungen der Grammatik werden so schwerer.
+>
+> **Faustregel**: Für rekursive Aufrufe auf Kindknoten immer **`visit(kind)`** benutzen.
+
+##### ANTLR-Pipeline komplett
+
+``` java
+var source = "(+ 1 2)";
+
+var input = CharStreams.fromString(source);
+var lexer = new LispyLexer(input);
+var tokens = new CommonTokenStream(lexer);
+
+var parser = new LispyParser(tokens);
+var tree = parser.lexpr();
+
+var builder = new LispyAstBuilderLexpr();
+var ast = builder.visitLexpr(tree);
+```
+
+Ab hier sind wir jetzt synchron zu unserem AST, den wir manuell über den handgeschriebenen Lexer und unseren RD-Parser erzeugt haben! D.h. wir können uns spontan aussuchen, welche dieser beiden Varianten wir nutzen möchten ...
+
+Für die Exploration von Sprachen und schrittweise wachsende Grammatiken ist das Arbeiten mit ANTLR sehr angenehm, weil man nur die Grammatik und den AST-Builder anpassen muss.
+
+Sobald die Sprache allerdings fix ist, gehen viele Projekte dazu über, ihre Lexer und Parser selbst zu implementieren.
+
+##### Default-Implementierung: Wann reichen die Default-`visitXYZ()`-Methoden?
+
+Default in `LispyBaseVisitor<T>`:
+
+``` java
+T visitAddExpr(AddExprContext ctx) { return visitChildren(ctx); }
+```
+
+**Hinweis**: Eigener Code, der die ursprüngliche Methode `visitChildren()` in ANTLR in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet mit `defaultResult()`/`aggregateResult()`.)
+
+``` java
+public T visitChildren(RuleNode node) {
+    return node.childs().stream()
+            .map(c -> c.accept(this))
+            .reduce((left, right) -> right)
+            .orElse(null);
+}
+```
+
+Die Methode `visitChildren()` wird in der Defaultimplementierung in `LispyBaseVisitor` für alle `visitXYZ()`-Methoden aufgerufen. Sie geht über alle Kinder des Knotens (Bestandteile der Grammatik-Regel), stößt jeweils die rekursive Verarbeitung an und liefert das **letzte** Ergebnis (bzw. `null`) zurück.
+
+Das ist einerseits sehr angenehm: Wir müssen nur noch diejenigen `visitXYZ()`-Methoden überschreiben, wo wir Dinge aktiv bearbeiten wollen. Sobald uns die rekursive Traversierung und das Ergebnis des letzten Kindes reicht, müssen wir diese `visitXYZ()`-Methode nicht überschreiben.
+
+Andererseits ist dies auch gefährlich. Das letzte Kind kann ein Token sein. Die "Traversierung" eines Tokens liefert oft nur `null` - und das wäre dann das Gesamtergebnis für den jeweiligen Knoten.
+
+Konsequenz:
+
+-   Überschreiben, wenn:
+
+    -   Semantik / Auswertung benötigt: Beispiel `visitAddExpr()`
+
+        ``` java
+        @Override
+        public Expr visitAddExpr(AddExprContext ctx) {
+            List<Expr> ops = ctx.eform().stream().map(this::visit).map(this::asExpr).toList();
+            return ops.stream().reduce(AddExpr::new).orElseThrow();
+        }
+        ```
+
+    -   Standardlogik falsch: `parens : '(' expr ')' ;`
+
+        ``` java
+        @Override
+        public T visitParens(ParensContext ctx) {
+            return visit(ctx.expr());  // ignore parenthesis
+        }
+        ```
+
+<!-- -->
+
+-   Defaultverhalten reicht, wenn
+
+    -   die Regel nur "durchgereicht" werden soll
+
+        ``` antlr
+        expr    : addExpr ;
+        addExpr : multExpr (('+' | '-') multExpr)* ;
+        ```
+
+        Wenn wir hier `visitMultExpr()` und `visitAddExpr()` implementiert haben, reicht für `visitExpr()` das Defaultverhalten.
+
+        Das gilt auch, wenn eine Regel wie `expr` einfach nur mehrere Alternativen auflistet: `expr : foo | bar | wuppie | fluppie ;` und wir im Visitor einfach nur die passende Sub-Regel besuchen wollen, ohne für `expr` noch zusätzliche Verarbeitung zu benötigen.
+
+##### Wrap-up
+
+-   ANTLR-Visitoren sind generisch: `<T>` $\to$ Rückgabetyp aller `visitXYZ()`
+-   `BaseVisitor` implementiert `visitChildren()` als Default: Besuch aller Kinder, meist Rückgabe des letzten Kind-Ergebnisses
+-   Kontextobjekte (`...Context`) kapseln Bestandteile einer Grammatikregel
+-   Benannte Alternativen (`#label`) erzeugen eigene Kontextklassen bzw. Zugriffsmethoden
+
+<!-- -->
+
+-   Faustregel:
+    -   Für **semantisch relevante** Regeln `visitXYZ()` überschreiben (Operatoren, Kontrollstrukturen, unäres Minus, ...).
+    -   Für reine **Durchleitungs-/Klammer-Regeln** kann der Default genügen.
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Sie finden auf der [ANTLR-Homepage](https://www.antlr.org) Links zur Dokumentation und auch zum [ANTLR-Projekt](https://github.com/antlr/antlr4) auf GitHub.
+>
+> Eine ältere, aber dennoch interessante Quelle vom "Kopf" hinter ANTLR (Terence Parr) ist ([Parr 2014](#ref-Parr2014)), die auch online verfügbar ist.
+>
+> Die [ANTLR-Dokumentation](https://github.com/antlr/antlr4/blob/4.6/doc/index.md) und die [ANTLR-FAQ](https://github.com/antlr/antlr4/blob/master/doc/faq/index.md) bieten ebenfalls interessante Einstiegspunkte zur Vertiefung für Fortgeschrittene.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den Unterschied zwischen Parse-Tree und AST in eigenen Worten erklären.
+> -   k2: Ich kann erläutern, wie ANTLR-Kontextobjekte (`...Context`) aus Parser-Regeln entstehen und wie ich damit auf Regelbestandteile zugreife.
+> -   k2: Ich kann erklären, wie der generische Rückgabetyp `<T>` der ANTLR-Visitoren die Signatur der `visitXYZ()`-Methoden bestimmt.
+> -   k3: Ich kann für eine gegebene ANTLR-Grammatik geeignete benannte Alternativen und Regel-Elemente definieren, um den späteren Visitor-Code zu vereinfachen.
+> -   k3: Ich kann einen AST-Builder als ANTLR-Visitor implementieren, der aus einem Parse-Tree einen typisierten AST erzeugt.
+> -   k3: Ich kann entscheiden, für welche Regeln die Default-Implementierung `visitChildren()` ausreicht und für welche Regeln ich `visitXYZ()` überschreiben muss, und dies am Beispiel begründen.
+> -   k4: Ich kann eine gegebene Visitor-Implementierung kritisch analysieren und Verbesserungsvorschläge bezüglich Struktur, Wiederverwendung und Typisierung machen.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Casten im AST-Builder**
+>
+> Im Beispiel in der Vorlesung wurde die Hilfsmethode `Expr asExpr(Object o)` definiert, um nicht manuell casten zu müssen. Wie sieht die passende Implementierung in Java dazu aus?
+>
+> **Kontextobjekte und benannte Alternativen nutzen**
+>
+> Betrachten Sie die beiden Varianten der Grammatik für `eform`:
+>
+> -   Variante A:
+>
+>     ``` antlr
+>     eform
+>       : '(' '+' eform eform+ ')'
+>       | '(' '*' eform eform+ ')'
+>       | INT
+>       ;
+>     ```
+>
+> -   Variante B:
+>
+>     ``` antlr
+>     eform
+>       : '(' '+' eform eform+ ')'  # addExpr
+>       | '(' '*' eform eform+ ')'  # mulExpr
+>       | INT                       # intLit
+>       ;
+>     ```
+>
+> 1.  Überlegen Sie, welche Kontextklassen und `visitXYZ()`-Methoden ANTLR bei Variante A bzw. B generiert (nur qualitativ, keine exakte Namensliste nötig).
+> 2.  Skizzieren Sie, wie sich der AST-Builder für L-Expr in Variante A vs. Variante B unterscheidet:
+>     -   Wo wird der Code einfacher / übersichtlicher?
+>     -   Wo müssten Sie in Variante A zusätzliche `instanceof`-Checks oder `if`/`switch`-Logik einbauen?
+> 3.  Formulieren Sie eine kurze "Daumenregel", wann sich benannte Alternativen in einer Grammatik lohnen.
+>
+> **Wann reicht `visitChildren()`?**
+>
+> Gegeben sei der folgende Ausschnitt einer (vereinfachten) Grammatik für arithmetische Ausdrücke:
+>
+> ``` antlr
+> expr     : addExpr ;
+> addExpr  : multExpr (('+' | '-') multExpr)* ;
+> multExpr : atom (('*' | '/') atom)* ;
+> atom     : INT
+>          | '(' expr ')'   # parens
+>          ;
+> ```
+>
+> 1.  Markieren Sie für jede Regel (`expr`, `addExpr`, `multExpr`, `atom`, `parens`), ob die Default-Implementierung `visitChildren()` für einen AST-Builder ausreicht oder ob Sie `visitXYZ()` überschreiben würden.
+> 2.  Begründen Sie Ihre Entscheidungen jeweils in ein bis zwei Sätzen.
+> 3.  Diskutieren Sie in der Gruppe, welche typischen Fehler entstehen, wenn man sich zu sehr auf `visitChildren()` verlässt.
+>
+> **Rückgabetyp wählen: `Expr` vs. `Object`**
+>
+> Sie implementieren einen AST-Builder für L-Expr als ANTLR-Visitor:
+>
+> ``` java
+> public class LispyAstBuilderLexpr extends LispyBaseVisitor<Object> {
+>     // ...
+> }
+> ```
+>
+> 1.  Diskutieren Sie in der Gruppe die Vor- und Nachteile der Wahl von `Object` als generischem Visitor-Typ gegenüber einem spezifischen Typ wie `Expr`.
+> 2.  Überlegen Sie, wie sich Ihre Entscheidung auf folgende Szenarien auswirkt:
+>     -   Sie wollen in der nächsten Sprachstufe L-Var neue AST-Knotentypen einführen und den Builder vererben.
+>     -   Sie möchten zusätzlich zu Ausdrücken auch ganze Programme oder Funktionsdeklarationen als AST-Knoten zurückgeben.
+>
+> **Lexer und Parser mit ANTLR**
+>
+> Betrachten Sie den folgenden Programmschnipsel:
+>
+>     result99 = acc_2*ACC_2 + spillover7 + bonus_1*3 + inc_0;
+>     calc_42 = __9 * zZ_1 + 5 + FooBar_42 * bar_7 + q0;
+>     _ExprLine + A_1 * bB_2 + cc3 * 7 +      11;
+>
+> Erstellen Sie für diese fiktive Sprache einen Lexer+Parser mit ANTLR. Implementieren Sie mit Hilfe des Parse-Trees und der Visitoren einen einfachen Pretty-Printer.
+>
+> </details>
+
 <a id="id-087c4c3ae00f192d7609dfe6432bd8d23512b621"></a>
 
 ### Sprache L-Var: Variablen, Statments, nested Scopes
@@ -3696,6 +5055,14 @@ Zeigen Sie, dass die Grammatik mehrdeutig ist. Entwickeln Sie einen PDA für die
 >
 > Die Aufgaben mit `***` sind als Vertiefung gedacht.
 
+Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
+
+-   L-Int: Die Sprache Lispy
+-   L-Int: Konkrete und abstrakte Syntax
+-   L-Int: Lexer - Handcodierte Implementierung
+-   L-Int: LL-Parser mit Recursive Descent
+-   L-Int: Von Ausdrücken zum Interpreter
+
 #### (\*) Java-Projekt für L-Int einrichten
 
 Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
@@ -3847,7 +5214,7 @@ C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subt
 >
 > ##### Waschzettel: In C++ sieht es so aus ...
 >
-> | Sprachelement   | L-Int                    | C-Int                    |
+> | Sprachelement   | L-Int (Lispy)            | C-Int (Mini-C++)         |
 > |:----------------|:-------------------------|:-------------------------|
 > | Integer-Literal | `42`                     | `42`                     |
 > | Addition        | `(+ 1 2)`, `(+ 1 2 3 4)` | `1 + 2`, `1 + 2 + 3 + 4` |
@@ -3924,7 +5291,7 @@ Erstellen Sie analog zur L-Int-Pipeline für C-Int:
 -   AST-Klassen und -Interfaces,
 -   einen Lexer,
 -   einen RD-Parser,
--   einen Interpreter.
+-   einen Interpreter `InterpreterCint`.
 
 Verwenden Sie hierfür **keinen** generierten ANTLR-Parser, sondern eine handgeschriebene Java-Implementierung wie in der Vorlesung.
 
@@ -3965,6 +5332,184 @@ In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Ma
 
 1.  Übertragen Sie dies auf das Visitor-Pattern.
 2.  Skizzieren Sie Vor- und Nachteile des Visitor-Patterns im Vergleich zur `switch`-Variante aus der Vorlesung.
+
+<a id="id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f"></a>
+
+### Blatt 04: L-Expr und C-Expr (Vorrang, unäres Minus und ANTLR)
+
+> [!IMPORTANT]
+>
+> Für die erfolgreiche Bearbeitung dieses Übungsblattes müssen mindestens alle mit `*` und `**` markierten Aufgaben gelöst werden.
+>
+> Die Aufgaben mit `***` sind als Vertiefung gedacht.
+
+Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
+
+-   L-Expr: Multiplikation/Division und unäres Minus
+-   L-Expr: Vorrang und Assoziativität
+-   L-Expr: ANTLR-Grammatik und Vorrangregeln
+-   L-Expr: ANTLR-Visitoren und Rückgabewerte
+
+#### (\*) L-Expr: Multiplikation und Division ergänzen
+
+Sie haben in der Vorlesung zunächst L-Int (Integer-Literale, Addition, Subtraktion in Lispy-Notation) und anschließend L-Expr als Erweiterung von L-Int um Multiplikation und Division kennengelernt.
+
+In dieser Aufgabe sollen Sie die in der Vorlesung gezeigten Ideen vervollständigen und auf Ihre L-Int-Pipeline übertragen und so Ihre L-Expr-Pipeline aufbauen.
+
+1.  **Konkrete Syntax verstehen**
+
+    Klären Sie in der Übung gemeinsam:
+
+    -   Welche Ausdrücke sind **gültige** L-Expr-Ausdrücke?
+
+    -   Wie werden mehrstellige Multiplikationen und Divisionen gruppiert (Assoziativität)?
+
+    -   Welche Werte ergeben die folgenden Ausdrücke?
+
+        ``` clojure
+        (* 2 3)
+        (/ 8 2)
+        (* 2 3 4)
+        (/ 12 3 2)
+        (* (+ 1 2) 3)
+        (/ 12 (* 2 2))
+        ```
+
+2.  **Ungültige Eingaben**
+
+    Notieren Sie mindestens zwei **ungültige** L-Expr-Eingaben, z.B.:
+
+    -   Operationen mit weniger als zwei Operanden,
+    -   falsche Klammerung,
+    -   unerwartete Token.
+
+    Beschreiben Sie jeweils kurz, **warum** die Eingabe ungültig ist und an welcher Stelle Ihre Pipeline (Lexer, Parser, AST-Bau, Interpreter) sinnvollerweise einen Fehler melden würde.
+
+3.  **L-Expr-Pipeline bauen: L-Int-Pipeline um Multiplikation/Division erweitern**
+
+    Erstellen Sie nun Ihre **Pipeline für L-Expr**, indem Sie ein neues Package für L-Expr anlegen und die nötigen Klassen und Ergänzungen **auf Basis Ihrer L-Int-Lösung** definieren:
+
+    -   **Lexer**: neue Token für `*` und `/`
+    -   Parser (**RD-Parser** für L-Expr): zusätzliche Alternativen in den passenden Grammatikregeln
+    -   **AST**: neue Knotenklassen `MulExpr` und `DivExpr`
+    -   **Interpreter** `InterpreterLexpr`: Auswertung von `MulExpr` und `DivExpr` (linksassoziativ, Java-Integer-Division)
+
+    Ergänzen Sie Ihr Token-Typ-Enum. Ergänzen Sie die neuen AST-Klassen. Schreiben Sie neue Klassen für den L-Expr-Lexer und -RD-Parser (ausnahmsweise **nicht** von L-Int ableiten - warum?!).
+
+    Definieren Sie eine neue Klasse `InterpreterLexpr` für den L-Expr-Interpreter mit `class InterpreterLexpr extends InterpreterLint`.
+
+    Implementieren Sie die obigen Testausdrücke in einer neuen JUnit-Testklasse `InterpreterLexprTest`, die von der L-Int-Testklasse ableitet: `class InterpreterLexprTest extends InterpreterLintTest`. Wichtig: Damit das funktioniert, müssen alle Testmethoden mindestens auf `protected` stehen.
+
+#### (\*) C-Expr ausprobieren: Vorrang und unäres Minus live testen
+
+Wir wollen zunächst die Vorrangregeln und unäres Minus **direkt in C++** ausprobieren.
+
+> [!IMPORTANT]
+>
+> ##### Waschzettel: In C++ sieht es so aus ...
+>
+> | Zweck          | L-Expr (Lispy)  | C-Expr (Mini-C++) |
+> |:---------------|:----------------|:------------------|
+> | Multiplikation | `(* 2 3)`       | `2 * 3`           |
+> | Division       | `(/ 8 3)`       | `8 / 3`           |
+> | Unäres Minus   | `(- 3)`         | `-3`              |
+> | Klammerung     | `(* (+ 1 2) 3)` | `(1 + 2) * 3`     |
+>
+> Während in Lispy (L-Int, L-Expr) die Operatoren für `+`, `-`, `*`, `/` mehrstellig sein können, sind sie in C++ (C-Int, C-Expr) **binär** (bzw. `-` zusätzlich unär).
+
+Schreiben Sie ein C++-Programm `expr.cpp`, das folgende Ausdrücke auswertet und jeweils das Ergebnis über `std::cout` ausgibt:
+
+    1 + 2 * 3
+    (1 + 2) * 3
+    8 / 4 / 2
+    (8 / 4) / 2
+    8 / (4 / 2)
+    7 - 2 - 1
+    7 - (2 - 1)
+    -3 * 4
+    -(3 * 4)
+    -(1 + 2) * 3
+
+Übersetzen Sie es mit g++/clang und prüfen Sie, ob jeweils das Ergebnis Ihren Erwartungen entspricht.
+
+#### (\*\*) C-Expr: Vorrangregeln in einer gestuften Grammatik
+
+Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** um Multiplikation, Division, unäres Minus und geklammerte Ausdrücke erweitern.
+
+1.  **Konkrete Grammatik (Gestufte Variante)**
+
+    Definieren Sie eine konkrete Grammatik für C-Expr (in EBNF), die folgende Anforderungen erfüllt:
+
+    -   Zulässige Ausdrücke enthalten:
+        -   Integer-Literale
+        -   binäre Operatoren `+`, `-`, `*`, `/`
+        -   unäres Minus (`-x`)
+        -   Klammern `(` und `)`
+    -   Vorrang:
+        -   `*` und `/` **binden stärker** als `+` und `-`
+        -   Unäres Minus und geklammerte Ausdrücke haben höchsten Vorrang
+    -   Alle vier Operatoren sind **linksassoziativ**
+    -   Whitespace darf an beliebigen sinnvollen Stellen stehen und wird ignoriert
+    -   Zeilenkommentare werden ab dem `//` bis zum Zeilenende ignoriert
+
+    Skizzieren Sie Ihre Grammatik ausdrücklich mit **gestuften Regeln**, z.B. mit den Ebenen `expr`/`term`/`atom`.
+
+2.  **Beispiele überprüfen**
+
+    Überprüfen Sie mit Ihrer Grammatik:
+
+    -   Wie wird `1 + 2 * 3` geparst und ausgewertet?
+    -   Wie wird `8 / 4 / 2` geparst und ausgewertet?
+    -   Wie wird `-3 * 4` geparst und ausgewertet?
+    -   Wie werden Klammern berücksichtigt, z.B. `(1 + 2) * 3`, `-(1 + 2) * 3`?
+
+    Zeichnen Sie jeweils den Parse-Tree. Entspricht das dem Verhalten von C++ aus der vorigen Aufgabe?
+
+#### (\*\*) ANTLR-Grammatiken für C-Expr
+
+Definieren Sie zwei **ANTLR-Grammatiken** für **C-Expr**: einmal mit **gestuften Regeln** und einmal mit **linksrekursiven Alternativen**. Berücksichtigen Sie dabei die für C-Expr formulierten Operatoren und Vorrangregeln und Assoziativitäten.
+
+#### (\*) Abstrakte Syntax für C-Expr
+
+Definieren Sie nun die **abstrakte Syntax für C-Expr**. Orientieren Sie sich an der Vorlesung und bauen Sie auf Ihrer abstrakten Syntax von C-Int auf.
+
+Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
+
+#### (\*\*) Parsen von C-Expr und bauen des AST
+
+1.  Implementieren Sie für Ihre konkrete Grammatik (mit den gestuften Regeln) für **C-Expr einen Lexer**. Erweitern Sie dazu die Tokendefinitionen passend.
+2.  Implementieren Sie einen **RD-Parser für C-Expr**, der als Ausgabe einen AST erzeugt. Ergänzen Sie dazu die AST-Klassen entsprechend Ihrer abstrakten Syntax.
+3.  Lassen Sie sich von **ANTLR** für die beiden Grammatiken aus der vorigen Aufgabe je einen **Lexer, Parser und Visitor generieren**.
+4.  Erstellen Sie **zwei AST-Builder**, die aus den beiden unterschiedlichen ANTLR-Parse-Trees je einen AST entsprechend Ihrer abstrakten Syntax erzeugen. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
+    -   Welchen generischen Typ brauchen Sie für das Ableiten des generierten `XyzBaseVisitor`?
+    -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
+5.  Implementieren Sie die **obigen Testfälle in JUnit** und führen Sie diese auf **allen drei Varianten** aus (RD-Parser, ANTLR mit gestuften Regeln, ANTLR mit linkrekursiven Alternativen). Was beobachten Sie?
+
+#### (\*\*) Interpreter für C-Expr
+
+Implementieren Sie nun den **Interpreter für C-Expr** in einer Klasse `InterpreterCexpr`. Dabei soll gelten `class InterpreterCexpr extends InterpreterCint`.
+
+Ergänzen Sie die neuen Fälle für C-Expr durch Überschreiben von `eval()`. Rufen Sie für die bisherigen C-Int-Fälle `super.eval(expr)` auf.
+
+Testen Sie Ihren Interpreter mit JUnit mit den obigen Testfällen. Dabei soll wie bei L-Expr gelten: `class InterpreterCexprTest extends InterpreterCintTest`. Spielt es eine Rolle, ob Sie dafür den handgeschriebenen Lexer/RD-Parser oder einen der beiden ANTLR-Parser plus den passenden AST-Builder einsetzen?
+
+Vergleichen Sie die Resultate der Testfälle von `InterpreterCexpr` mit dem g++/clang übersetzen nativen C++-Code. Gibt es Unterschiede? Woran liegt das?
+
+#### (\*\*\*) Vertiefung: ANTLR und Stolperfallen
+
+Betrachten Sie die folgende ANTLR-Grammatik:
+
+``` antlr
+foo  :  (ID '(' ')' '=' '0' | ID | NUM) EOF ;
+
+ID      : [a-z][a-zA-Z]* ;
+NUM     : [0-9]+ ;
+WS      : [ \t\n]+ -> skip ;
+```
+
+Was passiert bei der Eingabe von `10` und `01` und `a() = 0`, wie sieht der Parse-Tree aus? Was passiert bei der Eingabe von `0`?
+
+Erklären Sie die Resultate.
 
 ------------------------------------------------------------------------
 
@@ -4029,13 +5574,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> a5ce387 2026-10-23 lexpr: first draft<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 83b602e 2026-10-24 l-expr: make sheet 04 easier<br></sub></sup></p></blockquote>

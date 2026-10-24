@@ -16,6 +16,10 @@
     - [L-Int: Lexer - Handcodierte Implementierung](lecture/02-lint/04-lexer.md)
     - [L-Int: LL-Parser mit Recursive Descent](lecture/02-lint/05-rdparser.md)
   - **Sprache L-Expr: erweiterte Ausdrücke, Vorrangregeln**
+    - [L-Expr: Multiplikation/Division und unäres Minus](lecture/03-lexpr/01-lexpr.md)
+    - [L-Expr: Vorrang und Assoziativität](lecture/03-lexpr/02-precedence.md)
+    - [L-Expr: ANTLR-Grammatik und Vorrangregeln](lecture/03-lexpr/03-antlr-grammar.md)
+    - [L-Expr: ANTLR-Visitoren und Rückgabewerte](lecture/03-lexpr/04-antlr-visitor.md)
   - **Sprache L-Var: Variablen, Statments, nested Scopes**
   - **Sprache L-If: Datentyp Boolean, Vergleiche, Kontrollstrukturen (if/else, while)**
   - **Sprache L-Fun: Funktionen (Definition, Aufruf)**
@@ -26,3 +30,4 @@
   - [Blatt 01: Reguläre Sprachen](homework/sheet01.md)
   - [Blatt 02: CFG](homework/sheet02.md)
   - [Blatt 03: C-Int](homework/sheet03-lint.md)
+  - [Blatt 04: L-Expr und C-Expr (Vorrang, unäres Minus und ANTLR)](homework/sheet04-lexpr.md)
