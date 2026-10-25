@@ -2,10 +2,12 @@
 
 ### Inhalte
 
+-   Lispy: Sprachstufe L-Expr \<: L-Int
 -   konkrete Syntax (Grammatik), abstrakte Syntax (AST)
--   ANTLR: Vorrang mit gestuften Regeln vs. ANTLR4-Precedence
--   RD+Pratt
--   InterpreterLExpr
+-   InterpreterLexpr
+-   Vorrangregeln und Assoziativität für Infix-Notation
+-   ANTLR: Grammatik, Vorrang mit gestuften Regeln vs. ANTLR4-Precedence
+-   ANTLR: Visitor mit Rückgabe (zustandslos)
 
 ------------------------------------------------------------------------
 
@@ -13,4 +15,4 @@
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 16f1ea4 2026-09-04 lecture: add dummy starter for incremental languages<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 2039305 2026-10-25 lexpr: fix readme<br></sub></sup></p></blockquote>

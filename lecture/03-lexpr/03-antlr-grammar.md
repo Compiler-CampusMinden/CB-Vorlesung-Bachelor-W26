@@ -252,6 +252,8 @@ var tree = parser.lexpr();
 
     Die Regel, die den längsten Match für die aktuelle Eingabesequenz produziert, "gewinnt".
 
+<!-- -->
+
 2.  **Reihenfolge** in Grammatik definiert Priorität
 
     ``` antlr
@@ -262,6 +264,8 @@ var tree = parser.lexpr();
     Eingabe "for": Token `FOR`
 
     Falls mehr als eine Lexer-Regel die selbe Inputsequenz matcht, dann hat die in der Grammatik zuerst genannte Regel Priorität.
+
+<!-- -->
 
 3.  **Implizite Token**: haben höchste Priorität
 
@@ -305,7 +309,7 @@ Die Präzedenz wird dabei durch die Struktur berücksichtigt: `expr` über `term
 
 Die gewünschte Linksassoziativität für die Operatoren `+`und `*` wird durch die Formulierung `(...)*` berücksichtigt.
 
-## Direkte Linksrekursion und ANTLR - automatische Präzedenz
+## Direkte Linksrekursion und ANTLR4 - automatische Präzedenz
 
 ANTLR4 kann **direkte Linksrekursion** automatisch auflösen. Die Regel `r : r T U | V ;` kann also in ANTLR4 verarbeitet werden.
 
@@ -546,4 +550,4 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> cdd9b9e 2026-10-24 lexpr: finalise antlr grammar<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> ddc7464 2026-10-25 lexpr: improve beamer formatting (antlr grammar)<br></sub></sup></p></blockquote>

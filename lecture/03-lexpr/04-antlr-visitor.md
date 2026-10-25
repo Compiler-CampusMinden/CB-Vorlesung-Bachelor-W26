@@ -35,7 +35,7 @@ Ergebnis: ein **Parse-Tree**, noch kein AST
 ## ANTLR: Generierte Klassen
 
 -   Grammatik: `Lispy.g4`
-    -   mit Regel `eform : '(' '+' eform eform+ ')' ;`
+    -   mit Regel `eform : '(' '+' eform eform+ ')'   #addExpr ;`
 
 <!-- -->
 
@@ -74,7 +74,9 @@ public class LispyAstBuilderLexpr extends LispyBaseVisitor<Object> {
 
     @Override
     public Expr visitAddExpr(AddExprContext ctx) {
-        List<Expr> ops = ctx.eform().stream().map(this::visit).map(this::asExpr).toList();
+        List<Expr> ops = ctx.eform().stream()
+                            .map(this::visit)
+                            .map(this::asExpr).toList();
         return ops.stream().reduce(AddExpr::new).orElseThrow();
     }
 }
@@ -158,14 +160,13 @@ Default in `LispyBaseVisitor<T>`:
 T visitAddExpr(AddExprContext ctx) { return visitChildren(ctx); }
 ```
 
-**Hinweis**: Eigener Code, der die ursprüngliche Methode `visitChildren()` in ANTLR in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet mit `defaultResult()`/`aggregateResult()`.)
+**Hinweis**: Eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()`/`aggregateResult()`.)
 
 ``` java
 public T visitChildren(RuleNode node) {
     return node.childs().stream()
             .map(c -> c.accept(this))
-            .reduce((left, right) -> right)
-            .orElse(null);
+            .reduce((left, right) -> right).orElse(null);
 }
 ```
 
@@ -177,7 +178,7 @@ Andererseits ist dies auch gefährlich. Das letzte Kind kann ein Token sein. Die
 
 Konsequenz:
 
--   Überschreiben, wenn:
+-   **Überschreiben**, wenn:
 
     -   Semantik / Auswertung benötigt: Beispiel `visitAddExpr()`
 
@@ -198,9 +199,7 @@ Konsequenz:
         }
         ```
 
-<!-- -->
-
--   Defaultverhalten reicht, wenn
+-   **Defaultverhalten** reicht, wenn
 
     -   die Regel nur "durchgereicht" werden soll
 
@@ -223,8 +222,8 @@ Konsequenz:
 <!-- -->
 
 -   Faustregel:
-    -   Für **semantisch relevante** Regeln `visitXYZ()` überschreiben (Operatoren, Kontrollstrukturen, unäres Minus, ...).
-    -   Für reine **Durchleitungs-/Klammer-Regeln** kann der Default genügen.
+    -   Für **semantisch relevante** Regeln `visitXYZ()` überschreiben (Operatoren, Kontrollstrukturen, unäres Minus, ...)
+    -   Für reine **Durchleitungs-/Klammer-Regeln** kann der Default genügen
 
 > [!TIP]
 >
@@ -362,4 +361,4 @@ Konsequenz:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 44741de 2026-10-24 lexpr: finalise antlr visitors<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 7213c53 2026-10-25 lexpr: improve beamer formatting (antlr visitor)<br></sub></sup></p></blockquote>

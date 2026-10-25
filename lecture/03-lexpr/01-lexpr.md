@@ -22,7 +22,6 @@
     ``` ebnf
     eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
     INT   ::= [0-9]+
-
     L_int ::= eform EOF
     ```
 
@@ -30,7 +29,6 @@
 
     ``` ebnf
     Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-
     L_int = Expr
     ```
 
@@ -38,7 +36,6 @@
 
     ``` java
     public interface Expr {}
-
     public record AddExpr(Expr left, Expr right) implements Expr {}
     public record SubExpr(Expr left, Expr right) implements Expr {}
     public record IntLiteral(int value) implements Expr {}
@@ -54,7 +51,7 @@ Wir bleiben bei **Integer-Ausdrücken**, fügen aber Multiplikation und Division
 
 <!-- -->
 
--   **Neue konkrete Syntax in Lispy**:
+-   **Neue konkrete Syntax in Lispy (Stufe L-Expr)**:
 
     ``` ebnf
     eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
@@ -238,7 +235,7 @@ Beispiele:
 
 -   Konkrete Syntax: neue Lispy-Formen `(* e1 e2 ...)`, `(/ e1 e2 ...)`, `(- e)`
 -   Abstrakte Syntax: neue AST-Knoten `MulExpr` und `DivExpr` für binäre Operationen
--   Unäres Minus wird beim AST-Bau auf vorhandene Knoten desugart (z.B. `(- e)` → `SubExpr(IntLiteral(0), e)`)
+-   Unäres Minus wird beim AST-Bau auf vorhandene Knoten desugart
 
 <!-- -->
 
@@ -251,7 +248,7 @@ Beispiele:
 > <details open>
 > <summary><strong>📖 Zum Nachlesen</strong></summary>
 >
-> Im ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
+> In ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
 >
 > </details>
 
@@ -330,4 +327,4 @@ Beispiele:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 902dcde 2026-10-24 lexpr: finalise intro<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 05df332 2026-10-25 lexpr: improve beamer formatting (intro)<br></sub></sup></p></blockquote>

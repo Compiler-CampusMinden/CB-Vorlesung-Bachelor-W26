@@ -1675,12 +1675,12 @@ Rekursive Programmierung bedeutet, dass das Laufzeitsystem einen Stack benutzt. 
 
 ##### Teil 1:
 
+-   Einführung Lispy (Sprachstufe L-Int)
 -   konkrete Syntax (Grammatik), abstrakte Syntax (AST)
--   AST, InterpreterLInt
+-   AST, Values, InterpreterLint
 
 ##### Teil 2:
 
--   Wiederholung ANTLR, Visitor mit Rückgabe (zustandslos), ANTLR-Grammatik
 -   Handgeschriebener Lexer, RD-Parser
 
 <a id="id-92efa03f813e51c04582d54092121544fac6d2f6"></a>
@@ -3492,10 +3492,12 @@ Implementierung als RD-Parser:
 
 ##### Inhalte
 
+-   Lispy: Sprachstufe L-Expr \<: L-Int
 -   konkrete Syntax (Grammatik), abstrakte Syntax (AST)
--   ANTLR: Vorrang mit gestuften Regeln vs. ANTLR4-Precedence
--   RD+Pratt
--   InterpreterLExpr
+-   InterpreterLexpr
+-   Vorrangregeln und Assoziativität für Infix-Notation
+-   ANTLR: Grammatik, Vorrang mit gestuften Regeln vs. ANTLR4-Precedence
+-   ANTLR: Visitor mit Rückgabe (zustandslos)
 
 <a id="id-9fb6f7eb249b8f4638db93995fb9ed91174500e2"></a>
 
@@ -3523,7 +3525,6 @@ Implementierung als RD-Parser:
     ``` ebnf
     eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
     INT   ::= [0-9]+
-
     L_int ::= eform EOF
     ```
 
@@ -3531,7 +3532,6 @@ Implementierung als RD-Parser:
 
     ``` ebnf
     Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-
     L_int = Expr
     ```
 
@@ -3539,7 +3539,6 @@ Implementierung als RD-Parser:
 
     ``` java
     public interface Expr {}
-
     public record AddExpr(Expr left, Expr right) implements Expr {}
     public record SubExpr(Expr left, Expr right) implements Expr {}
     public record IntLiteral(int value) implements Expr {}
@@ -3555,7 +3554,7 @@ Wir bleiben bei **Integer-Ausdrücken**, fügen aber Multiplikation und Division
 
 <!-- -->
 
--   **Neue konkrete Syntax in Lispy**:
+-   **Neue konkrete Syntax in Lispy (Stufe L-Expr)**:
 
     ``` ebnf
     eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
@@ -3739,7 +3738,7 @@ Beispiele:
 
 -   Konkrete Syntax: neue Lispy-Formen `(* e1 e2 ...)`, `(/ e1 e2 ...)`, `(- e)`
 -   Abstrakte Syntax: neue AST-Knoten `MulExpr` und `DivExpr` für binäre Operationen
--   Unäres Minus wird beim AST-Bau auf vorhandene Knoten desugart (z.B. `(- e)` → `SubExpr(IntLiteral(0), e)`)
+-   Unäres Minus wird beim AST-Bau auf vorhandene Knoten desugart
 
 <!-- -->
 
@@ -3752,7 +3751,7 @@ Beispiele:
 > <details open>
 > <summary><strong>📖 Zum Nachlesen</strong></summary>
 >
-> Im ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
+> In ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 6 "Parsing Expressions" und Kapitel 7 "Evaluation Expressions" nachlesen.
 >
 > </details>
 
@@ -4246,6 +4245,8 @@ var tree = parser.lexpr();
 
     Die Regel, die den längsten Match für die aktuelle Eingabesequenz produziert, "gewinnt".
 
+<!-- -->
+
 2.  **Reihenfolge** in Grammatik definiert Priorität
 
     ``` antlr
@@ -4256,6 +4257,8 @@ var tree = parser.lexpr();
     Eingabe "for": Token `FOR`
 
     Falls mehr als eine Lexer-Regel die selbe Inputsequenz matcht, dann hat die in der Grammatik zuerst genannte Regel Priorität.
+
+<!-- -->
 
 3.  **Implizite Token**: haben höchste Priorität
 
@@ -4299,7 +4302,7 @@ Die Präzedenz wird dabei durch die Struktur berücksichtigt: `expr` über `term
 
 Die gewünschte Linksassoziativität für die Operatoren `+`und `*` wird durch die Formulierung `(...)*` berücksichtigt.
 
-##### Direkte Linksrekursion und ANTLR - automatische Präzedenz
+##### Direkte Linksrekursion und ANTLR4 - automatische Präzedenz
 
 ANTLR4 kann **direkte Linksrekursion** automatisch auflösen. Die Regel `r : r T U | V ;` kann also in ANTLR4 verarbeitet werden.
 
@@ -4554,7 +4557,7 @@ Ergebnis: ein **Parse-Tree**, noch kein AST
 ##### ANTLR: Generierte Klassen
 
 -   Grammatik: `Lispy.g4`
-    -   mit Regel `eform : '(' '+' eform eform+ ')' ;`
+    -   mit Regel `eform : '(' '+' eform eform+ ')'   #addExpr ;`
 
 <!-- -->
 
@@ -4593,7 +4596,9 @@ public class LispyAstBuilderLexpr extends LispyBaseVisitor<Object> {
 
     @Override
     public Expr visitAddExpr(AddExprContext ctx) {
-        List<Expr> ops = ctx.eform().stream().map(this::visit).map(this::asExpr).toList();
+        List<Expr> ops = ctx.eform().stream()
+                            .map(this::visit)
+                            .map(this::asExpr).toList();
         return ops.stream().reduce(AddExpr::new).orElseThrow();
     }
 }
@@ -4677,14 +4682,13 @@ Default in `LispyBaseVisitor<T>`:
 T visitAddExpr(AddExprContext ctx) { return visitChildren(ctx); }
 ```
 
-**Hinweis**: Eigener Code, der die ursprüngliche Methode `visitChildren()` in ANTLR in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet mit `defaultResult()`/`aggregateResult()`.)
+**Hinweis**: Eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()`/`aggregateResult()`.)
 
 ``` java
 public T visitChildren(RuleNode node) {
     return node.childs().stream()
             .map(c -> c.accept(this))
-            .reduce((left, right) -> right)
-            .orElse(null);
+            .reduce((left, right) -> right).orElse(null);
 }
 ```
 
@@ -4696,7 +4700,7 @@ Andererseits ist dies auch gefährlich. Das letzte Kind kann ein Token sein. Die
 
 Konsequenz:
 
--   Überschreiben, wenn:
+-   **Überschreiben**, wenn:
 
     -   Semantik / Auswertung benötigt: Beispiel `visitAddExpr()`
 
@@ -4717,9 +4721,7 @@ Konsequenz:
         }
         ```
 
-<!-- -->
-
--   Defaultverhalten reicht, wenn
+-   **Defaultverhalten** reicht, wenn
 
     -   die Regel nur "durchgereicht" werden soll
 
@@ -4742,8 +4744,8 @@ Konsequenz:
 <!-- -->
 
 -   Faustregel:
-    -   Für **semantisch relevante** Regeln `visitXYZ()` überschreiben (Operatoren, Kontrollstrukturen, unäres Minus, ...).
-    -   Für reine **Durchleitungs-/Klammer-Regeln** kann der Default genügen.
+    -   Für **semantisch relevante** Regeln `visitXYZ()` überschreiben (Operatoren, Kontrollstrukturen, unäres Minus, ...)
+    -   Für reine **Durchleitungs-/Klammer-Regeln** kann der Default genügen
 
 > [!TIP]
 >
@@ -5577,10 +5579,10 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 83b602e 2026-10-24 l-expr: make sheet 04 easier<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 88f6817 2026-10-25 cleanup: remove old parsing snippets<br></sub></sup></p></blockquote>

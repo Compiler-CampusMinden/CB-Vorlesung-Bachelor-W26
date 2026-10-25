@@ -2,12 +2,12 @@
 
 ### Teil 1:
 
+-   Einführung Lispy (Sprachstufe L-Int)
 -   konkrete Syntax (Grammatik), abstrakte Syntax (AST)
--   AST, InterpreterLInt
+-   AST, Values, InterpreterLint
 
 ### Teil 2:
 
--   Wiederholung ANTLR, Visitor mit Rückgabe (zustandslos), ANTLR-Grammatik
 -   Handgeschriebener Lexer, RD-Parser
 
 ------------------------------------------------------------------------
@@ -16,4 +16,4 @@
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 16f1ea4 2026-09-04 lecture: add dummy starter for incremental languages<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> ee2e428 2026-10-25 lint: fix readme<br></sub></sup></p></blockquote>
