@@ -1,16 +1,6 @@
 # Blatt 02: CFG
 
-## A2.1: PDA (3P)
-
-Erstellen Sie einen deterministischen PDA, der die Sprache
-
-$$L = \lbrace w \in \lbrace a, b, c \rbrace^* \; | \; w \; \text{hat doppelt so viele a's wie c's} \rbrace$$
-
-akzeptiert.
-
-Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *bcaba* und *bccac* abarbeitet.
-
-## A2.2: Akzeptierte Sprache (2P)
+## A2.1: Akzeptierte Sprache
 
 Ist der folgenden PDA deterministisch? Warum (nicht)?
 
@@ -31,7 +21,7 @@ $$\begin{eqnarray}
 
 Zeichnen Sie den Automaten. Geben Sie das 7-Tupel des PDa an. Welche Sprache akzeptiert er?
 
-## A2.3: Kontextfreie Sprache (2P)
+## A2.2: Kontextfreie Sprache
 
 Welche Sprache generiert die folgende kontextfreie (Teil-) Grammatik?
 
@@ -48,7 +38,7 @@ P = \lbrace &&                                                                  
 
 Ist die Grammatik mehrdeutig? Warum (nicht)?
 
-## A2.4: Kontextfreie Grammatik (3P)
+## A2.3: Kontextfreie Grammatik
 
 Entwickeln Sie eine kontextfreie Grammatik für die Sprache
 
@@ -56,10 +46,20 @@ $$L = \lbrace a^ib^jc^k \; | \; i = j \lor j = k \rbrace$$
 
 Zeigen Sie, dass die Grammatik mehrdeutig ist. Entwickeln Sie einen PDA für diese Sprache.
 
+## A2.4: PDA
+
+Erstellen Sie einen deterministischen PDA, der die Sprache
+
+$$L = \lbrace w \in \lbrace a, b \rbrace^* \; | \; w \; \text{hat genauso viele a's wie b's} \rbrace$$
+
+akzeptiert.
+
+Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *baba* und *bba* abarbeitet.
+
 ------------------------------------------------------------------------
 
 <p align="center"><img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png"  /></p>
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 1fcd90d 2026-09-03 update homework<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> bf451fa 2026-10-26 homework: refomat markdown (sheet02)<br></sub></sup></p></blockquote>

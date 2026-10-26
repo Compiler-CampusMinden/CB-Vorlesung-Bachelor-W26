@@ -4991,17 +4991,7 @@ Können Sie einen regulären Ausdruck oder einen DFA dafür angeben?
 
 ### Blatt 02: CFG
 
-#### A2.1: PDA (3P)
-
-Erstellen Sie einen deterministischen PDA, der die Sprache
-
-$$L = \lbrace w \in \lbrace a, b, c \rbrace^* \; | \; w \; \text{hat doppelt so viele a's wie c's} \rbrace$$
-
-akzeptiert.
-
-Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *bcaba* und *bccac* abarbeitet.
-
-#### A2.2: Akzeptierte Sprache (2P)
+#### A2.1: Akzeptierte Sprache
 
 Ist der folgenden PDA deterministisch? Warum (nicht)?
 
@@ -5022,7 +5012,7 @@ $$\begin{eqnarray}
 
 Zeichnen Sie den Automaten. Geben Sie das 7-Tupel des PDa an. Welche Sprache akzeptiert er?
 
-#### A2.3: Kontextfreie Sprache (2P)
+#### A2.2: Kontextfreie Sprache
 
 Welche Sprache generiert die folgende kontextfreie (Teil-) Grammatik?
 
@@ -5039,13 +5029,23 @@ P = \lbrace &&                                                                  
 
 Ist die Grammatik mehrdeutig? Warum (nicht)?
 
-#### A2.4: Kontextfreie Grammatik (3P)
+#### A2.3: Kontextfreie Grammatik
 
 Entwickeln Sie eine kontextfreie Grammatik für die Sprache
 
 $$L = \lbrace a^ib^jc^k \; | \; i = j \lor j = k \rbrace$$
 
 Zeigen Sie, dass die Grammatik mehrdeutig ist. Entwickeln Sie einen PDA für diese Sprache.
+
+#### A2.4: PDA
+
+Erstellen Sie einen deterministischen PDA, der die Sprache
+
+$$L = \lbrace w \in \lbrace a, b \rbrace^* \; | \; w \; \text{hat genauso viele a's wie b's} \rbrace$$
+
+akzeptiert.
+
+Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *baba* und *bba* abarbeitet.
 
 <a id="id-c6885788e4bb28c92d66417730e18408254766a3"></a>
 
@@ -5576,13 +5576,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 88f6817 2026-10-25 cleanup: remove old parsing snippets<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> bf451fa 2026-10-26 homework: refomat markdown (sheet02)<br></sub></sup></p></blockquote>
