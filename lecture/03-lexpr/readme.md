@@ -15,4 +15,4 @@
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 2039305 2026-10-25 lexpr: fix readme<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0af22f8 2026-10-27 lexpr: reformat markdown<br></sub></sup></p></blockquote>

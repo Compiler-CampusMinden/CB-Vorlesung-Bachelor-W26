@@ -1,5 +1,14 @@
 # Reguläre Sprachen, Ausdrucksstärke (Teil 2)
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
+>
+> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke (Teil 2)](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular2.ann.ba.pdf)
+>
+> </details>
+
 ## Wiederholung
 
 ### Endliche Automaten, reguläre Ausdrücke, reguläre Grammatiken, reguläre Sprachen
@@ -136,4 +145,4 @@ Ein **Parser**
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> e1c7f5e 2026-10-27 lecture: fix link description (reg1, reg2, cfg)<br></sub></sup></p></blockquote>

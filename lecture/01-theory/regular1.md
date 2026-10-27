@@ -5,7 +5,7 @@
 > <details open>
 > <summary><strong>🖇 Weitere Unterlagen</strong></summary>
 >
-> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular1.ann.ba.pdf)
+> -   [Annotierte Folien: Reguläre Sprachen, Ausdrucksstärke (Teil 1)](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/lexing_regular1.ann.ba.pdf)
 >
 > </details>
 
@@ -276,4 +276,4 @@ Hier entsteht ein Tafelbild.
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 902dcde 2026-10-24 lexpr: finalise intro<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> e1c7f5e 2026-10-27 lecture: fix link description (reg1, reg2, cfg)<br></sub></sup></p></blockquote>
