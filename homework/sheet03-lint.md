@@ -1,4 +1,4 @@
-# Blatt 03: C-Int
+# Blatt 03: L-Int und C-Int (Integer, Addition, Subtraktion)
 
 > [!IMPORTANT]
 >
@@ -14,7 +14,7 @@ Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
 -   L-Int: LL-Parser mit Recursive Descent
 -   L-Int: Von Ausdrücken zum Interpreter
 
-## (\*) Java-Projekt für L-Int einrichten
+## (\*) L-Int: Java-Projekt für L-Int einrichten
 
 Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
 
@@ -25,7 +25,7 @@ Falls gewünscht, können Sie eines der folgenden Templates als Ausgangspunkt nu
 
 Rekonstruieren Sie die in der Vorlesung gezeigten Bausteine für L-Int in Ihrem Projekt (Pakete, Klassen, Interfaces) und übernehmen Sie die gezeigte Funktionalität so, dass Ihr Projekt kompilierbar ist. Fehlende Funktionalität ergänzen Sie in den folgenden Aufgaben.
 
-## (\*\*) L-Int Lexer: Funktion `skipIrrelevant()`
+## (\*\*) L-Int: Funktion `skipIrrelevant()` im Lexer ergänzen
 
 In der Vorlesung wurde die Funktion `skipIrrelevant()` eingeführt, mit der nicht benötigte Zeichen wie Whitespace und Kommentare übersprungen werden. Sie wird immer zu Beginn von `nextToken()` aufgerufen:
 
@@ -36,7 +36,7 @@ protected boolean skipIrrelevant() {}  // Homework
 1.  Wie könnte diese Methode aussehen? Geben Sie eine Implementierung in Java an.
 2.  Sammeln Sie in der Übung gemeinsam sinnvolle Testfälle und notieren Sie diese für später (s.u.).
 
-## (\*) Subtraktion für L-Int ergänzen
+## (\*) L-Int: Subtraktion für L-Int ergänzen
 
 L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
 
@@ -65,7 +65,7 @@ L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung 
 
     Ergänzen Sie Ihre L-Int-Pipeline vollständig um die Subtraktion (Lexer, RD-Parser, Interpreter).
 
-## (\*\*) Tests für L-Int
+## (\*\*) L-Int: Tests für L-Int
 
 Schreiben Sie JUnit-Tests für Ihre L-Int-Implementierung. Testen Sie mindestens:
 
@@ -290,4 +290,4 @@ In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Ma
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 000155e 2026-10-24 l-int: add some hints to sheet 03<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 709f78d 2026-10-28 homework: improve task descriptions (sheet 03 l-int)<br></sub></sup></p></blockquote>

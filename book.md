@@ -5067,7 +5067,7 @@ Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *baba* und *bba* 
 
 <a id="id-c6885788e4bb28c92d66417730e18408254766a3"></a>
 
-### Blatt 03: C-Int
+### Blatt 03: L-Int und C-Int (Integer, Addition, Subtraktion)
 
 > [!IMPORTANT]
 >
@@ -5083,7 +5083,7 @@ Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
 -   L-Int: LL-Parser mit Recursive Descent
 -   L-Int: Von Ausdrücken zum Interpreter
 
-#### (\*) Java-Projekt für L-Int einrichten
+#### (\*) L-Int: Java-Projekt für L-Int einrichten
 
 Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
 
@@ -5094,7 +5094,7 @@ Falls gewünscht, können Sie eines der folgenden Templates als Ausgangspunkt nu
 
 Rekonstruieren Sie die in der Vorlesung gezeigten Bausteine für L-Int in Ihrem Projekt (Pakete, Klassen, Interfaces) und übernehmen Sie die gezeigte Funktionalität so, dass Ihr Projekt kompilierbar ist. Fehlende Funktionalität ergänzen Sie in den folgenden Aufgaben.
 
-#### (\*\*) L-Int Lexer: Funktion `skipIrrelevant()`
+#### (\*\*) L-Int: Funktion `skipIrrelevant()` im Lexer ergänzen
 
 In der Vorlesung wurde die Funktion `skipIrrelevant()` eingeführt, mit der nicht benötigte Zeichen wie Whitespace und Kommentare übersprungen werden. Sie wird immer zu Beginn von `nextToken()` aufgerufen:
 
@@ -5105,7 +5105,7 @@ protected boolean skipIrrelevant() {}  // Homework
 1.  Wie könnte diese Methode aussehen? Geben Sie eine Implementierung in Java an.
 2.  Sammeln Sie in der Übung gemeinsam sinnvolle Testfälle und notieren Sie diese für später (s.u.).
 
-#### (\*) Subtraktion für L-Int ergänzen
+#### (\*) L-Int: Subtraktion für L-Int ergänzen
 
 L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
 
@@ -5134,7 +5134,7 @@ L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung 
 
     Ergänzen Sie Ihre L-Int-Pipeline vollständig um die Subtraktion (Lexer, RD-Parser, Interpreter).
 
-#### (\*\*) Tests für L-Int
+#### (\*\*) L-Int: Tests für L-Int
 
 Schreiben Sie JUnit-Tests für Ihre L-Int-Implementierung. Testen Sie mindestens:
 
@@ -5355,7 +5355,7 @@ In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Ma
 
 <a id="id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f"></a>
 
-### Blatt 04: L-Expr und C-Expr (Vorrang, unäres Minus und ANTLR)
+### Blatt 04: L-Expr und C-Expr (Multiplikation/Division, Vorrang und ANTLR)
 
 > [!IMPORTANT]
 >
@@ -5420,9 +5420,11 @@ In dieser Aufgabe sollen Sie die in der Vorlesung gezeigten Ideen vervollständi
 
     Implementieren Sie die obigen Testausdrücke in einer neuen JUnit-Testklasse `InterpreterLexprTest`, die von der L-Int-Testklasse ableitet: `class InterpreterLexprTest extends InterpreterLintTest`. Wichtig: Damit das funktioniert, müssen alle Testmethoden mindestens auf `protected` stehen.
 
-#### (\*) C-Expr ausprobieren: Vorrang und unäres Minus live testen
+#### (\*\*) C-Expr: Vorrangregeln in einer gestuften Grammatik
 
-Wir wollen zunächst die Vorrangregeln und unäres Minus **direkt in C++** ausprobieren.
+Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** um Multiplikation, Division, unäres Minus und geklammerte Ausdrücke erweitern.
+
+C-Expr soll analog zu L-Expr **Multiplikation und Division und unäres Minus und geklammerte Ausdrücke** erlauben, aber in C++-üblicher Infix-Notation und unter Beachtung der üblichen Vorrang- und Assoziativitätsregeln.
 
 > [!IMPORTANT]
 >
@@ -5436,6 +5438,10 @@ Wir wollen zunächst die Vorrangregeln und unäres Minus **direkt in C++** auspr
 > | Klammerung     | `(* (+ 1 2) 3)` | `(1 + 2) * 3`     |
 >
 > Während in Lispy (L-Int, L-Expr) die Operatoren für `+`, `-`, `*`, `/` mehrstellig sein können, sind sie in C++ (C-Int, C-Expr) **binär** (bzw. `-` zusätzlich unär).
+
+##### Schritt 1: C-Expr ausprobieren: Vorrang und unäres Minus live testen
+
+Wir wollen zunächst die Vorrangregeln und unäres Minus **direkt in C++** ausprobieren.
 
 Schreiben Sie ein C++-Programm `expr.cpp`, das folgende Ausdrücke auswertet und jeweils das Ergebnis über `std::cout` ausgibt:
 
@@ -5452,50 +5458,49 @@ Schreiben Sie ein C++-Programm `expr.cpp`, das folgende Ausdrücke auswertet und
 
 Übersetzen Sie es mit g++/clang und prüfen Sie, ob jeweils das Ergebnis Ihren Erwartungen entspricht.
 
-#### (\*\*) C-Expr: Vorrangregeln in einer gestuften Grammatik
+##### Schritt 2: Konkrete Syntax für C-Expr (gestufte Variante)
 
-Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** um Multiplikation, Division, unäres Minus und geklammerte Ausdrücke erweitern.
+Definieren Sie eine **konkrete Grammatik für C-Expr** (in EBNF), die folgende Anforderungen erfüllt:
 
-1.  **Konkrete Grammatik (Gestufte Variante)**
+-   Zulässige Ausdrücke enthalten:
+    -   Integer-Literale
+    -   binäre Operatoren `+`, `-`, `*`, `/`
+    -   unäres Minus: `-x`
+    -   Klammern `(` und `)`
+-   Vorrang:
+    -   `*` und `/` **binden stärker** als `+` und `-`
+    -   Unäres Minus und geklammerte Ausdrücke haben höchsten Vorrang
+-   Alle vier Operatoren sind **linksassoziativ**
+-   Whitespace darf an beliebigen sinnvollen Stellen stehen und wird ignoriert
+-   Zeilenkommentare werden ab dem `//` bis zum Zeilenende ignoriert
 
-    Definieren Sie eine konkrete Grammatik für C-Expr (in EBNF), die folgende Anforderungen erfüllt:
+Skizzieren Sie Ihre Grammatik ausdrücklich mit **gestuften Regeln**, z.B. mit den Ebenen `expr`/`term`/`atom`.
 
-    -   Zulässige Ausdrücke enthalten:
-        -   Integer-Literale
-        -   binäre Operatoren `+`, `-`, `*`, `/`
-        -   unäres Minus (`-x`)
-        -   Klammern `(` und `)`
-    -   Vorrang:
-        -   `*` und `/` **binden stärker** als `+` und `-`
-        -   Unäres Minus und geklammerte Ausdrücke haben höchsten Vorrang
-    -   Alle vier Operatoren sind **linksassoziativ**
-    -   Whitespace darf an beliebigen sinnvollen Stellen stehen und wird ignoriert
-    -   Zeilenkommentare werden ab dem `//` bis zum Zeilenende ignoriert
+Überprüfen Sie mit Ihrer Grammatik:
 
-    Skizzieren Sie Ihre Grammatik ausdrücklich mit **gestuften Regeln**, z.B. mit den Ebenen `expr`/`term`/`atom`.
+-   Wie wird `1 + 2 * 3` geparst und ausgewertet?
+-   Wie wird `8 / 4 / 2` geparst und ausgewertet?
+-   Wie wird `-3 * 4` geparst und ausgewertet?
+-   Wie werden Klammern berücksichtigt, z.B. `(1 + 2) * 3`, `-(1 + 2) * 3`?
 
-2.  **Beispiele überprüfen**
+Zeichnen Sie jeweils den Parse-Tree. Entspricht das dem Verhalten von C++ aus der vorigen Aufgabe?
 
-    Überprüfen Sie mit Ihrer Grammatik:
+##### Schritt 3: ANTLR-Grammatiken für C-Expr
 
-    -   Wie wird `1 + 2 * 3` geparst und ausgewertet?
-    -   Wie wird `8 / 4 / 2` geparst und ausgewertet?
-    -   Wie wird `-3 * 4` geparst und ausgewertet?
-    -   Wie werden Klammern berücksichtigt, z.B. `(1 + 2) * 3`, `-(1 + 2) * 3`?
+Definieren Sie zwei **ANTLR-Grammatiken** für **C-Expr**:
 
-    Zeichnen Sie jeweils den Parse-Tree. Entspricht das dem Verhalten von C++ aus der vorigen Aufgabe?
+-   einmal mit **gestuften Regeln**, und
+-   einmal mit **linksrekursiven Alternativen**.
 
-#### (\*\*) ANTLR-Grammatiken für C-Expr
+Berücksichtigen Sie dabei die für C-Expr formulierten Operatoren und Vorrangregeln und Assoziativitäten.
 
-Definieren Sie zwei **ANTLR-Grammatiken** für **C-Expr**: einmal mit **gestuften Regeln** und einmal mit **linksrekursiven Alternativen**. Berücksichtigen Sie dabei die für C-Expr formulierten Operatoren und Vorrangregeln und Assoziativitäten.
-
-#### (\*) Abstrakte Syntax für C-Expr
+##### Schritt 4: Abstrakte Syntax für C-Expr
 
 Definieren Sie nun die **abstrakte Syntax für C-Expr**. Orientieren Sie sich an der Vorlesung und bauen Sie auf Ihrer abstrakten Syntax von C-Int auf.
 
 Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
 
-#### (\*\*) Parsen von C-Expr und bauen des AST
+##### Schritt 5: Parsen von C-Expr und bauen des AST
 
 1.  Implementieren Sie für Ihre konkrete Grammatik (mit den gestuften Regeln) für **C-Expr einen Lexer**. Erweitern Sie dazu die Tokendefinitionen passend.
 2.  Implementieren Sie einen **RD-Parser für C-Expr**, der als Ausgabe einen AST erzeugt. Ergänzen Sie dazu die AST-Klassen entsprechend Ihrer abstrakten Syntax.
@@ -5505,15 +5510,19 @@ Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
     -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
 5.  Implementieren Sie die **obigen Testfälle in JUnit** und führen Sie diese auf **allen drei Varianten** aus (RD-Parser, ANTLR mit gestuften Regeln, ANTLR mit linkrekursiven Alternativen). Was beobachten Sie?
 
-#### (\*\*) Interpreter für C-Expr
+> [!TIP]
+>
+> **Hinweis**: Sie können die Funktionalität aus dem Lexer und RD-Parser für C-Int als Basis per Copy&Paste übernehmen und für C-Expr ergänzen/umbauen. Die gestuften Regeln vertragen sich nicht gut mit dem sonst in diesem Kurs praktizierten Ableiten `class RdParserCexpr extends RdParserCint`, weshalb wir hier an dieser Stelle darauf verzichten.
 
-Implementieren Sie nun den **Interpreter für C-Expr** in einer Klasse `InterpreterCexpr`. Dabei soll gelten `class InterpreterCexpr extends InterpreterCint`.
+##### Schritt 6: Interpreter-Pipeline für C-Expr
+
+Implementieren Sie nun den **Interpreter für C-Expr** in einer Klasse `InterpreterCexpr`. Dabei soll wie üblich in diesem Kurs gelten `class InterpreterCexpr extends InterpreterCint`.
 
 Ergänzen Sie die neuen Fälle für C-Expr durch Überschreiben von `eval()`. Rufen Sie für die bisherigen C-Int-Fälle `super.eval(expr)` auf.
 
 Testen Sie Ihren Interpreter mit JUnit mit den obigen Testfällen. Dabei soll wie bei L-Expr gelten: `class InterpreterCexprTest extends InterpreterCintTest`. Spielt es eine Rolle, ob Sie dafür den handgeschriebenen Lexer/RD-Parser oder einen der beiden ANTLR-Parser plus den passenden AST-Builder einsetzen?
 
-Vergleichen Sie die Resultate der Testfälle von `InterpreterCexpr` mit dem g++/clang übersetzen nativen C++-Code. Gibt es Unterschiede? Woran liegt das?
+Vergleichen Sie die Resultate der Testfälle von `InterpreterCexpr` mit dem mit g++/clang übersetzten nativen C++-Code. Gibt es Unterschiede? Woran liegt das?
 
 #### (\*\*\*) Vertiefung: ANTLR und Stolperfallen
 
@@ -5594,13 +5603,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> e1c7f5e 2026-10-27 lecture: fix link description (reg1, reg2, cfg)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 24134dd 2026-10-28 homework: improve tasks (sheet 04 l-expr)<br></sub></sup></p></blockquote>

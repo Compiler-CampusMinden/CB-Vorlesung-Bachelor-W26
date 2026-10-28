@@ -29,5 +29,5 @@
 - **Praktikum**
   - [Blatt 01: Reguläre Sprachen](homework/sheet01.md)
   - [Blatt 02: CFG](homework/sheet02.md)
-  - [Blatt 03: C-Int](homework/sheet03-lint.md)
-  - [Blatt 04: L-Expr und C-Expr (Vorrang, unäres Minus und ANTLR)](homework/sheet04-lexpr.md)
+  - [Blatt 03: L-Int und C-Int (Integer, Addition, Subtraktion)](homework/sheet03-lint.md)
+  - [Blatt 04: L-Expr und C-Expr (Multiplikation/Division, Vorrang und ANTLR)](homework/sheet04-lexpr.md)
