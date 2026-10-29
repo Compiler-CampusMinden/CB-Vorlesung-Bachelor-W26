@@ -35,13 +35,13 @@ Jetzt wollen wir auf die ANTLR-Grammatik schauen.
 ## Erinnerung: Konkrete Syntax für L-Expr
 
 ``` ebnf
-eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
-INT    ::= [0-9]+
+eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+INT   ::= [0-9]+
 ---
 
-eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
+eform ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
 
-L_expr ::= eform EOF
+lexpr ::= eform EOF
 ```
 
 Im Prinzip sieht unsere konkrete Grammatik bereits der ANTLR-Grammatik recht ähnlich. Wir müssen zunächst die `::=` durch einen einfachen Doppelpunkt `:` ersetzen. Zusätzlich muss jede Regel mit einem Semikolon `;` abgeschlossen werden.
@@ -550,4 +550,4 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> ddc7464 2026-10-25 lexpr: improve beamer formatting (antlr grammar)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> df9ebb5 2026-10-29 lecture: unify spelling of lexpr<br></sub></sup></p></blockquote>

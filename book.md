@@ -49,11 +49,11 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 #### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:---|:----|:---------------------------------------|:---------|:-------------|
+|:---|:----|:-------------------------------------|:-----------|:-------------|
 | Oktober | 12.10 | Orga \|\| [Überblick](#id-1df70a478502c95d7f7d1fa78f328a16640b3907) \| [Sprachen](#id-55cceb8d95eb4d3a67a6a18eb0e778b5695106a3) \| [Anwendungen](#id-315c4a6ad46ecd3cdd06bff39540497383b62904) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](#id-cb0be27b07154b726b38212279070d854085a4f8) | [B01](#id-6f673c2e093cdfc53b1f78baef11fd06cc8aa415) |  |
 |  | 26.10. | [Reguläre Sprachen 2](#id-e6527ca4572a4752c431b91119c87d78fa032789) \|\| [CFG](#id-7c0e930dad216729eeb1545678306ab9f0d6a57b) | [B02](#id-0db349230022c35e045dc3b052a4faea50fe5f40) |  |
-| November | 02.11. | [LL-Parser (Theorie)](#id-9aa1932181298bc40b56bb55a0bf53edf1c3aa88) | \- | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
+| November | 02.11. | [LL-Parser (Theorie)](#id-9aa1932181298bc40b56bb55a0bf53edf1c3aa88) | \- (**Extra Sprechstunde 04.11., 13-14 Uhr, online**) | **Di, 03.11., 17:00 - 18:00 Uhr (online): ANTLR + Live-Coding** |
 |  | 09.11. | L-Int (Teil 1): [Intro L-Int](#id-92efa03f813e51c04582d54092121544fac6d2f6) \| [Grammatik](#id-5b9897e3373f2ab9cb2db150c803f2e2f79b5bc5) \| [Interpreter](#id-d8a55d89d69aa672b84f607d0f4d791de1cb29a3) | **Station 1** |  |
 |  | 16.11. | L-Int (Teil 2): [Lexer](#id-ace9fbbfab20407167957763e345b4cb8130dc1b) \| [RD-Parser](#id-ebe1e096694731fb5532fdd9572b900a699e7eaf) | [B03: C-Int](#id-c6885788e4bb28c92d66417730e18408254766a3) |  |
 |  | 23.11. | L-Expr: [Intro L-Expr](#id-9fb6f7eb249b8f4638db93995fb9ed91174500e2) \| [Vorrang](#id-3b77e4be5a2314d1b8ca4913379e49498c040ad0) \| [ANTLR Grammatik](#id-2e5ecf5bc552fd7f2cdf3903747b45e30328286a) \| [ANTLR Visitor](#id-f47140a0e1424b798887e57fe5e33325a47a4010) | [B04: C-Expr](#id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f) |  |
@@ -1955,7 +1955,7 @@ eform ::= '(' '+' eform eform+ ')'
         | INT
 INT   ::= [0-9]+
 
-L_int ::= eform EOF
+lint  ::= eform EOF
 ```
 
 Diese konkrete Grammatik beschreibt die Struktur (Syntax) der Zeichenketten, die zulässige Ausdrücke in L-Int sind.
@@ -1987,7 +1987,6 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 > -   klein geschrieben: Nichtterminale (Produktionsregeln) der konkreten Syntax, etwa `eform`
 > -   GROSS geschrieben: Terminal-Symbole (Token) des Lexers, etwa `INT` oder `EOF`
 > -   in einfachen 'Anführungszeichen': unbenannte Terminale als konkrete Zeichenketten (implizite Token), etwa `'+'` oder `'('` - für diese gibt es ebenfalls Token im Lexer (`PLUS`, `LPAREN`)
-> -   UpperCamelCase: kommt in der konkreten Syntax ausschließlich für die Einstiegsregel vor: `L_int`
 > -   Wiederholungsoperatoren: beziehen sich auf den Ausdruck davor (ggf. klammern!)
 >     -   `?`: "ein- oder keinmal"
 >     -   `*`: "kein- oder mehrfach"
@@ -2019,8 +2018,8 @@ Text: `(- (+ 1 2) 3)`
 
 Parse-Tree:
 
-                                  L_int
-                                 /     \
+                                   lint
+                                  /    \
                              eform      EOF
                         _____/ | \ \______________
                        /       |  \      \        \
@@ -2031,7 +2030,7 @@ Parse-Tree:
                                ...           |
                                             "3"
 
-Wir starten mit der Startregel `L_int`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das "(" gefolgt von einem "-" passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer ")". Der Teilausdruck "(+ 1 2)" passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die "3" passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und "3" zu der Alternative `INT` in `eform` passt.
+Wir starten mit der Startregel `lint`. Diese fordert ein `eform` und ein `EOF`, beide bilden die zweite Ebene. Das "(" gefolgt von einem "-" passt zur zweiten Alternative in der Regel `eform`, die beiden Token werden als Kinder des `eform`-Knotens eingetragen. Dann erwarten wir eine `eform eform+` und die schließende rechte Klammer ")". Der Teilausdruck "(+ 1 2)" passt auf `eform` (hier nur teilweise als Skizze dargestellt). Die "3" passt zu `eform+`, da hier mindestens eine oder beliebig viele `eform`-Ausdrücke erwartet werden und "3" zu der Alternative `INT` in `eform` passt.
 
 > [!TIP]
 >
@@ -2076,11 +2075,11 @@ Die abstrakte Grammatik hingegen ist das Modell, das wir intern verwenden, um di
 ##### Abstrakte Grammatik für L-Int
 
 ``` ebnf
-Expr  = IntLiteral(Int)
-      | AddExpr(Expr, Expr)
-      | SubExpr(Expr, Expr)
+Expr = IntLiteral(Int)
+     | AddExpr(Expr, Expr)
+     | SubExpr(Expr, Expr)
 
-L_int = Expr
+Lint = Expr
 ```
 
 -   Keine `eform`-Regel mehr
@@ -2156,7 +2155,7 @@ Für die Alternativen brauchen wir Datentypen, die ihrerseits Felder speichern k
 
 Diese Struktur bildet unseren AST in L-Int und wird in späteren Sprachstufen erweitert.
 
-Die Startregel `L_int = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus *einem* `Expr`-Ausdruck bestehen. Diese wird deshalb nicht in den AST-Typen umgesetzt, sondern findet später im Parser und Interpreter Beachtung.
+Die Startregel `Lint = Expr` soll vor allem ausdrücken, dass alle L-Int-Programme aus *einem* `Expr`-Ausdruck bestehen. Diese wird deshalb nicht in den AST-Typen umgesetzt, sondern findet später im Parser und Interpreter Beachtung.
 
 > [!TIP]
 >
@@ -2327,8 +2326,8 @@ Der nächste Schritt: Aus dem AST wollen wir konkrete Ergebnisse berechnen. Dazu
 Erinnerung: Unsere konkrete Syntax für L-Int sah so aus:
 
 ``` ebnf
-Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-L_int = Expr
+Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+Lint = Expr
 ```
 
 -   L-Int: Nur ganze Zahlen
@@ -3108,7 +3107,7 @@ public class LispyParserLint {
 
 Der Parser sieht strukturell dem Lexer ähnlich: Er hat eine Eingabefolge - hier die Token-Liste `tokens` - und einen Positionszeiger (aktueller Index `current`).
 
-Den Einstieg in den Parser bildet die Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Diese Methode bildet die Startregel `L_int ::= eform EOF` der konkreten Grammatik ab.
+Den Einstieg in den Parser bildet die Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Diese Methode bildet die Startregel `lint ::= eform EOF` der konkreten Grammatik ab.
 
 Die einzelnen Regeln der (von direkter Linksrekursion befreiten) konkreten Grammatik bilden wir auf die Arbeitsmethoden `parseEform()`, `parseAtom()`, `parseAddExpr()`, `parseSubExpr()` ab.
 
@@ -3122,10 +3121,10 @@ Wir betrachten folgende konkrete Syntax in L-Int:
 eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
 INT   ::= [0-9]+
 
-L_int ::= eform EOF
+lint  ::= eform EOF
 ```
 
-Der Einstieg ist die Regel `L_int`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt und wurde bereits in der Einstiegsmethode `parse()` umgesetzt.
+Der Einstieg ist die Regel `lint`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt und wurde bereits in der Einstiegsmethode `parse()` umgesetzt.
 
 Eine `eform` kann entweder eine Addition, eine Subtraktion oder einfach nur ein Integer-Literal sein. Letzteres ist ein Terminal, d.h. hier können wir einfach mit `match()` das entsprechende Token abfragen.
 
@@ -3543,14 +3542,14 @@ Implementierung als RD-Parser:
     ``` ebnf
     eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
     INT   ::= [0-9]+
-    L_int ::= eform EOF
+    lint  ::= eform EOF
     ```
 
 -   Abstrakte Syntax:
 
     ``` ebnf
-    Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-    L_int = Expr
+    Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+    Lint = Expr
     ```
 
 -   AST:
@@ -3575,15 +3574,15 @@ Wir bleiben bei **Integer-Ausdrücken**, fügen aber Multiplikation und Division
 -   **Neue konkrete Syntax in Lispy (Stufe L-Expr)**:
 
     ``` ebnf
-    eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
-    INT    ::= [0-9]+
+    eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+    INT   ::= [0-9]+
     ---
 
-    eform  ::= '(' '*' eform eform+ ')'
-             | '(' '/' eform eform+ ')'
-             | '(' '-' eform ')'
+    eform ::= '(' '*' eform eform+ ')'
+            | '(' '/' eform eform+ ')'
+            | '(' '-' eform ')'
 
-    L_expr ::= eform EOF
+    lexpr ::= eform EOF
     ```
 
 Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für die `eform`-Regel mit neuen Operatoren hinzu. Semantisch bleiben wir bei Integer-Werten und mehrstelligen Operationen.
@@ -3597,16 +3596,16 @@ Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für di
 > Für eine formale Grammatik wären normalerweise zwei Regeln mit dem selben Namen nicht erlaubt. Man muss also die beiden `eform`-Regeln (eine aus L-Int, eine neu in L-Expr) **gedanklich mergen**:
 >
 > ``` ebnf
-> eform  ::= '(' '+' eform eform+ ')'
->          | '(' '-' eform eform+ ')'
->          | '(' '*' eform eform+ ')'
->          | '(' '/' eform eform+ ')'
->          | '(' '-' eform ')'
->          | INT
+> eform ::= '(' '+' eform eform+ ')'
+>         | '(' '-' eform eform+ ')'
+>         | '(' '*' eform eform+ ')'
+>         | '(' '/' eform eform+ ')'
+>         | '(' '-' eform ')'
+>         | INT
 >
-> INT    ::= [0-9]+
+> INT   ::= [0-9]+
 >
-> L_expr ::= eform EOF
+> lexpr ::= eform EOF
 > ```
 >
 > **Dieses Prinzip werden wir ab L-Expr für die konkreten und abstrakten Grammatiken anwenden.**
@@ -3616,12 +3615,12 @@ Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für di
 ##### Abstrakte Syntax für L-Expr
 
 ``` ebnf
-Expr   = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
 ---
 
-Expr   = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
+Expr  = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
 
-L_expr = Expr
+Lexpr = Expr
 ```
 
 ``` java
@@ -4046,13 +4045,13 @@ Jetzt wollen wir auf die ANTLR-Grammatik schauen.
 ##### Erinnerung: Konkrete Syntax für L-Expr
 
 ``` ebnf
-eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
-INT    ::= [0-9]+
+eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+INT   ::= [0-9]+
 ---
 
-eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
+eform ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
 
-L_expr ::= eform EOF
+lexpr ::= eform EOF
 ```
 
 Im Prinzip sieht unsere konkrete Grammatik bereits der ANTLR-Grammatik recht ähnlich. Wir müssen zunächst die `::=` durch einen einfachen Doppelpunkt `:` ersetzen. Zusätzlich muss jede Regel mit einem Semikolon `;` abgeschlossen werden.
@@ -5604,12 +5603,12 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 **Exceptions:**
 
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 24134dd 2026-10-28 homework: improve tasks (sheet 04 l-expr)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 5b214d9 2026-10-29 orga: add extra ask-me-anything on 04.11.<br></sub></sup></p></blockquote>

@@ -22,14 +22,14 @@
     ``` ebnf
     eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
     INT   ::= [0-9]+
-    L_int ::= eform EOF
+    lint  ::= eform EOF
     ```
 
 -   Abstrakte Syntax:
 
     ``` ebnf
-    Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-    L_int = Expr
+    Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+    Lint = Expr
     ```
 
 -   AST:
@@ -54,15 +54,15 @@ Wir bleiben bei **Integer-Ausdrücken**, fügen aber Multiplikation und Division
 -   **Neue konkrete Syntax in Lispy (Stufe L-Expr)**:
 
     ``` ebnf
-    eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
-    INT    ::= [0-9]+
+    eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+    INT   ::= [0-9]+
     ---
 
-    eform  ::= '(' '*' eform eform+ ')'
-             | '(' '/' eform eform+ ')'
-             | '(' '-' eform ')'
+    eform ::= '(' '*' eform eform+ ')'
+            | '(' '/' eform eform+ ')'
+            | '(' '-' eform ')'
 
-    L_expr ::= eform EOF
+    lexpr ::= eform EOF
     ```
 
 Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für die `eform`-Regel mit neuen Operatoren hinzu. Semantisch bleiben wir bei Integer-Werten und mehrstelligen Operationen.
@@ -76,16 +76,16 @@ Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für di
 > Für eine formale Grammatik wären normalerweise zwei Regeln mit dem selben Namen nicht erlaubt. Man muss also die beiden `eform`-Regeln (eine aus L-Int, eine neu in L-Expr) **gedanklich mergen**:
 >
 > ``` ebnf
-> eform  ::= '(' '+' eform eform+ ')'
->          | '(' '-' eform eform+ ')'
->          | '(' '*' eform eform+ ')'
->          | '(' '/' eform eform+ ')'
->          | '(' '-' eform ')'
->          | INT
+> eform ::= '(' '+' eform eform+ ')'
+>         | '(' '-' eform eform+ ')'
+>         | '(' '*' eform eform+ ')'
+>         | '(' '/' eform eform+ ')'
+>         | '(' '-' eform ')'
+>         | INT
 >
-> INT    ::= [0-9]+
+> INT   ::= [0-9]+
 >
-> L_expr ::= eform EOF
+> lexpr ::= eform EOF
 > ```
 >
 > **Dieses Prinzip werden wir ab L-Expr für die konkreten und abstrakten Grammatiken anwenden.**
@@ -95,12 +95,12 @@ Die Grundidee in Lispy ist: Wir fügen einfach zwei weitere Alternativen für di
 ## Abstrakte Syntax für L-Expr
 
 ``` ebnf
-Expr   = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
 ---
 
-Expr   = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
+Expr  = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
 
-L_expr = Expr
+Lexpr = Expr
 ```
 
 ``` java
@@ -327,4 +327,4 @@ Beispiele:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 05df332 2026-10-25 lexpr: improve beamer formatting (intro)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a0bb667 2026-10-29 lecture: unify spelling of lint<br></sub></sup></p></blockquote>

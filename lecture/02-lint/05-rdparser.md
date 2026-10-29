@@ -135,7 +135,7 @@ public class LispyParserLint {
 
 Der Parser sieht strukturell dem Lexer ähnlich: Er hat eine Eingabefolge - hier die Token-Liste `tokens` - und einen Positionszeiger (aktueller Index `current`).
 
-Den Einstieg in den Parser bildet die Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Diese Methode bildet die Startregel `L_int ::= eform EOF` der konkreten Grammatik ab.
+Den Einstieg in den Parser bildet die Methode `parse()`, die den gesamten Eingabestrom gemäß der Grammatik verarbeitet. Diese Methode bildet die Startregel `lint ::= eform EOF` der konkreten Grammatik ab.
 
 Die einzelnen Regeln der (von direkter Linksrekursion befreiten) konkreten Grammatik bilden wir auf die Arbeitsmethoden `parseEform()`, `parseAtom()`, `parseAddExpr()`, `parseSubExpr()` ab.
 
@@ -149,10 +149,10 @@ Wir betrachten folgende konkrete Syntax in L-Int:
 eform ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
 INT   ::= [0-9]+
 
-L_int ::= eform EOF
+lint  ::= eform EOF
 ```
 
-Der Einstieg ist die Regel `L_int`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt und wurde bereits in der Einstiegsmethode `parse()` umgesetzt.
+Der Einstieg ist die Regel `lint`, die eine `eform` erwartet und ein anschließendes `EOF`-Token. Mehr ist in der Sprachstufe L-Int nicht erlaubt und wurde bereits in der Einstiegsmethode `parse()` umgesetzt.
 
 Eine `eform` kann entweder eine Addition, eine Subtraktion oder einfach nur ein Integer-Literal sein. Letzteres ist ein Terminal, d.h. hier können wir einfach mit `match()` das entsprechende Token abfragen.
 
@@ -556,4 +556,4 @@ Implementierung als RD-Parser:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 98cf50a 2026-10-17 lint: improve readability of code snippets<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a0bb667 2026-10-29 lecture: unify spelling of lint<br></sub></sup></p></blockquote>

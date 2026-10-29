@@ -36,8 +36,8 @@ Der nächste Schritt: Aus dem AST wollen wir konkrete Ergebnisse berechnen. Dazu
 Erinnerung: Unsere konkrete Syntax für L-Int sah so aus:
 
 ``` ebnf
-Expr  = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
-L_int = Expr
+Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+Lint = Expr
 ```
 
 -   L-Int: Nur ganze Zahlen
@@ -295,4 +295,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 53e78e7 2026-10-16 lint interpreter: improve readability<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a0bb667 2026-10-29 lecture: unify spelling of lint<br></sub></sup></p></blockquote>
