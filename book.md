@@ -1529,6 +1529,15 @@ Wir verstehen unter Syntax eine Menge von Regeln, die die Struktur von Daten (z.
 
 #### LL-Parser
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
+>
+> -   [Annotierte Folien: LL-Parser](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/ll-parser.ann.ba.pdf)
+>
+> </details>
+
 ##### Wiederholung
 
 ###### PDAs und kontextfreie Grammatiken
@@ -1722,15 +1731,15 @@ Rekursive Programmierung bedeutet, dass das Laufzeitsystem einen Stack benutzt. 
 >
 > </details>
 
-##### Problem: Wie verstehen wir `1 + 2 - 3`?
+##### Problem: Wie verstehen wir `1 + 2 * 3`?
 
--   Eingabe: Text wie `1 + 2 - 3`
+-   Eingabe: Text wie `1 + 2 * 3`
 -   Ziel: Ergebnis berechnen
 -   Frage:
     -   Wie modellieren wir die Struktur solcher Ausdrücke?
     -   Wie bringen wir den Rechner dazu, "richtig" zu rechnen?
 
-Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 - 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
+Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 * 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
 
 Das wird uns durch die gesamte Veranstaltung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
 
@@ -1775,7 +1784,7 @@ Clojure und Lisp nutzen die "*prefix notation*": `(. x y z)`
 
 <div data-align="center">
 
-<p align="center"><img src="https://clojure.org/images/content/guides/learn/syntax/structure-and-semantics.png" width="85%" /></p>
+<p align="center"><img src="https://clojure.org/images/content/guides/learn/syntax/structure-and-semantics.png" width="50%" /></p>
 
 Quelle: [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
@@ -1793,14 +1802,14 @@ S-Expressions werden in Clojure und Lisp oft auch "*form*" genannt.
 >
 > Wir ignorieren die Aspekte "Liste" und "Funktion" vorerst und stellen das für später zurück. Ein `(+ 1 2)` ist für uns einfach eine andere Schreibweise für `1 + 2`.
 
-##### L-Int: Erste Sprachstufe
+##### Lispy: Erste Sprachstufe L-Int
 
 Die Sprache L-Int ist bewusst sehr eingeschränkt, damit wir schnell die Interpreter-Pipeline aufbauen können. Wir werden dann schrittweise weitere Sprachinkremente darauf aufbauen.
 
 In L-Int haben wir:
 
 -   Nichtnegative Ganzzahlen (z.B. `0`, `42`, `1337`)
--   Binäre Operatoren: `+`, `-`
+-   Arithmetische Operatoren: `+`, `-`
 -   Klammern: `(`, `)`
 -   Zeilen-Kommentar: `;;`
 
@@ -2012,11 +2021,11 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 
 ##### Beispiel konkrete Syntax
 
-Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als Parse-Tree aussieht.
+Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als **Parse-Tree** aussieht.
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-Parse-Tree:
+**Parse-Tree**:
 
                                    lint
                                   /    \
@@ -2038,16 +2047,16 @@ Wir starten mit der Startregel `lint`. Diese fordert ein `eform` und ein `EOF`, 
 
 ##### Konkrete Grammatik - Eigenschaften
 
--   Die Grammatik legt fest:
-    -   Welche Eingabe-Strings gültige Programme sind
+-   Die konkrete Grammatik legt fest:
+    -   Welche Eingabe-Strings **syntaktisch** gültige Programme sind
     -   Struktur des **Parse-Trees**
 
 <!-- -->
 
 -   Aber:
-    -   Enthält "technische" Details:
+    -   Parse-Tree enthält **"technische" Details**:
         -   Klammern, `EOF`, ...
-        -   Hilfsnonterminale (`eform`)
+        -   Hilfs-Nonterminale (`eform`)
     -   Nicht optimal als interne Repräsentation für die Weiterverarbeitung
 
 Die konkrete Grammatik ist gut, um zu entscheiden: Gehört ein String zur Sprache, ja oder nein? Und sie ermöglicht es uns, einen Recursive-Descent-Parser aus der Grammatik abzuleiten. Sie liefert für eine Eingabe eines syntaktisch korrekt formulierten Programms einen dazu passenden Parse-Tree, der strukturell entsprechend den Regeln in der Grammatik aufgebaut ist.
@@ -2057,13 +2066,13 @@ Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite 
 ##### Konkrete vs. abstrakte Grammatik
 
 -   **Konkrete Grammatik**:
-    -   Wie der Code "auf dem Papier" aussieht
+    -   Wie der Code "auf dem Papier" (in der Eingabe) aussieht
     -   Enthält Syntaxdetails (Klammern, Keywords, Vorrangregeln)
 
 <!-- -->
 
 -   **Abstrakte Grammatik**:
-    -   Wie wir den Code **im Programm** modellieren
+    -   Wie wir den Code **im Compiler** modellieren
     -   Fokus auf Bedeutungsträger (z.B. `AddExpr`, `SubExpr`, `IntLiteral`)
 
 Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen **konkreter** und **abstrakter Grammatik**.
@@ -2101,11 +2110,11 @@ Mit der abstrakten Grammatik beschreiben wir den *abstract syntax tree* (**AST**
 
 ##### Beispiel abstrakte Syntax (AST)
 
-Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als AST aussieht.
+Schauen wir uns nun an, wie der Ausdruck `(- (+ 1 2) 3)` als **AST** aussieht.
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-AST:
+**AST**:
 
                                     SubExpr
                                    /       \
@@ -2177,9 +2186,9 @@ Die Startregel `Lint = Expr` soll vor allem ausdrücken, dass alle L-Int-Program
 
 ##### AST in Java: Beispielkonstruktion
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-AST:
+**AST**:
 
                                     SubExpr
                                    /       \
@@ -2188,6 +2197,8 @@ AST:
                        IntLiteral IntLiteral  3
                            |          |
                            1          2
+
+**AST direkt in Java**:
 
 ``` java
 Expr e = new SubExpr(
@@ -2375,7 +2386,7 @@ Wir müssen die Typen der Zielsprache (hier Lispy) auf unsere Implementierungssp
     -   Rekursiv über den AST laufen
     -   Pro Knotentyp die passende Operation ausführen:
         -   Literal (Integer): Als Integer-Wert zurückgeben
-        -   Ausdruck (Addition, Subtraktion): linke und rechte Seite zu Integer-Werten evaluieren, die Operation ausführen, Ergebnis als Integerwert zurückgeben
+        -   Ausdruck (Addition, Subtraktion): linke und rechte Seite zu Integer-Werten evaluieren, die Operation ausführen, Ergebnis als Integer-Wert zurückgeben
 
 Der Tree-Walking-Interpreter ist im Kern eine rekursive Funktion über dem AST. Für jeden Knotentyp - Literal, Addition, Subtraktion - definieren wir, wie er auszuwerten ist. Das ist eine direkte Implementierung der operationalen Semantik unserer Sprache: Wir sagen dem Rechner Schritt für Schritt, wie die Auswertung funktioniert.
 
@@ -2486,9 +2497,9 @@ An der Stelle müssen wir den AST noch manuell konstruieren. In Zukunft bekommt 
 ##### Wrap-up
 
 -   Interpreter simulieren die Programmausführung
-    -   Code ausführen: Read-Eval-Loop
+    -   Code ausführen: Read-Eval-Loop (REPL)
 -   Tree-Walking-Interpreter traversieren den AST
--   Auswertung der Knoten mit `eval(Expr e)`
+-   Auswertung der (Expression-) Knoten mit `eval(Expr e)`
 
 Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hierarchie in Java implementiert und einen Interpreter, der ASTs für L-Int auswertet. In der nächsten Sitzung geht es darum, wie wir diese ASTs automatisch aus Quelltext erzeugen: mit einem handgeschriebenen Lexer und einem Recursive-Descent-Parser.
 
@@ -5602,13 +5613,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> c195f7e 2026-10-31 lvar: start working on homework (sheet 05)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 8c21e22 2026-11-03 lint grammar: improve formatting (web)<br></sub></sup></p></blockquote>

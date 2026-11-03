@@ -97,11 +97,11 @@ Das nennt sich "konkrete Grammatik", weil wir hier ausdrücken, was gültige kon
 
 ## Beispiel konkrete Syntax
 
-Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als Parse-Tree aussieht.
+Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als **Parse-Tree** aussieht.
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-Parse-Tree:
+**Parse-Tree**:
 
                                    lint
                                   /    \
@@ -123,16 +123,16 @@ Wir starten mit der Startregel `lint`. Diese fordert ein `eform` und ein `EOF`, 
 
 ## Konkrete Grammatik - Eigenschaften
 
--   Die Grammatik legt fest:
-    -   Welche Eingabe-Strings gültige Programme sind
+-   Die konkrete Grammatik legt fest:
+    -   Welche Eingabe-Strings **syntaktisch** gültige Programme sind
     -   Struktur des **Parse-Trees**
 
 <!-- -->
 
 -   Aber:
-    -   Enthält "technische" Details:
+    -   Parse-Tree enthält **"technische" Details**:
         -   Klammern, `EOF`, ...
-        -   Hilfsnonterminale (`eform`)
+        -   Hilfs-Nonterminale (`eform`)
     -   Nicht optimal als interne Repräsentation für die Weiterverarbeitung
 
 Die konkrete Grammatik ist gut, um zu entscheiden: Gehört ein String zur Sprache, ja oder nein? Und sie ermöglicht es uns, einen Recursive-Descent-Parser aus der Grammatik abzuleiten. Sie liefert für eine Eingabe eines syntaktisch korrekt formulierten Programms einen dazu passenden Parse-Tree, der strukturell entsprechend den Regeln in der Grammatik aufgebaut ist.
@@ -142,13 +142,13 @@ Aber sie enthält viele technische Hilfskonstrukte, z.B. `eform` oder explizite 
 ## Konkrete vs. abstrakte Grammatik
 
 -   **Konkrete Grammatik**:
-    -   Wie der Code "auf dem Papier" aussieht
+    -   Wie der Code "auf dem Papier" (in der Eingabe) aussieht
     -   Enthält Syntaxdetails (Klammern, Keywords, Vorrangregeln)
 
 <!-- -->
 
 -   **Abstrakte Grammatik**:
-    -   Wie wir den Code **im Programm** modellieren
+    -   Wie wir den Code **im Compiler** modellieren
     -   Fokus auf Bedeutungsträger (z.B. `AddExpr`, `SubExpr`, `IntLiteral`)
 
 Wir orientieren uns an der Darstellung in ([Siek 2023](#ref-Siek2023python)) und unterscheiden sehr bewusst zwischen **konkreter** und **abstrakter Grammatik**.
@@ -186,11 +186,11 @@ Mit der abstrakten Grammatik beschreiben wir den *abstract syntax tree* (**AST**
 
 ## Beispiel abstrakte Syntax (AST)
 
-Schauen wir uns an, wie der Ausdruck `(- (+ 1 2) 3)` als AST aussieht.
+Schauen wir uns nun an, wie der Ausdruck `(- (+ 1 2) 3)` als **AST** aussieht.
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-AST:
+**AST**:
 
                                     SubExpr
                                    /       \
@@ -262,9 +262,9 @@ Die Startregel `Lint = Expr` soll vor allem ausdrücken, dass alle L-Int-Program
 
 ## AST in Java: Beispielkonstruktion
 
-Text: `(- (+ 1 2) 3)`
+**Text**: `(- (+ 1 2) 3)`
 
-AST:
+**AST**:
 
                                     SubExpr
                                    /       \
@@ -273,6 +273,8 @@ AST:
                        IntLiteral IntLiteral  3
                            |          |
                            1          2
+
+**AST direkt in Java**:
 
 ``` java
 Expr e = new SubExpr(
@@ -402,4 +404,4 @@ Hier konstruieren wir den AST für `(- (+ 1 2) 3)` von Hand in Java. Das ist wic
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> a0bb667 2026-10-29 lecture: unify spelling of lint<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 8c21e22 2026-11-03 lint grammar: improve formatting (web)<br></sub></sup></p></blockquote>

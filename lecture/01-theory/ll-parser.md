@@ -1,5 +1,14 @@
 # LL-Parser
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🖇 Weitere Unterlagen</strong></summary>
+>
+> -   [Annotierte Folien: LL-Parser](https://github.com/Compiler-CampusMinden/AnnotatedSlides/blob/master/ll-parser.ann.ba.pdf)
+>
+> </details>
+
 ## Wiederholung
 
 ### PDAs und kontextfreie Grammatiken
@@ -189,4 +198,4 @@ Rekursive Programmierung bedeutet, dass das Laufzeitsystem einen Stack benutzt. 
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 0041a57 2026-09-30 theory: temporarely remove links to old annatated slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 10e2502 2026-11-03 lecture: add link to annotated slides (llparser) (#458)<br></sub></sup></p></blockquote>

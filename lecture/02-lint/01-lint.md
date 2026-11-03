@@ -17,15 +17,15 @@
 >
 > </details>
 
-## Problem: Wie verstehen wir `1 + 2 - 3`?
+## Problem: Wie verstehen wir `1 + 2 * 3`?
 
--   Eingabe: Text wie `1 + 2 - 3`
+-   Eingabe: Text wie `1 + 2 * 3`
 -   Ziel: Ergebnis berechnen
 -   Frage:
     -   Wie modellieren wir die Struktur solcher Ausdrücke?
     -   Wie bringen wir den Rechner dazu, "richtig" zu rechnen?
 
-Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 - 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
+Starten wir mit einem bewusst einfachen Beispiel: `1 + 2 * 3`. Das kennen alle, aber wir tun jetzt so, als wüssten wir noch nicht, wie ein Rechner das versteht. Die beiden Kernfragen sind: Wie sieht die Struktur dieses Ausdrucks aus? Und wie können wir die Bedeutung so modellieren, dass wir sie programmatisch auswerten können?
 
 Das wird uns durch die gesamte Veranstaltung begleiten: **Vom Text (Eingabe) über Struktur (Syntax) hin zur Bedeutung (Semantik)**.
 
@@ -70,7 +70,7 @@ Clojure und Lisp nutzen die "*prefix notation*": `(. x y z)`
 
 <div data-align="center">
 
-<p align="center"><img src="https://clojure.org/images/content/guides/learn/syntax/structure-and-semantics.png" width="85%" /></p>
+<p align="center"><img src="https://clojure.org/images/content/guides/learn/syntax/structure-and-semantics.png" width="50%" /></p>
 
 Quelle: [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
@@ -88,14 +88,14 @@ S-Expressions werden in Clojure und Lisp oft auch "*form*" genannt.
 >
 > Wir ignorieren die Aspekte "Liste" und "Funktion" vorerst und stellen das für später zurück. Ein `(+ 1 2)` ist für uns einfach eine andere Schreibweise für `1 + 2`.
 
-## L-Int: Erste Sprachstufe
+## Lispy: Erste Sprachstufe L-Int
 
 Die Sprache L-Int ist bewusst sehr eingeschränkt, damit wir schnell die Interpreter-Pipeline aufbauen können. Wir werden dann schrittweise weitere Sprachinkremente darauf aufbauen.
 
 In L-Int haben wir:
 
 -   Nichtnegative Ganzzahlen (z.B. `0`, `42`, `1337`)
--   Binäre Operatoren: `+`, `-`
+-   Arithmetische Operatoren: `+`, `-`
 -   Klammern: `(`, `)`
 -   Zeilen-Kommentar: `;;`
 
@@ -241,4 +241,4 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 7b061c2 2026-10-15 lint intro: improve wording<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 4bacfd4 2026-11-03 lint intro: fix image scaling<br></sub></sup></p></blockquote>

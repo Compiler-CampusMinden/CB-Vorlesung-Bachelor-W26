@@ -85,7 +85,7 @@ Wir müssen die Typen der Zielsprache (hier Lispy) auf unsere Implementierungssp
     -   Rekursiv über den AST laufen
     -   Pro Knotentyp die passende Operation ausführen:
         -   Literal (Integer): Als Integer-Wert zurückgeben
-        -   Ausdruck (Addition, Subtraktion): linke und rechte Seite zu Integer-Werten evaluieren, die Operation ausführen, Ergebnis als Integerwert zurückgeben
+        -   Ausdruck (Addition, Subtraktion): linke und rechte Seite zu Integer-Werten evaluieren, die Operation ausführen, Ergebnis als Integer-Wert zurückgeben
 
 Der Tree-Walking-Interpreter ist im Kern eine rekursive Funktion über dem AST. Für jeden Knotentyp - Literal, Addition, Subtraktion - definieren wir, wie er auszuwerten ist. Das ist eine direkte Implementierung der operationalen Semantik unserer Sprache: Wir sagen dem Rechner Schritt für Schritt, wie die Auswertung funktioniert.
 
@@ -196,9 +196,9 @@ An der Stelle müssen wir den AST noch manuell konstruieren. In Zukunft bekommt 
 ## Wrap-up
 
 -   Interpreter simulieren die Programmausführung
-    -   Code ausführen: Read-Eval-Loop
+    -   Code ausführen: Read-Eval-Loop (REPL)
 -   Tree-Walking-Interpreter traversieren den AST
--   Auswertung der Knoten mit `eval(Expr e)`
+-   Auswertung der (Expression-) Knoten mit `eval(Expr e)`
 
 Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hierarchie in Java implementiert und einen Interpreter, der ASTs für L-Int auswertet. In der nächsten Sitzung geht es darum, wie wir diese ASTs automatisch aus Quelltext erzeugen: mit einem handgeschriebenen Lexer und einem Recursive-Descent-Parser.
 
@@ -295,4 +295,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> a0bb667 2026-10-29 lecture: unify spelling of lint<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 1e79f9e 2026-11-03 lint interpreter: improve slides<br></sub></sup></p></blockquote>
