@@ -17,6 +17,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/JoIQmSkYEtY)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-int-die-sprache-lispy/89fc83ce0ac6e37fde393da526dd2f3a)\]
+>
+> </details>
+
 ## Problem: Wie verstehen wir `1 + 2 * 3`?
 
 -   Eingabe: Text wie `1 + 2 * 3`
@@ -241,4 +250,4 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 4bacfd4 2026-11-03 lint intro: fix image scaling<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 1937be8 2026-11-03 lint: add screencast (intro)<br></sub></sup></p></blockquote>

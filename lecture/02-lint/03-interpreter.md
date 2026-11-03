@@ -13,6 +13,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/aFEBQbNgTXs)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-int-von-ausdrcken-zum-interpreter/e98d1ff213e01714a919f975dc8179e2)\]
+>
+> </details>
+
 ## Von AST zu Werten: Idee
 
 -   Gegeben: Lexer/Parser haben einen AST aufgebaut
@@ -295,4 +304,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 1e79f9e 2026-11-03 lint interpreter: improve slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 8b5693c 2026-11-03 lint: add screencast (interpreter)<br></sub></sup></p></blockquote>

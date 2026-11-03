@@ -13,6 +13,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/XvJVwqA4i7Y)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-int-konkrete-und-abstrakte-syntax/521ec26e001d2f96fd2d1ec087036448)\]
+>
+> </details>
+
 ## Erinnerung Lispy in der Sprachstufe L-Int
 
 ``` clojure
@@ -404,4 +413,4 @@ Hier konstruieren wir den AST für `(- (+ 1 2) 3)` von Hand in Java. Das ist wic
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 8c21e22 2026-11-03 lint grammar: improve formatting (web)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> b7ac8e6 2026-11-03 lint: add screencast (grammar)<br></sub></sup></p></blockquote>
