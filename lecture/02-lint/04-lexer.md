@@ -214,11 +214,11 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
 >
 > Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende der Eingabe noch ein weiteres `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich ...
 
-## Typische Muster für Erstellung von Token
+## Typische Muster für die Definition von Token
 
 1.  Schlüsselwörter
 
-    -   Ein eigenes Token für jedes Schlüsselwort, oder
+    -   Ein eigenes Token (RE) für jedes Schlüsselwort, oder
     -   Erkennung als Name (`ID`) und nachträglich Vergleich mit Wörterbuch sowie Korrektur des Tokentyps
 
     Wenn Schlüsselwörter über je ein eigenes Token abgebildet werden, benötigt man für jedes Schlüsselwort einen eigenen RE bzw. DFA. Die Erkennung als Bezeichner und das Nachschlagen in einem Wörterbuch (geeignete Hashtabelle) sowie die entsprechende nachträgliche Korrektur des Tokentyps kann die Anzahl der Zustände im Lexer signifikant reduzieren! Wir werden dies später in der Sprachvariante L-Var sehen.
@@ -435,4 +435,4 @@ Optionen:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> fe8bf7e 2026-10-21 lint lexer: add some more definitions<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 933897c 2026-11-04 lint lexer: add remark button (slides)<br></sub></sup></p></blockquote>

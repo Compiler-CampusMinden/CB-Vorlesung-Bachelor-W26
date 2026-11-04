@@ -97,6 +97,8 @@ Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablege
     -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
 -   **Prüfungsphase II**: **Digitale Klausur** im B40, Dauer 120 Minuten (*Termin wird vom Prüfungsamt bekanntgegeben*), **Klausurergebnis bestimmt die Note**
 
+[**Fragetypen-Demo** im ILIAS](https://www.hsbi.de/elearning/goto.php/tst/1352273)
+
 #### Hinweise
 
 -   Die Parcoursprüfung und die Studienleistung sind zwei unabhängige Prüfungsleistungen und werden separat im CAT angemeldet. Die Studienleistung schaltet die Credits für das Modul frei, die Parcoursprüfung ergibt die Modulnote. Die Studienleistung ist **keine** Vorleistung für die Parcoursprüfung.
@@ -143,4 +145,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 5b214d9 2026-10-29 orga: add extra ask-me-anything on 04.11.<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 935207a 2026-11-04 orga: add fragetypendemo<br></sub></sup></p></blockquote>

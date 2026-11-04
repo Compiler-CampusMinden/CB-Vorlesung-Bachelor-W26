@@ -101,6 +101,8 @@ Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablege
     -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
 -   **Prüfungsphase II**: **Digitale Klausur** im B40, Dauer 120 Minuten (*Termin wird vom Prüfungsamt bekanntgegeben*), **Klausurergebnis bestimmt die Note**
 
+[**Fragetypen-Demo** im ILIAS](https://www.hsbi.de/elearning/goto.php/tst/1352273)
+
 ##### Hinweise
 
 -   Die Parcoursprüfung und die Studienleistung sind zwei unabhängige Prüfungsleistungen und werden separat im CAT angemeldet. Die Studienleistung schaltet die Credits für das Modul frei, die Parcoursprüfung ergibt die Modulnote. Die Studienleistung ist **keine** Vorleistung für die Parcoursprüfung.
@@ -2810,11 +2812,11 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
 >
 > Alternativ könnte man auch eine Exception auslösen beim Versuch, am Ende der Eingabe noch ein weiteres `advance()` zu machen. Dies zieht aber schnell eine relativ umständliche Fehlerbehandlung nach sich ...
 
-##### Typische Muster für Erstellung von Token
+##### Typische Muster für die Definition von Token
 
 1.  Schlüsselwörter
 
-    -   Ein eigenes Token für jedes Schlüsselwort, oder
+    -   Ein eigenes Token (RE) für jedes Schlüsselwort, oder
     -   Erkennung als Name (`ID`) und nachträglich Vergleich mit Wörterbuch sowie Korrektur des Tokentyps
 
     Wenn Schlüsselwörter über je ein eigenes Token abgebildet werden, benötigt man für jedes Schlüsselwort einen eigenen RE bzw. DFA. Die Erkennung als Bezeichner und das Nachschlagen in einem Wörterbuch (geeignete Hashtabelle) sowie die entsprechende nachträgliche Korrektur des Tokentyps kann die Anzahl der Zustände im Lexer signifikant reduzieren! Wir werden dies später in der Sprachvariante L-Var sehen.
@@ -3033,7 +3035,7 @@ Optionen:
 >
 > </details>
 
-##### Recursive-Descent-Parser: Ziel
+##### LL-Parser mit Recursive Descent: Ziel
 
 -   Aus Tokens einen AST bauen:
 
@@ -3058,6 +3060,22 @@ Optionen:
 
 Mit dem Lexer können wir jetzt eine Tokenliste erzeugen. Der nächste Schritt ist der Parser, den wir als Recursive-Descent-Parser implementieren. Wir verwenden dafür eine leicht umgeformte Grammatik ohne Linksrekursion. Die Methode `parse()` wird unser Einstiegspunkt sein und am Ende einen `Expr`-AST liefern, den wir mit unserem Interpreter auswerten können.
 
+Wir haben in der Vorlesung LL-Parser kennengelernt, die den Parse-Tree von oben nach unten (*top-down*) aufbauen. Es gibt auch die Welt der LR-Parser, die den Baum von unten nach oben (*bottom-up*) aufbauen - diese betrachten wir hier nicht. Bei den LL-Parsern haben wir die Varianten "Recursive Descent" und "Tabellenbasiert" kennengelernt. Heute betrachten wir den Recursive-Descent-Parser (**RD-Parser**) genauer.
+
+> [!TIP]
+>
+> In unserem RD-Parser übergeben wir die Liste aller Token. Das passt zu unserer Modellierung des Lexers und entkoppelt softwaretechnisch beide Bausteine. Der Nachteil ist, dass der Lexer zunächst die komplette Eingabe bearbeitet, auch wenn der Parser vielleicht gleich beim ersten Token einen Fehler finden würde. Außerdem sieht man erst (schrittweise) alle Lexerfehler, bevor man dann (schrittweise) alle Parserfehler findet.
+>
+> Die traditionelle Formulierung ist, dem RD-Parser einen Lexer zu übergeben. Der Parser muss dann selbst immer wieder `nextToken()` auf diesem Lexer aufrufen. Das sorgt einerseits für eine enge Kopplung zwischen den Bausteinen, hat aber andererseits potentiell leichte Effizienzvorteile und die Fehlermeldungen zwischen Lexer und Parser sind synchron.
+
+> [!TIP]
+>
+> Ein Parser erzeugt zunächst prinzipiell einen **Parse-Tree**. Diesen transformiert man in einem weiteren Schritt in einen **AST** ("AST-Builder").
+>
+> Wenn man den Parser selbst schreibt, kann man diesen zweiten Schritt auch direkt mit dem Parsing zusammenfassen. Wir werden das tun und in unserem RD-Parser statt einem Parse-Tree direkt den AST ausgeben.
+>
+> Wenn wir später ANTLR betrachten, werden wir von ANTLR einen Parse-Tree bekommen und müssen diesen noch mit einem AST-Builder in einen AST transformieren.
+
 ##### Grundidee LL-Parser mit Recursive Descent
 
 Die Grammatik (konkrete Syntax) besteht aus einer Menge von Produktionsregeln:
@@ -3066,20 +3084,26 @@ Die Grammatik (konkrete Syntax) besteht aus einer Menge von Produktionsregeln:
 r ::= X s
 ```
 
-Diese Regeln werden jeweils in eine dazu passende Funktion überführt:
+Diese Produktionen werden jeweils in eine dazu passende Funktion überführt:
 
 ``` java
 Expr parseR() {
     match(X);
-    return s();
+    return parseS();
 }
 ```
 
--   Für jede Regel in der Grammatik wird eine Methode/Funktion mit diesem Namen definiert
+-   Für jedes Nonterminal in der Grammatik wird eine Methode/Funktion mit diesem Namen definiert
 -   Referenzen auf ein Terminal (Token) `T` werden durch den Aufruf der Methode `match(T)` aufgelöst
     -   `match(T)` "konsumiert" das aktuelle Token, falls dieses mit `T` übereinstimmt
     -   Anderenfalls löst `match()` eine Exception aus
--   Referenzen auf Nichtterminale (Regeln) `s` werden durch Methodenaufrufe `s()` aufgelöst
+-   Referenzen auf Nichtterminale (Regeln) `s` werden durch Methodenaufrufe `parseS()` aufgelöst
+
+> [!TIP]
+>
+> Wenn die Parserfunktionen ohne Rückgabewert arbeiten, dann prüft der Parser nur, ob die Eingabestruktur passt. Es wird dann kein Parse-Tree o.ä. aufgebaut.
+>
+> In unserem Fall wollen wir einen Parse-Tree bzw. sogar einen AST erzeugen. Das ist oben noch ziemlich versteckt in dem `return parseS();`. Wir werden später sehen, wie wir den Baum aufbauen können.
 
 ##### Alternative Subregeln
 
@@ -3237,13 +3261,19 @@ Das Lexem nutzen wir und konvertieren es in einen Java-Integer und erzeugen eine
 > Hier könnte man den gemeinsamen Start `a` "ausklammern":
 >
 > ``` ebnf
-> ruleA  ::= a ruleAA
-> ruleAA ::= b1 | ... | bm
+> ruleA ::= a ruleB
+> ruleB ::= b1 | ... | bm
 > ```
 >
 > Bei uns im Beispiel war der gemeinsame Start für mehrere Alternativen die Klammer `'('`. Statt die Grammatik umzubauen, hatten wir das über das `if` und das nachfolgende extra Lookahead `peek(1)` gelöst. Mit der Umformung hätten wir eine weitere Hilfsfunktion im Parser, würden dann aber wieder mit `peek()` bzw. `peek(0)` und damit einem Token Lookahead auskommen (statt jetzt zwei).
 
 ##### Details Parser für L-Int: `parseAddExpr()`
+
+Erinnerung an den Teil der Additionsregel in der konkreten Grammatik:
+
+``` ebnf
+'(' '+' eform eform+ ')'
+```
 
 ``` java
 protected Expr parseAddExpr() {
@@ -5640,13 +5670,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 8b5693c 2026-11-03 lint: add screencast (interpreter)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 935207a 2026-11-04 orga: add fragetypendemo<br></sub></sup></p></blockquote>
