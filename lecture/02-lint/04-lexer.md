@@ -15,6 +15,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/IuDKnPiWD94)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-int-lexer-handcodierte-implementierung/9116abd700f5a4580cf929349c34f44a)\]
+>
+> </details>
+
 ## Lexer: Erzeugen eines Token-Stroms aus einem Zeichenstrom
 
 Aus dem Eingabe(-quell-)text
@@ -435,4 +444,4 @@ Optionen:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 933897c 2026-11-04 lint lexer: add remark button (slides)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 83e910a 2026-11-04 lint: lexer: add new screencast<br></sub></sup></p></blockquote>

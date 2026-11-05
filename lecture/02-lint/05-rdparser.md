@@ -23,6 +23,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/Ih9jIdrbA24)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-int-ll-parser-mit-recursive-descent/acd5bddb81eba4b7f90f7bfaa57d120a)\]
+>
+> </details>
+
 ## LL-Parser mit Recursive Descent: Ziel
 
 -   Aus Tokens einen AST bauen:
@@ -584,4 +593,4 @@ Implementierung als RD-Parser:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 65b52a2 2026-11-04 lint parser: improve slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 81e3f3d 2026-11-04 lint: parser: add new screencast<br></sub></sup></p></blockquote>
