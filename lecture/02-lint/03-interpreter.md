@@ -113,6 +113,8 @@ public class InterpreterLint {
                 yield new IntVal(a + b);
             }
 
+            // TODO: SubExpr
+
             default -> throw new RuntimeException("unexpected expression: " + expr);
         };
     }
@@ -304,4 +306,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 8b5693c 2026-11-03 lint: add screencast (interpreter)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 136fe43 2026-11-07 lexpr: improve slides<br></sub></sup></p></blockquote>
