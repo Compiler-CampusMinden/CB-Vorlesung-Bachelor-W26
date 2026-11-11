@@ -59,7 +59,7 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 |  | 23.11. | L-Expr: [Intro L-Expr](#id-9fb6f7eb249b8f4638db93995fb9ed91174500e2) \| [Vorrang](#id-3b77e4be5a2314d1b8ca4913379e49498c040ad0) \| [ANTLR Grammatik](#id-2e5ecf5bc552fd7f2cdf3903747b45e30328286a) \| [ANTLR Visitor](#id-f47140a0e1424b798887e57fe5e33325a47a4010) | [B04: C-Expr](#id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f) |  |
 | Dezember | 30.11. | [L-Var](#id-f8afd3e3cb9ba1df1e2b5422b50bc32aaa3350c7) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
 |  | 07.12. | [L-If](#id-51bc1e52157fd6e296d145056356183c5f0620e5) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
-|  | 14.12. | [L-Fun](#id-d5e1d626434b082efe6661d1c3dbae47343aaa38) | C-Fun |  |
+|  | 14.12. | [L-Fun](#id-d5e1d626434b082efe6661d1c3dbae47343aaa38) | C-If, C-Fun |  |
 |  | *21.12.* | **Weihnachtspause** | \- |  |
 |  | *28.12.* | **Weihnachtspause** | \- |  |
 | Januar | 04.01. | [L-Class](#id-883bc38559a6155ddb7626d1df4fa119f5b21780) | **Station 3** |  |
@@ -95,7 +95,7 @@ Die Modul-Note ergibt sich aus der Leistung in der Parcoursprüfung.
 Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablegen. Die Stationen der Parcoursprüfung sind je nach Prüfungsphase unterschiedlich gestaltet und in sich geschlossen (kein Übertrag):
 
 -   **Prüfungsphase I**: **Vier Stationen** (digitale E-Assessments im B40 mit je 30 Minuten Dauer), **beste drei Ergebnisse ergeben die Note**
-    -   Station 1: Mittwoch, 11.11., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
+    -   Station 1: Mittwoch, 11.11., in Praktikumszeit (12:30-13:00, 13:15-13:45, 14:00-14:30)
     -   Station 2: Mittwoch, 02.12., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 3: Mittwoch, 06.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
@@ -5174,82 +5174,115 @@ Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
 -   L-Int: LL-Parser mit Recursive Descent
 -   L-Int: Von Ausdrücken zum Interpreter
 
-#### (\*) L-Int: Java-Projekt für L-Int einrichten
+#### A3.1: L-Int: Subtraktion verstehen und ergänzen (\*)
 
-Legen Sie ein Java-Projekt für **L-Int** an. Nutzen Sie dafür Maven oder Gradle. Das Projekt wird im Laufe des Semesters Schritt für Schritt erweitert.
+L-Int unterstützt Integer-Literale, Addition und Subtraktion. Im Skript wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
 
-Falls gewünscht, können Sie eines der folgenden Templates als Ausgangspunkt nutzen:
+##### 1. Sprache und Semantik nachvollziehen
 
--   Gradle: https://github.com/Compiler-CampusMinden/student-support-code-template
--   Maven: https://github.com/Compiler-CampusMinden/student-support-code-template-maven
+-   Welche Eingaben sind **gültige** L-Int-Ausdrücke?
 
-Rekonstruieren Sie die in der Vorlesung gezeigten Bausteine für L-Int in Ihrem Projekt (Pakete, Klassen, Interfaces) und übernehmen Sie die gezeigte Funktionalität so, dass Ihr Projekt kompilierbar ist. Fehlende Funktionalität ergänzen Sie in den folgenden Aufgaben.
+-   Wie werden mehrere Operanden einer Addition oder Subtraktion gruppiert?
 
-#### (\*\*) L-Int: Funktion `skipIrrelevant()` im Lexer ergänzen
+-   Welche Werte ergeben die folgenden Ausdrücke?
 
-In der Vorlesung wurde die Funktion `skipIrrelevant()` eingeführt, mit der nicht benötigte Zeichen wie Whitespace und Kommentare übersprungen werden. Sie wird immer zu Beginn von `nextToken()` aufgerufen:
+    ``` clojure
+    (+ 1 2)
+    (- 8 3)
+    (- 20 5 3)
+    (- 10 (+ 3 5))
+    ```
+
+Notieren Sie mindestens zwei **ungültige** L-Int-Eingaben. Mindestens eine davon soll eine Operation mit weniger als zwei Operanden sein.
+
+##### 2. Auswertung der Subtraktion skizzieren
+
+Skizzieren Sie in Java, wie die Auswertung einer `SubExpr` aussehen könnte. Geben Sie dabei an, welche Teil-Ausdrücke ausgewertet und wie ihre Ergebnisse kombiniert werden.
+
+#### A3.2: L-Int: Funktion `skipIrrelevant()` im Lexer ergänzen (\*\*)
+
+Im Skript wurde die Funktion `skipIrrelevant()` eingeführt. Sie überspringt nicht benötigte Zeichen wie Whitespace und Kommentare und wird zu Beginn von `nextToken()` aufgerufen:
 
 ``` java
 protected boolean skipIrrelevant() {}  // Homework
 ```
 
-1.  Wie könnte diese Methode aussehen? Geben Sie eine Implementierung in Java an.
-2.  Sammeln Sie in der Übung gemeinsam sinnvolle Testfälle und notieren Sie diese für später (s.u.).
+**Gegeben:** Betrachten Sie den folgenden Code-Rahmen für diese Aufgabe und erstellen Sie damit ein neues Java-Projekt.
 
-#### (\*) L-Int: Subtraktion für L-Int ergänzen
+<details>
 
-L-Int unterstützt Integer-Literale, Addition und Subtraktion. In der Vorlesung wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
+``` java
+public enum TokenKind { PLUS, MINUS, LPAREN, RPAREN, SEMI, INT,  EOF }
+public record Token(TokenKind kind, String lexeme) {}
 
-1.  Sprache verstehen
+public class LispyLexerLint {
+    protected String source;
+    protected int current;
 
-    Klärung in der Übung (gemeinsam):
+    public List<Token> scan(String input) {
+        source = input;  current = 0;
+        List<Token> tokens = new ArrayList<>();
 
-    -   Welche Eingaben sind **gültige** L-Int-Ausdrücke?
+        do tokens.add(nextToken());
+        while (tokens.getLast().kind() != EOF);
 
-    -   Wie werden mehrere Operanden einer Addition oder Subtraktion gruppiert?
+        return tokens;
+    }
 
-    -   Welche Werte ergeben die folgenden Ausdrücke?
+    protected Token nextToken() {
+        skipIrrelevant();
 
-        ``` clojure
-        (+ 1 2)
-        (- 8 3)
-        (- 20 5 3)
-        (- 10 (+ 3 5))
-        ```
+        if (!isAtEnd()) {
+            char c = advance();
 
-2.  Ungültige Eingaben
+            if (Character.isDigit(c)) {
+                String lexeme = c + readWhile(Character::isDigit);
+                return Token.from(INT, lexeme);
+            }
+            return switch (c) {
+                case '(' -> Token.from(LPAREN);
+                case '+' -> Token.from(PLUS);
+                default -> throw new RuntimeException("unexpected character");
+            };
+        }
+        return Token.from(EOF);
+    }
 
-    Notieren Sie mindestens zwei **ungültige** L-Int-Eingaben. Mindestens eine davon soll eine Operation mit weniger als zwei Operanden sein.
+    protected boolean isAtEnd() { return current >= source.length(); }
 
-3.  Pipeline um Subtraktion erweitern
+    protected char peek() { return peek(0); }
+    protected char peek(int la) {
+        if (la < 0 || current + la >= source.length()) return '\0';
+        return source.charAt(current + la);
+    }
 
-    Ergänzen Sie Ihre L-Int-Pipeline vollständig um die Subtraktion (Lexer, RD-Parser, Interpreter).
+    protected char advance() { return isAtEnd() ? '\0' : source.charAt(current++); }
 
-#### (\*\*) L-Int: Tests für L-Int
+    protected boolean skipIrrelevant() {}  // Homework
 
-Schreiben Sie JUnit-Tests für Ihre L-Int-Implementierung. Testen Sie mindestens:
+    protected String readWhile(Predicate<Character> pred) {
+        StringBuilder sb = new StringBuilder();
+        while (!isAtEnd() && pred.test(peek())) sb.append(advance());
+        return sb.toString();
+    }
+}
+```
 
--   ein Integer-Literal,
--   eine (zweistellige) Addition,
--   eine (zweistellige) Subtraktion,
--   einen geschachtelten Ausdruck,
--   eine mehrstellige Addition mit Linksassoziativität,
--   eine mehrstellige Subtraktion mit Linksassoziativität,
--   mindestens eine ungültige Eingabe.
+</details>
 
-Ein weiterer Test soll aufdecken, ob bei der Subtraktion versehentlich linker und rechter Operand vertauscht wurden. Testen Sie daher beispielsweise sowohl `(- 7 2)` als auch `(- 2 7)`.
+1.  Zeichnen Sie den DFA für `skipIrrelevant()`.
+2.  Implementieren Sie `skipIrrelevant()`.
+3.  Erstellen Sie mindestens vier Testfälle. Berücksichtigen Sie dabei mindestens:
+    -   eine Eingabe ohne Whitespace oder Kommentare
+    -   eine Eingabe mit Whitespace vor einem Token
+    -   eine Eingabe mit einem Kommentar
+    -   eine Eingabe, die nach Whitespace oder einem Kommentar das Dateiende erreicht
 
-Testen Sie nach Möglichkeit nicht nur die Auswertung, sondern auch die erzeugten Token und ASTs. Dadurch können Sie Fehler in den einzelnen Phasen der Pipeline besser voneinander unterscheiden.
+#### A3.3: C++ ausprobieren: Compiler und ein erstes Programm (\*)
 
-#### (\*) C++ ausprobieren: Compiler und ein erstes Programm
+Wir werden in dieser Veranstaltung Schritt für Schritt C++ kennenlernen und einen Interpreter in Java für einen kleinen C++-Ausschnitt ("Mini-C++") entwickeln.
 
-Wir werden in dieser Veranstaltung Schritt für Schritt C++ kennenlernen und einen Interpreter in Java für einen kleinen C++-Ausschnitt entwickeln.
-
-In dieser Aufgabe geht es zunächst darum,
-
--   einen C++-Compiler einzurichten,
--   ein kleines Programm zu schreiben,
--   dieses mit clang++ oder g++ zu übersetzen und auszuführen.
+In dieser Aufgabe richten Sie zunächst einen C++-Compiler ein, schreiben ein kleines Programm und übersetzen sowie starten es mit `clang++` oder `g++`.
 
 ##### Schritt 1: Compiler überprüfen und installieren
 
@@ -5262,11 +5295,11 @@ Falls kein Compiler gefunden wird:
 
 -   Unter **macOS**: Installation der Xcode Command Line Tools.
 -   Unter **Linux**: Installation von clang++ oder g++ über die Paketverwaltung.
--   Unter **Windows**: z.B. WSL mit Ubuntu und dort clang++/g++ oder eine andere C++-Toolchain.
+-   Unter **Windows**: Nutzen Sie beispielsweise WSL mit Ubuntu und installieren Sie dort `clang++` oder `g++`, oder verwenden Sie eine andere C++-Toolchain.
 
 > [!TIP]
 >
-> Für C++ verwenden wir **clang++** beziehungsweise **g++**, nicht clang beziehungsweise gcc. Umgangssprachlich meint "gcc" in diesem Kontext "g++", und "clang" meint tatsächlich "clang++". Bei der Installation von clang/gcc sind i.d.R. beide Varianten (C und C++) dabei.
+> Für C++ verwenden wir **clang++** beziehungsweise **g++**, nicht clang beziehungsweise gcc. Umgangssprachlich meint "gcc" in diesem Kontext "g++", und "clang" meint tatsächlich "clang++". Bei der Installation von clang/gcc sind in der Regel beide Varianten (C und C++) dabei.
 
 ##### Schritt 2: Erstes Programm übersetzen und ausführen
 
@@ -5293,7 +5326,7 @@ Oder mit g++:
     g++ hello.cpp -o hello
     ./hello
 
-Unter Windows heißt die ausführbare Datei meist `hello.exe`, Start in PowerShell:
+Unter Windows heißt die ausführbare Datei meist `hello.exe`. Starten Sie diese in PowerShell mit:
 
     .\hello.exe
 
@@ -5315,11 +5348,11 @@ Variieren Sie den arithmetischen Ausdruck in `result` und überprüfen Sie die A
 > | Zeilenkommentar | `// Kommentar` | `// Kommentar` | `;; Kommentar` | `// Kommentar` |
 > | Import von Bibliotheken | `#include <iostream>` | `import ...;` | n.a. | n.a. |
 
-#### (\*\*) C-Int: Addition und Subtraktion für Integer in C++
+#### A3.4: C-Int: Addition und Subtraktion für Integer in C++ (\*\*)
 
 Wir legen nun mit **C-Int** die Basis für den Mini-C++-Interpreter, den wir über das Semester hinweg erweitern.
 
-C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subtraktion** erlauben, aber in C++-üblicher Infix-Notation.
+C-Int erlaubt analog zu L-Int **Integer-Literale, Addition und Subtraktion**, verwendet aber die in C++ übliche **Infix-Notation**.
 
 > [!IMPORTANT]
 >
@@ -5347,15 +5380,17 @@ C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subt
 >     (1+2)+3    // => 6
 >     ((1+2)+3)  // => 6
 >
-> Ein L-Int-Ausdruck wie (- (+ 1 2) 3) entspricht in C-Int etwa:
+> Ein L-Int-Ausdruck wie `(- (+ 1 2) 3)` entspricht in C-Int beispielsweise:
 >
 >     ((1 + 2) - 3)
 >     (1 + 2) - 3
 >     1 + 2 - 3
 >
-> Addition und Subtraktion sind *linksassoziativ*, d.h. es wird von links nach rechts geklammert (sofern keine expliziten Klammern vorhanden sind).
+> Addition und Subtraktion sind *linksassoziativ*. Ohne zusätzliche Klammern wird also von links nach rechts gruppiert.
 >
-> **Wichtig**: Für die Übersetzung mit einem C++-Compiler müssen diese Ausdrücke noch in einen Rahmen eingefügt werden, beispielsweise in eine `main()`-Funktion und in passende Statements (Zuweisung, Ausgabe, ...).
+> **Wichtig**: Damit ein C++-Compiler diese Ausdrücke übersetzen kann, müssen sie in einen passenden Programmrahmen eingebettet werden, beispielsweise in eine `main()`-Funktion und geeignete Statements für Zuweisung und Ausgabe.
+>
+> Die im Semester betrachteten Sprachstufen entwickeln sich schrittweise weiter. Die genaue Reihenfolge und der Umfang der späteren Sprachstufen werden im Skript eingeführt.
 >
 > Syntaktisch und semantisch betrachten wir im Laufe des Semesters folgende Abstufung:
 >
@@ -5365,48 +5400,51 @@ C-Int soll analog zu L-Int **Ausdrücke mit Integer-Literalen, Addition und Subt
 
 ##### Schritt 1: Java-Projekt für C-Int einrichten
 
-Legen Sie ein neues Java-Projekt für Ihren C-Int-Interpreter an (analog zur ersten Aufgabe für L-Int). Nutzen Sie ein eigenes Package, z.B. `cint`.
+Legen Sie ein Java-Projekt für **C-Int** an. Sie können dafür ein eigenes Projekt erstellen oder Ihre Projektorganisation so wählen, dass sie den fortlaufenden Ausbau im Semester unterstützt. Falls gewünscht, können Sie eines der folgenden Templates als Ausgangspunkt nutzen:
 
-##### Schritt 2: Konkrete Syntax für C-Int
+-   Gradle: https://github.com/Compiler-CampusMinden/student-support-code-template
+-   Maven: https://github.com/Compiler-CampusMinden/student-support-code-template-maven
+
+Legen Sie eine für Sie nachvollziehbare Paket- und Verzeichnisstruktur fest. Sie können diese in der Übung besprechen und bei Bedarf anpassen.
+
+##### Schritt 2: Konkrete Syntax für C-Int festlegen
 
 Definieren Sie analog zur Vorlesung die **konkrete Syntax für C-Int**. Sie legen damit fest, welche Programme von Ihrem Lexer und Parser akzeptiert werden.
 
-Rahmenbedingungen:
+Berücksichtigen Sie dabei folgende Anforderungen:
 
 -   Whitespace darf zwischen den Bestandteilen eines Ausdrucks stehen und wird übersprungen.
 -   Zeilenkommentare `// ...` bis zum Zeilenende werden unterstützt und übersprungen.
--   Addition und Subtraktion haben immer zwei Integer-Operanden: `1-2`.
+-   Addition und Subtraktion verwenden jeweils zwei Integer-Operanden, z.B. `1-2`.
 -   Mehrfach verkettete Ausdrücke wie `1+2+3+4` sind erlaubt.
 -   Ausdrücke dürfen geklammert sein.
 -   Nicht geklammerte Ausdrücke werden implizit **von links nach rechts** gruppiert.
 
-Diskutieren Sie in der Übung:
+Notieren Sie Ihre konkrete Syntax, zum Beispiel als Grammatik. Halten Sie außerdem fest, welche Token, Schlüsselwörter und Symbole Ihr Lexer erkennen muss.
 
--   Welche konkreten Eingaben soll die Grammatik zulassen, welche nicht?
--   Welche Teile gehören zur **konkreten** Syntax (Token, Schlüsselwörter, Symbole)?
+##### Schritt 3: Abstrakte Syntax für C-Int definieren
 
-##### Schritt 3: Abstrakte Syntax für C-Int
+Definieren Sie analog zur Vorlesung die **abstrakte Syntax** (AST) für **C-Int** und repräsentieren Sie diese in Java.
 
-Definieren Sie analog zur Vorlesung die **abstrakte Syntax** (AST) für **C-Int**.
-
-Diskussionspunkte:
+Berücksichtigen Sie dabei folgende Fragen:
 
 -   Welche Informationen aus dem Parse-Tree müssen im AST erhalten bleiben?
--   Warum müssen Klammern im AST nicht als eigene Knoten vorkommen?
+-   Warum müssen Klammern im AST nicht zwingend als eigene Knoten vorkommen?
+-   Wie wird die Linksassoziativität in der Struktur des AST dargestellt?
 
-##### Schritt 4: Interpreter-Pipeline für C-Int
+##### Schritt 4: Interpreter-Pipeline für C-Int implementieren
 
-Erstellen Sie analog zur L-Int-Pipeline für C-Int:
+Erstellen Sie analog zum Vorgehen im Skript für C-Int:
 
 -   eine Tokendefinition,
 -   AST-Klassen und -Interfaces,
 -   einen Lexer,
--   einen RD-Parser,
+-   einen handgeschriebenen Recursive-Descent-Parser,
 -   einen Interpreter `InterpreterCint`.
 
-Verwenden Sie hierfür **keinen** generierten ANTLR-Parser, sondern eine handgeschriebene Java-Implementierung wie in der Vorlesung.
+Verwenden Sie in dieser Aufgabe **keinen** generierten ANTLR-Parser. Implementieren Sie die Pipeline wie in der Vorlesung mit handgeschriebenem Java-Code.
 
-##### Schritt 5: Tests für C-Int
+##### Schritt 5: Tests für C-Int schreiben
 
 Schreiben Sie JUnit-Tests für Ihre C-Int-Pipeline. Testen Sie mindestens:
 
@@ -5419,7 +5457,9 @@ Schreiben Sie JUnit-Tests für Ihre C-Int-Pipeline. Testen Sie mindestens:
 -   eine fehlende schließende Klammer,
 -   einen ungültigen Operator oder ein unerwartetes Zeichen.
 
-Testen Sie, wenn möglich, wieder getrennt Token-Liste, AST und Auswertung (Interpreter).
+Ein weiterer Test soll aufdecken, ob bei der Subtraktion versehentlich linker und rechter Operand vertauscht wurden. Testen Sie daher beispielsweise sowohl `(- 7 2)` als auch `(- 2 7)`.
+
+Testen Sie nach Möglichkeit nicht nur die Auswertung, sondern auch die erzeugten Token und ASTs. Dadurch können Sie Fehler in den einzelnen Phasen der Pipeline besser voneinander unterscheiden.
 
 ##### Schritt 6: C-Int-Ergebnisse mit nativem C++ vergleichen
 
@@ -5437,9 +5477,48 @@ Vergleichen Sie die Ausgaben mit den Ergebnissen Ihres C-Int-Interpreters und no
 -   Zwei Gemeinsamkeiten zwischen der Auswertung im nativen C++-Programm und der Auswertung durch Ihren Interpreter.
 -   Zwei Unterschiede zwischen den beiden Verarbeitungswegen (z.B. Laufzeit, Fehlermeldungen, Komfort).
 
-#### (\*\*\*) Vertiefung: Interpreter für L-Int mit Visitor-Pattern
+#### A3.5: Vertiefung: Interpreter für L-Int mit Visitor-Pattern (\*\*\*)
 
-In der Vorlesung wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Matching und `switch`-Expressions implementiert.
+Im Skript wurde die `eval()`-Funktion im L-Int-Interpreter mit Pattern Matching und `switch`-Expressions implementiert.
+
+<details>
+
+``` java
+public interface Expr {}
+public record IntLiteral(int value) implements Expr {}
+public record AddExpr(Expr left, Expr right) implements Expr {}
+public record SubExpr(Expr left, Expr right) implements Expr {}
+
+
+public interface Value {
+    static int asInt(Value v) {
+        if (v instanceof IntVal(int val)) return val;
+        throw new RuntimeException("number expected");
+    }
+}
+public record IntVal(int v) implements Value {}
+
+
+public class InterpreterLint {
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case IntLiteral(var v) -> new IntVal(v);
+
+            case AddExpr(var l, var r) -> {
+                int a = Value.asInt(eval(l));
+                int b = Value.asInt(eval(r));
+                yield new IntVal(a + b);
+            }
+
+            // TODO: SubExpr
+
+            default -> throw new RuntimeException("unexpected expression: " + expr);
+        };
+    }
+}
+```
+
+</details>
 
 1.  Übertragen Sie dies auf das Visitor-Pattern.
 2.  Skizzieren Sie Vor- und Nachteile des Visitor-Patterns im Vergleich zur `switch`-Variante aus der Vorlesung.
@@ -5461,57 +5540,82 @@ Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
 -   L-Expr: ANTLR-Grammatik und Vorrangregeln
 -   L-Expr: ANTLR-Visitoren und Rückgabewerte
 
-#### (\*) L-Expr: Multiplikation und Division ergänzen
+#### A4.1: L-Expr: Division ergänzen (\*)
 
-Sie haben in der Vorlesung zunächst L-Int (Integer-Literale, Addition, Subtraktion in Lispy-Notation) und anschließend L-Expr als Erweiterung von L-Int um Multiplikation und Division kennengelernt.
+Im Skript haben Sie L-Expr als Erweiterung von L-Int um Multiplikation und Division kennengelernt. In der Vorlesung wurde die Multiplikation im Detail behandelt.
 
-In dieser Aufgabe sollen Sie die in der Vorlesung gezeigten Ideen vervollständigen und auf Ihre L-Int-Pipeline übertragen und so Ihre L-Expr-Pipeline aufbauen.
+Wenden Sie das gezeigte Muster auf die Division an und skizzieren Sie in Java, wie die Auswertung einer `DivExpr` aussehen könnte. Geben Sie dabei an, welche Teil-Ausdrücke ausgewertet und wie ihre Ergebnisse kombiniert werden.
 
-1.  **Konkrete Syntax verstehen**
+Gegeben sei dazu der folgende Code-Rahmen.
 
-    Klären Sie in der Übung gemeinsam:
+<details>
 
-    -   Welche Ausdrücke sind **gültige** L-Expr-Ausdrücke?
+``` java
+public interface Expr {}
+public record IntLiteral(int value) implements Expr {}
+public record AddExpr(Expr left, Expr right) implements Expr {}
+public record SubExpr(Expr left, Expr right) implements Expr {}
+public record MulExpr(Expr left, Expr right) implements Expr {}
+public record DivExpr(Expr left, Expr right) implements Expr {}
 
-    -   Wie werden mehrstellige Multiplikationen und Divisionen gruppiert (Assoziativität)?
+public interface Value {
+    static int asInt(Value v) {
+        if (v instanceof IntVal(int val)) return val;
+        throw new RuntimeException("number expected");
+    }
+}
+public record IntVal(int v) implements Value {}
 
-    -   Welche Werte ergeben die folgenden Ausdrücke?
+public class InterpreterLint {
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case IntLiteral(var v) -> new IntVal(v);
 
-        ``` clojure
-        (* 2 3)
-        (/ 8 2)
-        (* 2 3 4)
-        (/ 12 3 2)
-        (* (+ 1 2) 3)
-        (/ 12 (* 2 2))
-        ```
+            case AddExpr(var l, var r) -> {
+                int a = Value.asInt(eval(l));
+                int b = Value.asInt(eval(r));
+                yield new IntVal(a + b);
+            }
 
-2.  **Ungültige Eingaben**
+            // TODO: SubExpr
 
-    Notieren Sie mindestens zwei **ungültige** L-Expr-Eingaben, z.B.:
+            default -> throw new RuntimeException("unexpected expression: " + expr);
+        };
+    }
+}
 
-    -   Operationen mit weniger als zwei Operanden,
-    -   falsche Klammerung,
-    -   unerwartete Token.
 
-    Beschreiben Sie jeweils kurz, **warum** die Eingabe ungültig ist und an welcher Stelle Ihre Pipeline (Lexer, Parser, AST-Bau, Interpreter) sinnvollerweise einen Fehler melden würde.
+public class InterpreterLexpr extends InterpreterLint {
 
-3.  **L-Expr-Pipeline bauen: L-Int-Pipeline um Multiplikation/Division erweitern**
+    @Override
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case MulExpr(var l, var r) -> {
+                int a = Value.asInt(eval(l));
+                int b = Value.asInt(eval(r));
+                yield new IntVal(a * b);
+            }
 
-    Erstellen Sie nun Ihre **Pipeline für L-Expr**, indem Sie ein neues Package für L-Expr anlegen und die nötigen Klassen und Ergänzungen **auf Basis Ihrer L-Int-Lösung** definieren:
+            // TODO: DivExpr
 
-    -   **Lexer**: neue Token für `*` und `/`
-    -   Parser (**RD-Parser** für L-Expr): zusätzliche Alternativen in den passenden Grammatikregeln
-    -   **AST**: neue Knotenklassen `MulExpr` und `DivExpr`
-    -   **Interpreter** `InterpreterLexpr`: Auswertung von `MulExpr` und `DivExpr` (linksassoziativ, Java-Integer-Division)
+            default -> super.eval(expr);
+        };
+    }
+}
+```
 
-    Ergänzen Sie Ihr Token-Typ-Enum. Ergänzen Sie die neuen AST-Klassen. Schreiben Sie neue Klassen für den L-Expr-Lexer und -RD-Parser (ausnahmsweise **nicht** von L-Int ableiten - warum?!).
+</details>
 
-    Definieren Sie eine neue Klasse `InterpreterLexpr` für den L-Expr-Interpreter mit `class InterpreterLexpr extends InterpreterLint`.
+Weitere Aufgabenteile:
 
-    Implementieren Sie die obigen Testausdrücke in einer neuen JUnit-Testklasse `InterpreterLexprTest`, die von der L-Int-Testklasse ableitet: `class InterpreterLexprTest extends InterpreterLintTest`. Wichtig: Damit das funktioniert, müssen alle Testmethoden mindestens auf `protected` stehen.
+1.  Wie behandeln Sie Vorrangregeln und die Assoziativität im Interpreter für L-Expr?
+2.  Notieren Sie, wie der mehrstellige Ausdruck `(/ 12 3 2)` gruppiert wird und welches Ergebnis er nach dieser Gruppierung hat.
+3.  Wie wird die Division durch null behandelt? Brauchen wir hier eine explizite Fehlerbehandlung im Interpreter?
+4.  Erstellen Sie außerdem mindestens zwei Testfälle:
+    -   einen Test, der die Java-Integer-Division sichtbar macht
+    -   einen Test für eine verschachtelte Division
 
-#### (\*\*) C-Expr: Vorrangregeln in einer gestuften Grammatik
+#### A4.2: C-Expr: Vorrangregeln in einer gestuften Grammatik (\*\*)
 
 Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** um Multiplikation, Division, unäres Minus und geklammerte Ausdrücke erweitern.
 
@@ -5578,7 +5682,7 @@ Zeichnen Sie jeweils den Parse-Tree. Entspricht das dem Verhalten von C++ aus de
 
 ##### Schritt 3: ANTLR-Grammatiken für C-Expr
 
-Definieren Sie zwei **ANTLR-Grammatiken** für **C-Expr**:
+Definieren Sie nun ausgehend von der konkrete Grammatik aus der vorigen Aufgabe zwei **ANTLR-Grammatiken** für **C-Expr**:
 
 -   einmal mit **gestuften Regeln**, und
 -   einmal mit **linksrekursiven Alternativen**.
@@ -5599,7 +5703,7 @@ Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
 4.  Erstellen Sie **zwei AST-Builder**, die aus den beiden unterschiedlichen ANTLR-Parse-Trees je einen AST entsprechend Ihrer abstrakten Syntax erzeugen. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
     -   Welchen generischen Typ brauchen Sie für das Ableiten des generierten `XyzBaseVisitor`?
     -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
-5.  Implementieren Sie die **obigen Testfälle in JUnit** und führen Sie diese auf **allen drei Varianten** aus (RD-Parser, ANTLR mit gestuften Regeln, ANTLR mit linkrekursiven Alternativen). Was beobachten Sie?
+5.  Testen Sie die neue C-Expr-Pipeline: Implementieren Sie die **obigen Beispiele in JUnit** und führen Sie diese auf **allen drei Varianten** aus (RD-Parser, ANTLR mit gestuften Regeln, ANTLR mit linkrekursiven Alternativen). Was beobachten Sie?
 
 > [!TIP]
 >
@@ -5611,11 +5715,17 @@ Implementieren Sie nun den **Interpreter für C-Expr** in einer Klasse `Interpre
 
 Ergänzen Sie die neuen Fälle für C-Expr durch Überschreiben von `eval()`. Rufen Sie für die bisherigen C-Int-Fälle `super.eval(expr)` auf.
 
-Testen Sie Ihren Interpreter mit JUnit mit den obigen Testfällen. Dabei soll wie bei L-Expr gelten: `class InterpreterCexprTest extends InterpreterCintTest`. Spielt es eine Rolle, ob Sie dafür den handgeschriebenen Lexer/RD-Parser oder einen der beiden ANTLR-Parser plus den passenden AST-Builder einsetzen?
+Testen Sie Ihren Interpreter mit JUnit mit den obigen Beispielen. Dabei soll wie bei L-Expr gelten: `class InterpreterCexprTest extends InterpreterCintTest`.
+
+> [!IMPORTANT]
+>
+> Der Interpreter bekommt als Eingabe den AST und ist damit unabhängig vom konkreten Parser!
+>
+> Testen Sie Ihren Interpreter sowohl mit dem handgeschriebenen RD-Parser als auch mit den beiden ANTLR-Parsern plus AST-Buildern.
 
 Vergleichen Sie die Resultate der Testfälle von `InterpreterCexpr` mit dem mit g++/clang übersetzten nativen C++-Code. Gibt es Unterschiede? Woran liegt das?
 
-#### (\*\*\*) Vertiefung: ANTLR und Stolperfallen
+#### A4.3: Vertiefung: ANTLR und Stolperfallen (\*\*\*)
 
 Betrachten Sie die folgende ANTLR-Grammatik:
 
@@ -5694,13 +5804,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 136fe43 2026-11-07 lexpr: improve slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6bcae5b 2026-11-11 orga: we need probably two weeks to catch up after the second e-assessment<br></sub></sup></p></blockquote>

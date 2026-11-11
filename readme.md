@@ -55,7 +55,7 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 |  | 23.11. | L-Expr: [Intro L-Expr](lecture/03-lexpr/01-lexpr.md) \| [Vorrang](lecture/03-lexpr/02-precedence.md) \| [ANTLR Grammatik](lecture/03-lexpr/03-antlr-grammar.md) \| [ANTLR Visitor](lecture/03-lexpr/04-antlr-visitor.md) | [B04: C-Expr](homework/sheet04-lexpr.md) |  |
 | Dezember | 30.11. | [L-Var](lecture/04-lvar/readme.md) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
 |  | 07.12. | [L-If](lecture/05-lif/readme.md) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
-|  | 14.12. | [L-Fun](lecture/06-lfun/readme.md) | C-Fun |  |
+|  | 14.12. | [L-Fun](lecture/06-lfun/readme.md) | C-If, C-Fun |  |
 |  | *21.12.* | **Weihnachtspause** | \- |  |
 |  | *28.12.* | **Weihnachtspause** | \- |  |
 | Januar | 04.01. | [L-Class](lecture/07-lclass/readme.md) | **Station 3** |  |
@@ -91,7 +91,7 @@ Die Modul-Note ergibt sich aus der Leistung in der Parcoursprüfung.
 Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablegen. Die Stationen der Parcoursprüfung sind je nach Prüfungsphase unterschiedlich gestaltet und in sich geschlossen (kein Übertrag):
 
 -   **Prüfungsphase I**: **Vier Stationen** (digitale E-Assessments im B40 mit je 30 Minuten Dauer), **beste drei Ergebnisse ergeben die Note**
-    -   Station 1: Mittwoch, 11.11., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
+    -   Station 1: Mittwoch, 11.11., in Praktikumszeit (12:30-13:00, 13:15-13:45, 14:00-14:30)
     -   Station 2: Mittwoch, 02.12., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 3: Mittwoch, 06.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
@@ -145,4 +145,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 935207a 2026-11-04 orga: add fragetypendemo<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6bcae5b 2026-11-11 orga: we need probably two weeks to catch up after the second e-assessment<br></sub></sup></p></blockquote>
