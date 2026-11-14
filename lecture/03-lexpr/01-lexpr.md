@@ -15,6 +15,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/Xyunf8pCivU)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-multiplikationdivision-und-unres-minus/f6ba6f791b656e011994eb73abaef5ce)\]
+>
+> </details>
+
 ## Rückblick: L-Int
 
 -   Konkrete Syntax:
@@ -331,4 +340,4 @@ Beispiele:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 136fe43 2026-11-07 lexpr: improve slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 1fa825a 2026-11-14 lexpr: add new screencast (lexpr/intro)<br></sub></sup></p></blockquote>

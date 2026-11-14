@@ -213,6 +213,34 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
 
 > [!TIP]
 >
+> ### Erkennen von Keywords: Alternative mit Look-up in einer Map oder switch/case
+>
+> Wenn im Lexer viele überlappende Schlüsselwörter unterschieden werden müssen, könnte man zunächst einfach nur einen String einlesen und diesen hinterher mit einer vordefinierten `Map<String, TokenKind>` vergleichen (hier nicht gezeigt) oder in einem `switch`/`case` prüfen (siehe nachfolgende Skizze) und damit die Keywords von den IDs unterscheiden und die passenden Token generieren:
+>
+> ``` java
+> ...
+> if (isIdentStart(c)) yield keywordOrIdentifier(c + readWhile(LispyLexerLint::isIdentPart));
+> ...
+>
+>
+> private Token keywordOrIdentifier(String lexeme) {
+>     return switch (lexeme) {
+>         case "int" -> Token.from(INT, lexeme);
+>
+>         case "if" -> Token.from(KW_IF);
+>         case "else" -> Token.from(KW_ELSE);
+>
+>         default -> Token.from(ID, lexeme);
+>     };
+> }
+> ```
+>
+> Die Funktionen `isIdentStart()` und `isIdentPart()` sind zwei Hilfsfunktionen, die für das übergebene Zeichen prüfen, ob dieses am Anfang bzw. innerhalb eines Identifier vorkommen darf. Da sich in vielen Sprachen Identifier und Keywords überlappen, kann man so zunächst einen String einlesen. Beim Vergleich mit vordefinierten Strings in einer Map bzw. (wie hier gezeigt) mit einem `switch`/`case` kann dann das korrekte Token gebaut werden.
+>
+> Das funktioniert nur, wenn die Identifier auch die Keywords enthalten. Dann ist es aber deutlich einfacher, als im Haupt-`switch` in `nextToken()` zeichenweise zu erraten, was hier vorliegt.
+
+> [!TIP]
+>
 > ### Design-Diskussion: Index-Handling und Robustheit
 >
 > Das Hantieren mit dem Index und dem Weiterschalten muss gut aufeinander abgestimmt sein - der Lexer sollte hier nicht in einen ungültigen Zustand geraten können.
@@ -444,4 +472,4 @@ Optionen:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 83e910a 2026-11-04 lint: lexer: add new screencast<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0f8d044 2026-11-14 lint: add remark on keywords vs. identifier (lexer)<br></sub></sup></p></blockquote>

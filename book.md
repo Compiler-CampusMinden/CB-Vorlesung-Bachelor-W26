@@ -2813,6 +2813,34 @@ Die Funktion `readWhile()` bekommt einen Test `pred` als Argument und liest so l
 
 > [!TIP]
 >
+> ###### Erkennen von Keywords: Alternative mit Look-up in einer Map oder switch/case
+>
+> Wenn im Lexer viele überlappende Schlüsselwörter unterschieden werden müssen, könnte man zunächst einfach nur einen String einlesen und diesen hinterher mit einer vordefinierten `Map<String, TokenKind>` vergleichen (hier nicht gezeigt) oder in einem `switch`/`case` prüfen (siehe nachfolgende Skizze) und damit die Keywords von den IDs unterscheiden und die passenden Token generieren:
+>
+> ``` java
+> ...
+> if (isIdentStart(c)) yield keywordOrIdentifier(c + readWhile(LispyLexerLint::isIdentPart));
+> ...
+>
+>
+> private Token keywordOrIdentifier(String lexeme) {
+>     return switch (lexeme) {
+>         case "int" -> Token.from(INT, lexeme);
+>
+>         case "if" -> Token.from(KW_IF);
+>         case "else" -> Token.from(KW_ELSE);
+>
+>         default -> Token.from(ID, lexeme);
+>     };
+> }
+> ```
+>
+> Die Funktionen `isIdentStart()` und `isIdentPart()` sind zwei Hilfsfunktionen, die für das übergebene Zeichen prüfen, ob dieses am Anfang bzw. innerhalb eines Identifier vorkommen darf. Da sich in vielen Sprachen Identifier und Keywords überlappen, kann man so zunächst einen String einlesen. Beim Vergleich mit vordefinierten Strings in einer Map bzw. (wie hier gezeigt) mit einem `switch`/`case` kann dann das korrekte Token gebaut werden.
+>
+> Das funktioniert nur, wenn die Identifier auch die Keywords enthalten. Dann ist es aber deutlich einfacher, als im Haupt-`switch` in `nextToken()` zeichenweise zu erraten, was hier vorliegt.
+
+> [!TIP]
+>
 > ###### Design-Diskussion: Index-Handling und Robustheit
 >
 > Das Hantieren mit dem Index und dem Weiterschalten muss gut aufeinander abgestimmt sein - der Lexer sollte hier nicht in einen ungültigen Zustand geraten können.
@@ -3623,6 +3651,15 @@ Implementierung als RD-Parser:
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/Xyunf8pCivU)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-multiplikationdivision-und-unres-minus/f6ba6f791b656e011994eb73abaef5ce)\]
+>
+> </details>
+
 ##### Rückblick: L-Int
 
 -   Konkrete Syntax:
@@ -3925,6 +3962,15 @@ Beispiele:
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/JWP8-QvDufQ)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-vorrang-und-assoziativitt/7035167b1e93fd407e8d9948b7b9c421)\]
+>
+> </details>
+
 ##### Java-artige Infix-Syntax: Vorrangregeln
 
 In Lispy gibt es durch die Präfix-Notation und die Klammern **keine Vorrangprobleme**:
@@ -4116,6 +4162,15 @@ Eigenschaften:
 > Parser-Regeln können mehrere **Alternativen** haben, getrennt durch `|`. Bei Mehrdeutigkeiten entscheidet ANTLR zugunsten der **ersten passenden Alternative**. Mit `?`, `*` und `+` lassen sich optionale, beliebig oft oder mindestens einmal wiederholte Teile formulieren.
 >
 > ANTLR4 erlaubt im Gegensatz zu vielen klassischen LL(1)- bzw. handgeschriebenen rekursiv‑absteigenden Parsern auch **direkte Linksrekursion** in Parser-Regeln und nutzt diese u.a. zur automatischen Behandlung von **Operatorpräzedenz** und **Assoziativität**.
+>
+> </details>
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/ksoiGliDBZs)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-antlr-grammatik-und-vorrangregeln/b66afbfbf3a1c9c9f25fb2c8f051ce13)\]
 >
 > </details>
 
@@ -4648,6 +4703,15 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/Ek4yxTOeQHQ)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-antlr-visitoren-und-rckgabewerte/ed313fae1fc86df97b00c26fe4c31b76)\]
+>
+> </details>
+
 ##### Erinnerung: ANTLR-Toolchain: Von String zum Parse-Tree
 
 ``` java
@@ -4759,7 +4823,15 @@ Was müssen wir nun tun? Wir wollen für immer zwei Summanden ein neues `AddExpr
 > -   `visitChildren(ctx)` ist eine **fertige Default-Strategie**: Sie besucht *alle* **Kinder** des Knotens nacheinander und kombiniert deren Rückgabewerte (in der Standardimplementierung meist: "nimm das letzte Ergebnis"). Diese Methode ist dafür gedacht, in der Basisklasse als Default zu dienen - nicht als allgemeiner Ersatz für gezielte Kind-Verarbeitung in unseren eigenen `visitXYZ()`-Methoden.
 > -   Ein **direkter Aufruf** von konkreten Methoden wie `visitAddExpr(ctx)` innerhalb anderer `visitXYZ()`-Methoden ist unflexibel: Er umgeht den normalen Dispatch-Mechanismus und koppelt den Code unnötig eng an konkrete Kontextklassen. Spätere Erweiterungen oder Umbenennungen der Grammatik werden so schwerer.
 >
-> **Faustregel**: Für rekursive Aufrufe auf Kindknoten immer **`visit(kind)`** benutzen.
+> **Faustregel**: Für rekursive Aufrufe auf Kindknoten immer **`visit(node)`** benutzen.
+
+> [!TIP]
+>
+> Wer sich an das klassische Visitor-Pattern erinnert, fragt sich vermutlich, warum wir **`visit(node)`** aufrufen und nicht `node.accept(this)` ...
+>
+> Es stellt sich heraus, dass die von ANTLR bereitgestellte `visit()`-Methode genau das (für uns) tut!
+>
+> **`visit(node)`** ist also nur eine Convenience-Methode, um nicht ständig das schlechter lesbare `node.accept(this)` schreiben/lesen zu müssen.
 
 ##### ANTLR-Pipeline komplett
 
@@ -4791,7 +4863,9 @@ Default in `LispyBaseVisitor<T>`:
 T visitAddExpr(AddExprContext ctx) { return visitChildren(ctx); }
 ```
 
-**Hinweis**: Eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()`/`aggregateResult()`.)
+Wie sieht nun dieses `visitChildren()` aus?
+
+**Hinweis**: Die nachfolgend dargestellte Skizze von `visitChildren()` ist eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfassen soll. Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()` und `aggregateResult()`.
 
 ``` java
 public T visitChildren(RuleNode node) {
@@ -5804,13 +5878,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 30368eb 2026-11-12 markdown: add more space in formula<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0f8d044 2026-11-14 lint: add remark on keywords vs. identifier (lexer)<br></sub></sup></p></blockquote>

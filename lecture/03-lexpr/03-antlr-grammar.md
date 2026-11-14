@@ -17,6 +17,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/ksoiGliDBZs)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-antlr-grammatik-und-vorrangregeln/b66afbfbf3a1c9c9f25fb2c8f051ce13)\]
+>
+> </details>
+
 ## Von klassischer CFG zur ANTLR‑Grammatik
 
 Erinnerung an "Programmieren 2":
@@ -550,4 +559,4 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> df9ebb5 2026-10-29 lecture: unify spelling of lexpr<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 3f83864 2026-11-14 lexpr: add new screencast (antlr grammar)<br></sub></sup></p></blockquote>

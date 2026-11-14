@@ -13,6 +13,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/JWP8-QvDufQ)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-vorrang-und-assoziativitt/7035167b1e93fd407e8d9948b7b9c421)\]
+>
+> </details>
+
 ## Java-artige Infix-Syntax: Vorrangregeln
 
 In Lispy gibt es durch die Präfix-Notation und die Klammern **keine Vorrangprobleme**:
@@ -211,4 +220,4 @@ Eigenschaften:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 5f5febf 2026-10-24 lexpr: finalise precedence<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a9e7254 2026-11-14 lexpr: add new screencast (precedence)<br></sub></sup></p></blockquote>

@@ -17,6 +17,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/Ek4yxTOeQHQ)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-expr-antlr-visitoren-und-rckgabewerte/ed313fae1fc86df97b00c26fe4c31b76)\]
+>
+> </details>
+
 ## Erinnerung: ANTLR-Toolchain: Von String zum Parse-Tree
 
 ``` java
@@ -128,7 +137,15 @@ Was müssen wir nun tun? Wir wollen für immer zwei Summanden ein neues `AddExpr
 > -   `visitChildren(ctx)` ist eine **fertige Default-Strategie**: Sie besucht *alle* **Kinder** des Knotens nacheinander und kombiniert deren Rückgabewerte (in der Standardimplementierung meist: "nimm das letzte Ergebnis"). Diese Methode ist dafür gedacht, in der Basisklasse als Default zu dienen - nicht als allgemeiner Ersatz für gezielte Kind-Verarbeitung in unseren eigenen `visitXYZ()`-Methoden.
 > -   Ein **direkter Aufruf** von konkreten Methoden wie `visitAddExpr(ctx)` innerhalb anderer `visitXYZ()`-Methoden ist unflexibel: Er umgeht den normalen Dispatch-Mechanismus und koppelt den Code unnötig eng an konkrete Kontextklassen. Spätere Erweiterungen oder Umbenennungen der Grammatik werden so schwerer.
 >
-> **Faustregel**: Für rekursive Aufrufe auf Kindknoten immer **`visit(kind)`** benutzen.
+> **Faustregel**: Für rekursive Aufrufe auf Kindknoten immer **`visit(node)`** benutzen.
+
+> [!TIP]
+>
+> Wer sich an das klassische Visitor-Pattern erinnert, fragt sich vermutlich, warum wir **`visit(node)`** aufrufen und nicht `node.accept(this)` ...
+>
+> Es stellt sich heraus, dass die von ANTLR bereitgestellte `visit()`-Methode genau das (für uns) tut!
+>
+> **`visit(node)`** ist also nur eine Convenience-Methode, um nicht ständig das schlechter lesbare `node.accept(this)` schreiben/lesen zu müssen.
 
 ## ANTLR-Pipeline komplett
 
@@ -160,7 +177,9 @@ Default in `LispyBaseVisitor<T>`:
 T visitAddExpr(AddExprContext ctx) { return visitChildren(ctx); }
 ```
 
-**Hinweis**: Eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfasst. (Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()`/`aggregateResult()`.)
+Wie sieht nun dieses `visitChildren()` aus?
+
+**Hinweis**: Die nachfolgend dargestellte Skizze von `visitChildren()` ist eigener Code, der die in ANTLR enthaltene/generierte Methode `visitChildren()` in der Wirkung zusammenfassen soll. Der gezeigte Code ist stark vereinfacht, die tatsächliche ANTLR-Implementierung ist generischer und arbeitet u.a. mit `defaultResult()` und `aggregateResult()`.
 
 ``` java
 public T visitChildren(RuleNode node) {
@@ -361,4 +380,4 @@ Konsequenz:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 7213c53 2026-10-25 lexpr: improve beamer formatting (antlr visitor)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> de3ef50 2026-11-14 lexpr: improve wording on visitChildren()<br></sub></sup></p></blockquote>
