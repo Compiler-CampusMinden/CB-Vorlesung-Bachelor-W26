@@ -33,12 +33,12 @@ In diesem Modul geht es um ein grundlegendes Verständnis für die wichtigsten K
 
 ### Kursformat
 
-| Vorlesung (2 SWS)            | Praktikum (2 SWS)                        |
-|:-----------------------------|:-----------------------------------------|
-| Mo, 15:45 - 17:15 Uhr (Zoom) | G1: Mi, 11:30 - 13:00 Uhr (Zoom)         |
-|                              | G2: Mi, 14:00 - 15:30 Uhr (Zoom)         |
-|                              | G3: Mi, 11:30 - 13:00 Uhr (Präsenz D327) |
-|                              | G4: Mi, 14:00 - 15:30 Uhr (Präsenz D327) |
+| Vorlesung (2 SWS)            | Praktikum (2 SWS)                       |
+|:-----------------------------|:----------------------------------------|
+| Mo, 15:45 - 17:15 Uhr (Zoom) | G1: Mi, 11:30 - 13:00 Uhr (Zoom)        |
+|                              | G2: Mi, 14:00 - 15:30 Uhr (Zoom)        |
+|                              | G3: Mi, 11:30 - 13:00 Uhr (Präsenz H11) |
+|                              | G4: Mi, 14:00 - 15:30 Uhr (Präsenz H11) |
 
 Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *reguläre Vorlesung* (BC). **Zugangsdaten Zoom siehe [ILIAS](https://www.hsbi.de/elearning/goto.php/crs/1702066)**.
 
@@ -145,4 +145,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 6bcae5b 2026-11-11 orga: we need probably two weeks to catch up after the second e-assessment<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 9367787 2026-11-16 orga: update room for lab time (h11)<br></sub></sup></p></blockquote>
