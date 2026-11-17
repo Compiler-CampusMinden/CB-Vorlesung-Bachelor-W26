@@ -80,8 +80,8 @@ public class LispyLexerLint {
                 return Token.from(INT, lexeme);
             }
             return switch (c) {
-                case '(' -> Token.from(LPAREN);
-                case '+' -> Token.from(PLUS);
+                case '(' -> new Token(TokenKind.LPAREN, "(");
+                case '+' -> new Token(TokenKind.PLUS, "+");
                 default -> throw new RuntimeException("unexpected character");
             };
         }
@@ -369,4 +369,4 @@ public class InterpreterLint {
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 20683c4 2026-11-11 homework: show DFA for skipIrrelevant (b03)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 0caca3b 2026-11-17 homework: replace Token.from() w/ new Token(...)<br></sub></sup></p></blockquote>
