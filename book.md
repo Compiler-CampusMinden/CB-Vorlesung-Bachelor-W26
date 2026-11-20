@@ -3450,7 +3450,7 @@ Man kann zwischen **direkter** und **indirekter** Linksrekursion unterscheiden:
 Wenn man eine *direkt* linksrekursive Regel der Form hat:
 
 ``` ebnf
-ruleA ::= ruleA a1 | ... | ruleA am | b1 | ... | bn |
+ruleA ::= ruleA a1 | ... | ruleA am | b1 | ... | bn
 ```
 
 (Dabei dürfen die `bi` nicht mit `ruleA` beginnen.)
@@ -5472,7 +5472,7 @@ C-Int erlaubt analog zu L-Int **Integer-Literale, Addition und Subtraktion**, ve
 >
 > Syntaktisch und semantisch betrachten wir im Laufe des Semesters folgende Abstufung:
 >
->     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Expr <: C-Int
+>     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Var <: C-Expr <: C-Int
 >
 > In diesem Semester enden wir (voraussichtlich) bei C-Self.
 
@@ -5882,13 +5882,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 09f2688 2026-11-18 orga: add link to saldo overview parcours<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 698a473 2026-11-20 lint: fix typo (sheet03)<br></sub></sup></p></blockquote>

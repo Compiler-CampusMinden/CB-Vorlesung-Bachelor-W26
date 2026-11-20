@@ -234,7 +234,7 @@ C-Int erlaubt analog zu L-Int **Integer-Literale, Addition und Subtraktion**, ve
 >
 > Syntaktisch und semantisch betrachten wir im Laufe des Semesters folgende Abstufung:
 >
->     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Expr <: C-Int
+>     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Var <: C-Expr <: C-Int
 >
 > In diesem Semester enden wir (voraussichtlich) bei C-Self.
 
@@ -369,4 +369,4 @@ public class InterpreterLint {
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 0caca3b 2026-11-17 homework: replace Token.from() w/ new Token(...)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 698a473 2026-11-20 lint: fix typo (sheet03)<br></sub></sup></p></blockquote>

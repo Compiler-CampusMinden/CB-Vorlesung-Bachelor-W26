@@ -395,7 +395,7 @@ Man kann zwischen **direkter** und **indirekter** Linksrekursion unterscheiden:
 Wenn man eine *direkt* linksrekursive Regel der Form hat:
 
 ``` ebnf
-ruleA ::= ruleA a1 | ... | ruleA am | b1 | ... | bn |
+ruleA ::= ruleA a1 | ... | ruleA am | b1 | ... | bn
 ```
 
 (Dabei dürfen die `bi` nicht mit `ruleA` beginnen.)
@@ -593,4 +593,4 @@ Implementierung als RD-Parser:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 81e3f3d 2026-11-04 lint: parser: add new screencast<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a6a8c4b 2026-11-20 lint: fix typo (rdparser)<br></sub></sup></p></blockquote>
