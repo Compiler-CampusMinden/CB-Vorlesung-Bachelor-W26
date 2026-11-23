@@ -154,7 +154,7 @@ public class LispyParserLint {
         tokens = tokenList;  current = 0;
 
         Expr expr = parseEform();
-        if (!isAtEnd()) throw new RuntimeException("unexpected token");
+        match(EOF);
 
         return expr;
     }
@@ -278,6 +278,7 @@ protected Expr parseAddExpr() {
     match(PLUS);
 
     List<Expr> ops = new ArrayList<>();
+    ops.add(parseEform());
     ops.add(parseEform());
     while (!check(RPAREN)) ops.add(parseEform());
 
@@ -522,6 +523,7 @@ Implementierung als RD-Parser:
 >
 >     List<Expr> ops = new ArrayList<>();
 >     ops.add(parseEform());
+>     ops.add(parseEform());
 >     while (!check(RPAREN)) ops.add(parseEform());
 >
 >     match(RPAREN);
@@ -593,4 +595,4 @@ Implementierung als RD-Parser:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> a6a8c4b 2026-11-20 lint: fix typo (rdparser)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> d9cc28b 2026-11-23 lint: improve code snippets (rdparser)<br></sub></sup></p></blockquote>

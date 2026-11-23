@@ -52,7 +52,7 @@ protected boolean skipIrrelevant() {}  // Homework
 <details>
 
 ``` java
-public enum TokenKind { PLUS, MINUS, LPAREN, RPAREN, SEMI, INT,  EOF }
+public enum TokenKind { PLUS, MINUS, LPAREN, RPAREN, SEMI, INT, EOF }
 public record Token(TokenKind kind, String lexeme) {}
 
 public class LispyLexerLint {
@@ -330,12 +330,7 @@ public record AddExpr(Expr left, Expr right) implements Expr {}
 public record SubExpr(Expr left, Expr right) implements Expr {}
 
 
-public interface Value {
-    static int asInt(Value v) {
-        if (v instanceof IntVal(int val)) return val;
-        throw new RuntimeException("number expected");
-    }
-}
+public interface Value {}
 public record IntVal(int v) implements Value {}
 
 
@@ -345,8 +340,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -354,6 +349,11 @@ public class InterpreterLint {
 
             default -> throw new RuntimeException("unexpected expression: " + expr);
         };
+    }
+
+    protected int asInt(Value v) {
+        if (v instanceof IntVal(var val)) return val;
+        throw new RuntimeException("number expected");
     }
 }
 ```
@@ -369,4 +369,4 @@ public class InterpreterLint {
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 698a473 2026-11-20 lint: fix typo (sheet03)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> b267759 2026-11-23 lint: improve code snippets (sheet03)<br></sub></sup></p></blockquote>

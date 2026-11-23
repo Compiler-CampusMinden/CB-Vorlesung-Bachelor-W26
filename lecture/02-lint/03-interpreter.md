@@ -62,14 +62,7 @@ Aktuell könnten wir streng genommen einfach `int` als Rückgabetyp verwenden. A
 ## Value-Hierarchie in Java
 
 ``` java
-public interface Value {
-
-    static int asInt(Value v) {
-        if (v instanceof IntVal(int val)) return val;
-        throw new RuntimeException("number expected");
-    }
-}
-
+public interface Value {}
 
 public record IntVal(int v) implements Value {}
 ```
@@ -108,8 +101,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -126,6 +119,17 @@ Hier sehen wir die (teilweise) Implementierung unseres L-Int-Interpreters.
 Die `eval()`-Methode bildet das Kernstück des (AST-traversierenden) Interpreters für Ausdrücke. Hier wird passend zum aktuellen AST-Knoten die passende Methode des Interpreters aufgerufen.
 
 Wir nutzen Pattern Matching in einer `switch`-Expression über dem AST-Typ `Expr`. Wir könnten hier auch das Visitor-Pattern nutzen - wichtig ist nur, dass der Baum rekursiv traversiert wird und für jeden Knoten die richtige Aktion durchgeführt wird.
+
+### Hilfsmethode
+
+Die Hilfsmethode `asInt()` in `InterpreterLint` könnte so aussehen:
+
+``` java
+protected int asInt(Value v) {
+    if (v instanceof IntVal(int val)) return val;
+    throw new RuntimeException("number expected");
+}
+```
 
 ### Literale auswerten
 
@@ -306,4 +310,4 @@ Wir haben heute den semantischen Kern von L-Int gebaut. Wir haben eine Value-Hie
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 136fe43 2026-11-07 lexpr: improve slides<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 1a90a02 2026-11-23 lint: improve code snippets (interpreter)<br></sub></sup></p></blockquote>

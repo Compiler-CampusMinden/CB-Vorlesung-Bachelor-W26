@@ -299,9 +299,9 @@ Konsequenz:
 >
 >     ``` antlr
 >     eform
->       : '(' '+' eform eform+ ')'  # addExpr
->       | '(' '*' eform eform+ ')'  # mulExpr
->       | INT                       # intLit
+>       : '(' '+' eform eform+ ')'  #addExpr
+>       | '(' '*' eform eform+ ')'  #mulExpr
+>       | INT                       #intLit
 >       ;
 >     ```
 >
@@ -319,8 +319,8 @@ Konsequenz:
 > expr     : addExpr ;
 > addExpr  : multExpr (('+' | '-') multExpr)* ;
 > multExpr : atom (('*' | '/') atom)* ;
-> atom     : INT
->          | '(' expr ')'   # parens
+> atom     : INT                                   #int
+>          | '(' expr ')'                          #parens
 >          ;
 > ```
 >
@@ -380,4 +380,4 @@ Konsequenz:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> de3ef50 2026-11-14 lexpr: improve wording on visitChildren()<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 88eee45 2026-11-23 lexpr: fix labels (antlr visitor)<br></sub></sup></p></blockquote>

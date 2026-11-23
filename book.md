@@ -97,7 +97,7 @@ Sie können die Prüfung in der ersten oder in der zweiten Prüfungsphase ablege
 -   **Prüfungsphase I**: **Vier Stationen** (digitale E-Assessments im B40 mit je 30 Minuten Dauer), **beste drei Ergebnisse ergeben die Note**
 
     -   Station 1: Mittwoch, 11.11., in Praktikumszeit (12:30-13:00, 13:15-13:45, 14:00-14:30)
-    -   Station 2: Mittwoch, 02.12., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
+    -   Station 2: Mittwoch, 02.12., in Praktikumszeit (12:30-13:00, 13:15-13:45, 14:00-14:30)
     -   Station 3: Mittwoch, 06.01., in Praktikumszeit (*Slots werden noch bekannt gegeben*)
     -   Station 4: Im ersten Prüfungszeitraum (*Termin wird vom Prüfungsamt bekanntgegeben*)
 
@@ -2387,14 +2387,7 @@ Aktuell könnten wir streng genommen einfach `int` als Rückgabetyp verwenden. A
 ##### Value-Hierarchie in Java
 
 ``` java
-public interface Value {
-
-    static int asInt(Value v) {
-        if (v instanceof IntVal(int val)) return val;
-        throw new RuntimeException("number expected");
-    }
-}
-
+public interface Value {}
 
 public record IntVal(int v) implements Value {}
 ```
@@ -2433,8 +2426,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -2451,6 +2444,17 @@ Hier sehen wir die (teilweise) Implementierung unseres L-Int-Interpreters.
 Die `eval()`-Methode bildet das Kernstück des (AST-traversierenden) Interpreters für Ausdrücke. Hier wird passend zum aktuellen AST-Knoten die passende Methode des Interpreters aufgerufen.
 
 Wir nutzen Pattern Matching in einer `switch`-Expression über dem AST-Typ `Expr`. Wir könnten hier auch das Visitor-Pattern nutzen - wichtig ist nur, dass der Baum rekursiv traversiert wird und für jeden Knoten die richtige Aktion durchgeführt wird.
+
+###### Hilfsmethode
+
+Die Hilfsmethode `asInt()` in `InterpreterLint` könnte so aussehen:
+
+``` java
+protected int asInt(Value v) {
+    if (v instanceof IntVal(int val)) return val;
+    throw new RuntimeException("number expected");
+}
+```
 
 ###### Literale auswerten
 
@@ -3209,7 +3213,7 @@ public class LispyParserLint {
         tokens = tokenList;  current = 0;
 
         Expr expr = parseEform();
-        if (!isAtEnd()) throw new RuntimeException("unexpected token");
+        match(EOF);
 
         return expr;
     }
@@ -3333,6 +3337,7 @@ protected Expr parseAddExpr() {
     match(PLUS);
 
     List<Expr> ops = new ArrayList<>();
+    ops.add(parseEform());
     ops.add(parseEform());
     while (!check(RPAREN)) ops.add(parseEform());
 
@@ -3577,6 +3582,7 @@ Implementierung als RD-Parser:
 >
 >     List<Expr> ops = new ArrayList<>();
 >     ops.add(parseEform());
+>     ops.add(parseEform());
 >     while (!check(RPAREN)) ops.add(parseEform());
 >
 >     match(RPAREN);
@@ -3789,8 +3795,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -3815,8 +3821,8 @@ public class InterpreterLexpr extends InterpreterLint {
     public Value eval(Expr expr) {
         return switch (expr) {
             case MulExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a * b);
             }
 
@@ -4100,7 +4106,7 @@ Eigenschaften:
 >
 > **Assoziativität sichtbar machen**
 >
-> Betrachten Sie erneut die Grammatik aus dem Beispiel:
+> Betrachten Sie die Grammatik aus dem Beispiel im Skript:
 >
 > ``` ebnf
 > expr  ::= term ('+' term)*
@@ -4113,38 +4119,12 @@ Eigenschaften:
 >     -   `1 + 2 + 3`
 >     -   `2 * 3 * 4`
 >     -   `1 + 2 * 3`
->     -   `8 * 4 * 2`
+>     -   `4 * 5 + 6`
 >     -   `-3 * 4`
 > 2.  Schreiben Sie zu jedem Parse-Tree die explizite Klammerung des Ausdrucks dazu, z.B. `(1 + 2) + 3`.
 > 3.  Diskutieren Sie in der Gruppe:
 >     -   Warum sind die Bäume links-astig?
 >     -   Wie würde eine Grammatik aussehen, die `+` (oder `*`) **rechtsassoziativ** parst?
->
-> **Vorrang durch Umformung der Grammatik**
->
-> Starten Sie erneut mit der folgenden Grammatik:
->
-> ``` ebnf
-> expr ::= expr '+' expr
->        | expr '*' expr
->        | INT
-> ```
->
-> 1.  Formulieren Sie eine neue Grammatik, die:
->
->     -   Multiplikation und Division stärker bindet als Addition und Subtraktion (wie in Java/C++),
->     -   alle vier Operatoren linksassoziativ macht, und
->     -   geklammerte Ausdrücke erlaubt.
->
-> 2.  Verwenden Sie dazu die drei Stufen `expr`, `term`, `atom`.
->
-> 3.  Testen Sie Ihre Grammatik gedanklich an den Ausdrücken:
->
->         1 + 2 * 3
->         4 * 5 + 6
->         7 + 8 + 9
->
-> 4.  Notieren Sie für jeden Ausdruck die Klammerung, die Ihre Grammatik erzwingt.
 >
 > </details>
 
@@ -4644,7 +4624,14 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 >
 > 2.  Diskutieren Sie: Was würde passieren, wenn Sie statt `'if'` in der Startregel eine explizite Lexer-Regel `IF : 'if' ;` und die Startregel als `start : IF '(' ID ')' EOF ;` schreiben würden?
 >
-> 3.  Variieren Sie nun die Reihenfolge der Lexer-Regeln: `antlr  ID : [a-z][a-zA-Z0-9]* ;  IF : 'if' ;` Diskutieren Sie:
+> 3.  Variieren Sie nun die Reihenfolge der Lexer-Regeln:
+>
+>     ``` antlr
+>     ID : [a-z][a-zA-Z0-9]* ;
+>     IF : 'if' ;
+>     ```
+>
+>     Diskutieren Sie:
 >
 >     -   Welche Tokenfolge erzeugt der Lexer nun für die Eingabe `if(x)`?
 >     -   Warum macht es aus Sicht der ANTLR-Spezifikation trotzdem einen Unterschied, ob Sie `'if'` als implizites Token oder als explizite Lexer-Regel schreiben?
@@ -4989,9 +4976,9 @@ Konsequenz:
 >
 >     ``` antlr
 >     eform
->       : '(' '+' eform eform+ ')'  # addExpr
->       | '(' '*' eform eform+ ')'  # mulExpr
->       | INT                       # intLit
+>       : '(' '+' eform eform+ ')'  #addExpr
+>       | '(' '*' eform eform+ ')'  #mulExpr
+>       | INT                       #intLit
 >       ;
 >     ```
 >
@@ -5009,8 +4996,8 @@ Konsequenz:
 > expr     : addExpr ;
 > addExpr  : multExpr (('+' | '-') multExpr)* ;
 > multExpr : atom (('*' | '/') atom)* ;
-> atom     : INT
->          | '(' expr ')'   # parens
+> atom     : INT                                   #int
+>          | '(' expr ')'                          #parens
 >          ;
 > ```
 >
@@ -5290,7 +5277,7 @@ protected boolean skipIrrelevant() {}  // Homework
 <details>
 
 ``` java
-public enum TokenKind { PLUS, MINUS, LPAREN, RPAREN, SEMI, INT,  EOF }
+public enum TokenKind { PLUS, MINUS, LPAREN, RPAREN, SEMI, INT, EOF }
 public record Token(TokenKind kind, String lexeme) {}
 
 public class LispyLexerLint {
@@ -5568,12 +5555,7 @@ public record AddExpr(Expr left, Expr right) implements Expr {}
 public record SubExpr(Expr left, Expr right) implements Expr {}
 
 
-public interface Value {
-    static int asInt(Value v) {
-        if (v instanceof IntVal(int val)) return val;
-        throw new RuntimeException("number expected");
-    }
-}
+public interface Value {}
 public record IntVal(int v) implements Value {}
 
 
@@ -5583,8 +5565,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -5592,6 +5574,11 @@ public class InterpreterLint {
 
             default -> throw new RuntimeException("unexpected expression: " + expr);
         };
+    }
+
+    protected int asInt(Value v) {
+        if (v instanceof IntVal(var val)) return val;
+        throw new RuntimeException("number expected");
     }
 }
 ```
@@ -5636,12 +5623,7 @@ public record SubExpr(Expr left, Expr right) implements Expr {}
 public record MulExpr(Expr left, Expr right) implements Expr {}
 public record DivExpr(Expr left, Expr right) implements Expr {}
 
-public interface Value {
-    static int asInt(Value v) {
-        if (v instanceof IntVal(int val)) return val;
-        throw new RuntimeException("number expected");
-    }
-}
+public interface Value {}
 public record IntVal(int v) implements Value {}
 
 public class InterpreterLint {
@@ -5650,8 +5632,8 @@ public class InterpreterLint {
             case IntLiteral(var v) -> new IntVal(v);
 
             case AddExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a + b);
             }
 
@@ -5659,6 +5641,11 @@ public class InterpreterLint {
 
             default -> throw new RuntimeException("unexpected expression: " + expr);
         };
+    }
+
+    protected int asInt(Value v) {
+        if (v instanceof IntVal(var val)) return val;
+        throw new RuntimeException("number expected");
     }
 }
 
@@ -5669,8 +5656,8 @@ public class InterpreterLexpr extends InterpreterLint {
     public Value eval(Expr expr) {
         return switch (expr) {
             case MulExpr(var l, var r) -> {
-                int a = Value.asInt(eval(l));
-                int b = Value.asInt(eval(r));
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
                 yield new IntVal(a * b);
             }
 
@@ -5882,13 +5869,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 698a473 2026-11-20 lint: fix typo (sheet03)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> c919edf 2026-11-23 lvar: replace custom error() with RuntimeException()<br></sub></sup></p></blockquote>

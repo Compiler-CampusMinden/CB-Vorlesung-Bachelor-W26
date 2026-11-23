@@ -492,7 +492,14 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 >
 > 2.  Diskutieren Sie: Was würde passieren, wenn Sie statt `'if'` in der Startregel eine explizite Lexer-Regel `IF : 'if' ;` und die Startregel als `start : IF '(' ID ')' EOF ;` schreiben würden?
 >
-> 3.  Variieren Sie nun die Reihenfolge der Lexer-Regeln: `antlr  ID : [a-z][a-zA-Z0-9]* ;  IF : 'if' ;` Diskutieren Sie:
+> 3.  Variieren Sie nun die Reihenfolge der Lexer-Regeln:
+>
+>     ``` antlr
+>     ID : [a-z][a-zA-Z0-9]* ;
+>     IF : 'if' ;
+>     ```
+>
+>     Diskutieren Sie:
 >
 >     -   Welche Tokenfolge erzeugt der Lexer nun für die Eingabe `if(x)`?
 >     -   Warum macht es aus Sicht der ANTLR-Spezifikation trotzdem einen Unterschied, ob Sie `'if'` als implizites Token oder als explizite Lexer-Regel schreiben?
@@ -559,4 +566,4 @@ Damit haben wir die sprichwörtliche "Spitze des Eisbergs" gesehen. Mit ANTLR si
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 3f83864 2026-11-14 lexpr: add new screencast (antlr grammar)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> f1a155d 2026-11-23 lexpr: fix markdown formatting (antlr grammar)<br></sub></sup></p></blockquote>
