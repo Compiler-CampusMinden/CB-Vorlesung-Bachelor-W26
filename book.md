@@ -7483,24 +7483,24 @@ Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
 
 ##### Schritt 5: Parsen von C-Expr und bauen des AST
 
-###### Handimplementierte Lexer und Parser
+1.  Handimplementierte Lexer und Parser
 
-1.  Implementieren Sie für Ihre konkrete Grammatik (mit den gestuften Regeln) für **C-Expr einen Lexer**. Erweitern Sie dazu die Tokendefinitionen passend.
+    1.  Implementieren Sie für Ihre konkrete Grammatik (mit den gestuften Regeln) für **C-Expr einen Lexer**. Erweitern Sie dazu die Tokendefinitionen passend.
 
-2.  Implementieren Sie einen **RD-Parser für C-Expr**, der als Ausgabe einen AST erzeugt. Ergänzen Sie dazu die AST-Klassen entsprechend Ihrer abstrakten Syntax.
+    2.  Implementieren Sie einen **RD-Parser für C-Expr**, der als Ausgabe einen AST erzeugt. Ergänzen Sie dazu die AST-Klassen entsprechend Ihrer abstrakten Syntax.
 
-###### ANTLR und AST-Builder
+2.  ANTLR und AST-Builder
 
-3.  Lassen Sie sich von **ANTLR** für die Grammatik aus der vorigen Aufgabe je einen **Lexer, Parser und Visitor generieren**.
+    1.  Lassen Sie sich von **ANTLR** für die Grammatik aus der vorigen Aufgabe je einen **Lexer, Parser und Visitor generieren**.
 
-4.  Erstellen Sie analog zum Skript einen **AST-Builder**, der aus dem ANTLR-Parse-Tree einen AST entsprechend Ihrer abstrakten Syntax erzeugt. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
+    2.  Erstellen Sie analog zum Skript einen **AST-Builder**, der aus dem ANTLR-Parse-Tree einen AST entsprechend Ihrer abstrakten Syntax erzeugt. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
 
-    -   Welchen generischen Typ brauchen Sie für das Ableiten des generierten `XyzBaseVisitor`?
-    -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
+        -   Welchen generischen Typ brauchen Sie für das Ableiten des generierten `XyzBaseVisitor`?
+        -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
 
-##### C-Expr Pipeline
+3.  C-Expr Pipeline
 
-5.  Testen Sie die neue C-Expr-Pipeline: Implementieren Sie die **obigen Beispiele in JUnit** und führen Sie diese jeweils auf den **beiden Varianten** aus (RD-Parser, ANTLR). Was beobachten Sie?
+    Testen Sie die neue C-Expr-Pipeline: Implementieren Sie die **obigen Beispiele in JUnit** und führen Sie diese jeweils auf den **beiden Varianten** aus (RD-Parser, ANTLR + AST-Builder). Was beobachten Sie?
 
 > [!TIP]
 >
@@ -7847,13 +7847,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 -   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 01fb14b 2026-11-24 homework: reduce noise (sheet05)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> c384bf2 2026-11-25 lexpr: typo (sheet05)<br></sub></sup></p></blockquote>
