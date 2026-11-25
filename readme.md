@@ -45,7 +45,7 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 ### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:--|:---|:----------------------------------------|:-----------|:-------------|
+|:--|:--|:-----------------------------------------|:----------|:-------------|
 | Oktober | 12.10 | Orga \|\| [Überblick](lecture/00-intro/overview.md) \| [Sprachen](lecture/00-intro/languages.md) \| [Anwendungen](lecture/00-intro/applications.md) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](lecture/01-theory/regular1.md) | [B01](homework/sheet01.md) |  |
 |  | 26.10. | [Reguläre Sprachen 2](lecture/01-theory/regular2.md) \|\| [CFG](lecture/01-theory/cfg.md) | [B02](homework/sheet02.md) |  |
@@ -53,8 +53,8 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 |  | 09.11. | L-Int (Teil 1): [Intro L-Int](lecture/02-lint/01-lint.md) \| [Grammatik](lecture/02-lint/02-grammar.md) \| [Interpreter](lecture/02-lint/03-interpreter.md) | **Station 1** |  |
 |  | 16.11. | L-Int (Teil 2): [Lexer](lecture/02-lint/04-lexer.md) \| [RD-Parser](lecture/02-lint/05-rdparser.md) | [B03: C-Int](homework/sheet03-lint.md) |  |
 |  | 23.11. | L-Expr: [Intro L-Expr](lecture/03-lexpr/01-lexpr.md) \| [Vorrang](lecture/03-lexpr/02-precedence.md) \| [ANTLR Grammatik](lecture/03-lexpr/03-antlr-grammar.md) \| [ANTLR Visitor](lecture/03-lexpr/04-antlr-visitor.md) | [B04: C-Expr](homework/sheet04-lexpr.md) |  |
-| Dezember | 30.11. | [L-Var](lecture/04-lvar/readme.md) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
-|  | 07.12. | [L-If](lecture/05-lif/readme.md) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
+| Dezember | 30.11. | L-Var: [Intro L-Var](lecture/04-lvar/01-lvar.md) \| [Name-Resolver](lecture/04-lvar/02-resolver.md) \| [Environments und Interpreter](lecture/04-lvar/03-environments.md) \| [Gesamtbild](lecture/04-lvar/04-integration.md) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
+|  | 07.12. | [L-If](lecture/05-lif/readme.md) | [B05: C-Var](homework/sheet05-lvar.md), C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
 |  | 14.12. | [L-Fun](lecture/06-lfun/readme.md) | C-If, C-Fun |  |
 |  | *21.12.* | **Weihnachtspause** | \- |  |
 |  | *28.12.* | **Weihnachtspause** | \- |  |
@@ -149,4 +149,4 @@ Wir freuen uns, auch in diesem Semester wieder drei gemeinsame Sitzungen für be
 
 Unless otherwise noted, [this work](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor) by [BC George](https://github.com/bcg7), [Carsten Gips](https://github.com/cagix) and [contributors](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/graphs/contributors) is licensed under [CC BY-SA 4.0](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/LICENSE.md). See the [credits](https://github.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/blob/master/CREDITS.md) for a detailed list of contributing projects.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 9e49857 2026-11-23 orga: update plan parcourspr��fung<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 6ce966f 2026-11-24 lvar: add lessons to schedule<br></sub></sup></p></blockquote>

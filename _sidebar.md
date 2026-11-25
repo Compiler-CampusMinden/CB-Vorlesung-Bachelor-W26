@@ -21,6 +21,10 @@
     - [L-Expr: ANTLR-Grammatik und Vorrangregeln](lecture/03-lexpr/03-antlr-grammar.md)
     - [L-Expr: ANTLR-Visitoren und Rückgabewerte](lecture/03-lexpr/04-antlr-visitor.md)
   - **Sprache L-Var: Variablen, Statments, nested Scopes**
+    - [L-Var: Überblick, Syntax und AST](lecture/04-lvar/01-lvar.md)
+    - [L-Var: Scopes, Name-Resolver und Symboltabellen](lecture/04-lvar/02-resolver.md)
+    - [L-Var: Interpreter mit Environments und Statements](lecture/04-lvar/03-environments.md)
+    - [L-Var: Integration & Pipeline-Gesamtbild](lecture/04-lvar/04-integration.md)
   - **Sprache L-If: Datentyp Boolean, Vergleiche, Kontrollstrukturen (if/else, while)**
   - **Sprache L-Fun: Funktionen (Definition, Aufruf)**
   - **Sprache L-Class: Klassen (Felder, Methoden, Objekte)**
@@ -31,3 +35,4 @@
   - [Blatt 02: CFG](homework/sheet02.md)
   - [Blatt 03: L-Int und C-Int (Integer, Addition, Subtraktion)](homework/sheet03-lint.md)
   - [Blatt 04: L-Expr und C-Expr (Multiplikation/Division, Vorrang und ANTLR)](homework/sheet04-lexpr.md)
+  - [Blatt 05: L-Var und C-Var (Variablen, State, Scopes)](homework/sheet05-lvar.md)

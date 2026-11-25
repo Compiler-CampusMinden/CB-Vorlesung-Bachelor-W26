@@ -49,7 +49,7 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 #### Fahrplan
 
 | Monat | Woche vom | Vorlesung (Mo) | Praktikum (Mi) | Edmonton/Minden-Meetings |
-|:---|:----|:-------------------------------------|:-----------|:-------------|
+|:---|:---|:--------------------------------------|:----------|:-------------|
 | Oktober | 12.10 | Orga \|\| [Überblick](#id-1df70a478502c95d7f7d1fa78f328a16640b3907) \| [Sprachen](#id-55cceb8d95eb4d3a67a6a18eb0e778b5695106a3) \| [Anwendungen](#id-315c4a6ad46ecd3cdd06bff39540497383b62904) | \- |  |
 |  | 19.10. | [Reguläre Sprachen 1](#id-cb0be27b07154b726b38212279070d854085a4f8) | [B01](#id-6f673c2e093cdfc53b1f78baef11fd06cc8aa415) |  |
 |  | 26.10. | [Reguläre Sprachen 2](#id-e6527ca4572a4752c431b91119c87d78fa032789) \|\| [CFG](#id-7c0e930dad216729eeb1545678306ab9f0d6a57b) | [B02](#id-0db349230022c35e045dc3b052a4faea50fe5f40) |  |
@@ -57,8 +57,8 @@ Durchführung der Vorlesung als *Flipped Classroom* (Carsten) bzw. als *regulär
 |  | 09.11. | L-Int (Teil 1): [Intro L-Int](#id-92efa03f813e51c04582d54092121544fac6d2f6) \| [Grammatik](#id-5b9897e3373f2ab9cb2db150c803f2e2f79b5bc5) \| [Interpreter](#id-d8a55d89d69aa672b84f607d0f4d791de1cb29a3) | **Station 1** |  |
 |  | 16.11. | L-Int (Teil 2): [Lexer](#id-ace9fbbfab20407167957763e345b4cb8130dc1b) \| [RD-Parser](#id-ebe1e096694731fb5532fdd9572b900a699e7eaf) | [B03: C-Int](#id-c6885788e4bb28c92d66417730e18408254766a3) |  |
 |  | 23.11. | L-Expr: [Intro L-Expr](#id-9fb6f7eb249b8f4638db93995fb9ed91174500e2) \| [Vorrang](#id-3b77e4be5a2314d1b8ca4913379e49498c040ad0) \| [ANTLR Grammatik](#id-2e5ecf5bc552fd7f2cdf3903747b45e30328286a) \| [ANTLR Visitor](#id-f47140a0e1424b798887e57fe5e33325a47a4010) | [B04: C-Expr](#id-0f8d2eb5b0660d6fee0e550d3ec7fd7710efc45f) |  |
-| Dezember | 30.11. | [L-Var](#id-f8afd3e3cb9ba1df1e2b5422b50bc32aaa3350c7) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
-|  | 07.12. | [L-If](#id-51bc1e52157fd6e296d145056356183c5f0620e5) | C-Var, C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
+| Dezember | 30.11. | L-Var: [Intro L-Var](#id-8007b683876fb3de06cd40faef7a5473c054bd93) \| [Name-Resolver](#id-9654002d37c46a4a096ab46b015056812e7cdfd4) \| [Environments und Interpreter](#id-6fbe930997449265a9d599ec2ac6a27c02d3a9d8) \| [Gesamtbild](#id-66f5b6de521db28f066c73c170b61741af8a0710) | **Station 2** | **Mo, 30.11., 17:00 - 18:00 Uhr (online): Minden Presentations** |
+|  | 07.12. | [L-If](#id-51bc1e52157fd6e296d145056356183c5f0620e5) | [B05: C-Var](#id-98118cc81d6a530ca49ad4f799cdefcae735a708), C-If | **Mo, 07.12., 17:00 - 18:00 Uhr (online): Edmonton Presentations** |
 |  | 14.12. | [L-Fun](#id-d5e1d626434b082efe6661d1c3dbae47343aaa38) | C-If, C-Fun |  |
 |  | *21.12.* | **Weihnachtspause** | \- |  |
 |  | *28.12.* | **Weihnachtspause** | \- |  |
@@ -5042,6 +5042,1770 @@ Konsequenz:
 -   Nested Scopes, Resolving
 -   ResolverLVar, InterpreterLVar
 
+<a id="id-8007b683876fb3de06cd40faef7a5473c054bd93"></a>
+
+#### L-Var: Überblick, Syntax und AST
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> In L-Var erweitern wir Lispy um Variablen und führen damit erstmals **Zustand** in unsere Programme ein.
+>
+> Neben den bereits aus L-Int und L-Expr bekannten **Ausdrücken** (*Expressions*), die einen Wert liefern, führen wir nun **Anweisungen** (*Statements*) ein, die typischerweise keinen Wert, aber einen Seiteneffekt haben.
+>
+> L-Var kennt Variablen und Scopes: Variablen haben einen Namen, einen Typ und einen Wert und müssen in Lispy bei der Definition mit `def` initialisiert werden. Mit `let` können wir neue lokale Variablen einführen und damit **lokale Scopes** aufspannen. Scopes bestimmen, welche Namen an welcher Programmposition sichtbar sind; äußere Variablen sind in inneren Scopes sichtbar, umgekehrt aber nicht.
+>
+> Die konkrete Syntax von L-Var ergänzt L-Int/L-Expr um Variablennamen, `def`-, `let`- und Block-Formen sowie einen einfachen Typ `int`. In der abstrakten Syntax unterscheiden wir jetzt zwischen `Expr` und `Stmt` und führen neue AST-Knoten wie `VarExpr`, `ExprStmt`, `VarDecl` und `BlockStmt` ein. Unsere ANTLR-Grammatik für Lispy wird modular erweitert, ohne die bisherigen Regeln zu zerstören, sodass alte Tools (z.B. der AST-Builder für L-Expr) weiter funktionieren. Ein spezialisierter AST-Builder für L-Var (`LispyAstBuilderLvar`) leitet vom L-Expr-Builder ab und erzeugt aus den neuen Parse-Bäumen die erweiterten AST-Klassen. Diese AST-Struktur bildet die Grundlage, um in den nächsten Schritten Namensauflösung mit Scopes und einen Interpreter mit Environments und Statements zu implementieren.
+>
+> </details>
+
+##### Erinnerung L-Int / L-Expr: Nur Ausdrücke
+
+``` clojure
+(+ 1 (* 2 3))
+(/ (- 10 4) 2)
+```
+
+Bisher hatten wir in L-Int und darauf aufbauend in L-Expr nur Integer-Werte und arithmetische Operationen betrachtet. Wir können damit prima Taschenrechner spielen, aber für ernsthafte Programme fehlen uns noch Variablen und Blöcke (L-Var), Kontrollstrukturen (L-If) und Funktionen (L-Fun) ...
+
+##### L-Var: Variablen definieren
+
+``` clojure
+(def x : int 10)
+(+ x 5)
+
+(def y : int)  ;; Defaultwert!
+```
+
+Variablen haben einen **Namen**, einen **Typ** und einen **Wert**. Variablen sind nach ihrer Definition über ihren Namen zugreifbar (sofern "sichtbar", vgl. Scope-Diskussion weiter unten). In Lispy *können* Variablen bereits bei der **Definition initialisiert** werden.
+
+Die `def`-Form definiert Variablen in Lispy.
+
+Variablen führen **Zustand** im Programm ein. In L-Int und L-Expr waren wir zustandslos, wir mussten uns nichts merken und einfach nur den aktuellen arithmetischen Ausdruck auswerten. Mit Variablen haben wir Zustand: Wir definieren die Variable an einer (beliebigen) Stelle im Programm, und können später (unter bestimmten Bedingungen - "Sichtbarkeit", "Scopes") wieder darauf zugreifen.
+
+Zur Laufzeit müssen Variablen deshalb geeignet im Speicher abgelegt werden. Der Name der Variablen ist für den Compiler eine Art "Adresse" für den Zugriff auf den korrekten Speicherort. Wir werden darüber im Interpreter noch einmal sprechen und "Environments" anlegen.
+
+Im Beispiel definieren wir in unserem Lispy-Dialekt L-Var eine Variable `x` vom Typ `int` und initialisieren sie mit dem Wert `5`. Dabei bedeutet der Typ `int` in L-Var offensichtlich Integer-Werte. Wenn wir später auf diese Variable lesend zugreifen, können wir diesen Wert abrufen. Die Variable `y` wird nicht explizit initialisiert und bekommt zur Laufzeit (im Interpreter) einen **Defaultwert** passend zu ihrem Typ.
+
+> [!TIP]
+>
+> ###### Exkurs: Statische vs. dynamische Typisierung
+>
+> Nicht in allen Sprachen ist der Typ direkt in der konkreten Syntax sichtbar.
+>
+> In vielen **statisch typisierten** Sprachen muss man ihn explizit angeben, etwa in Java. Es gibt aber auch statisch typisierte Sprachen, die sehr elegante Programme erlauben fast ohne explizite Typangaben, beispielsweise Haskell. Dies funktioniert dort über mächtige Typ-Inferenz-Systeme. (Wir werden uns später im Semester die Typ-Prüfung (*type checking*) ansehen, quasi der kleine Bruder oder die einfache Vorstufe für echte Typ-Inferenz (*type inference*).) "Statisch typisiert" bedeutet dabei, dass der Typ eines Names im Laufe des Programms fest ist.
+>
+> In **dynamisch typisierten** Sprachen kann der Typ eines Bezeichners im Laufe des Programms wechseln (deshalb "dynamisch"). Hier sieht man den Typ in der konkreten Syntax in der Regel nicht, vgl. Python oder Ruby oder PHP.
+>
+> Unser Lispy in der Vorlesung ist wie das (Mini-) C++ in der Übung statisch typisiert.
+
+> [!IMPORTANT]
+>
+> ###### Exkurs: Variablendefinition als Statement
+>
+> Bisher hatten wir nur **Ausdrücke** (*expressions*) betrachtet. Alles in L-Int und L-Expr ergab einen Wert, d.h. alle Programme in L-Int und L-Expr wurden durch Ausdrücke gebildet.
+>
+> **Welchen Wert hat eine Variablendefinition?**
+>
+> In Lispy wie in vielen anderen Sprachen ergibt die Variablendefinition bei der Auswertung keinen Wert. Zudem verändert sie den Zustand des Programms, weshalb man eine Variablendefinition auch **Anweisung** (*statement*) nennt.
+>
+> Wir führen also in L-Var nun Statements zu den Expressions von L-Int und L-Expr hinzu.
+
+##### L-Var: KEINE Zuweisung an Variablen
+
+In Lispy (im Gegensatz zu C++) können Variablen **NICHT** verändert werden.
+
+> [!TIP]
+>
+> ###### Exkurs: Mutable vs. immutable Bezeichner
+>
+> Nicht in allen Sprachen ist der Wert und damit der Zustand von Variablen veränderbar.
+>
+> Viele Sprachen arbeiten mit **veränderbaren Variablen**, auch *mutable variables* genannt. Java, Python und viele andere fallen in diese Kategorie. Das Arbeiten mit einem veränderlichen Zustand fühlt sich oft angenehm an, kann aber bei komplexeren Programmen schnell zu Problemen führen. Insbesondere bei paralleler Programmierung läuft man sehr schnell in komplexe Synchronisationsaufgaben.
+>
+> In der **funktionalen Programmierung** arbeitet man häufig mit *immutable state*. Variablen können in Haskell (wie auch in der Mathematik) nicht mehr verändert werden, wenn sie einmal gesetzt wurden. Dies erlaubt klare und elegante Formulierungen, die an mathematische Notation erinnern können.
+>
+> In C++ führt die dynamische Speicherverwaltung in Kombination mit veränderlichen Variablen schnell zu interessanten Problemen. Moderne Sprachen wie Rust versuchen dies zu lösen, indem sie per Default Variablen als *immutable* betrachten (wenn man veränderliche Variablen möchte, muss man dies explizit deklarieren). Zusätzlich gibt es komplexe Modelle, um die Ownership einer Variablen exakt zu bestimmen (*borrow checker*).
+>
+> **In unserem (Mini-) C++ in der Übung werden wir Pointer und dynamische Speicherverwaltung nicht betrachten.**
+
+> [!IMPORTANT]
+>
+> ###### Exkurs: Zuweisungen als Expression
+>
+> Es gibt Sprachen wie C oder C++, wo eine Zuweisung als Expression behandelt wird. Damit erschließt sich eine komplett neue und faszinierende Welt von potentiellen Fehlern:
+>
+> ``` c
+> int i;
+> if (i=0) {...}
+> ```
+>
+> wäre ein gültiges Programm in C/C++! Beim Auswerten der Bedingung im `if` wird eine Zuweisung durchgeführt, das Ergebnis in C/C++ ist der zugewiesene Wert. Da in C/C++ zudem Integer im booleschen Kontext ausgewertet werden dürfen (`0` wirkt wie `false`), würde der Bedingungsteil dieses `if` nie ausgeführt und `i` zudem auf `0` gesetzt. ... Fehler dieser Art findet man in der Regel nur sehr schlecht!
+>
+> **Wir werden in unserem Mini-C++ davon abweichen: Wir werden (a) Zuweisungen erlauben, und (b) Zuweisungen abweichend von C++ als Statements behandeln.**
+
+##### L-Var: "let" mit Scopes
+
+``` clojure
+(def x : int 1)
+(let ((a : int 2)
+      (b : int 3))
+  (+ a b)
+  (+ x b))
+```
+
+    +----------------------+
+    |     GLOBAL SCOPE     |
+    +----------------------+
+    | symbols = [x : int]  |
+    +----------------------+
+               ^
+               |
+               |
+    +----------------------+
+    |     LOCAL SCOPE      |
+    +----------------------+
+    | symbols = [a : int,  |
+    |            b : int]  |
+    +----------------------+
+
+Die `let`-Form führt neue **lokale Variablen** ein und spannt gleichzeitig einen neuen **Block (Scope)** auf. Scopes sind Sichtbarkeitsbereiche für Bezeichner.
+
+Die Namen im **lokalen Scope** sind vom umgebenden (hier globalen) Scope aus nicht sichtbar. Andersherum sind die Namen aus dem umgebenden Scope im lokalen Scope sichtbar (rekursiv bis hoch zum globalen Scope).
+
+> [!IMPORTANT]
+>
+> ###### Exkurs: Scopes und Name Spaces
+>
+> **Def.:** Unter dem *Gültigkeitsbereich* (Sichtbarkeitsbereich, Scope) eines Bezeichners versteht man den Programmabschnitt, in dem der Bezeichner sichtbar und nutzbar ist. Das ist oft der kleinste umgebende Block, außer darin enthaltene Scopes, die ein eigenes Element dieses Namens benutzen.
+>
+> Scopes sind fast immer hierarchisch angeordnet.
+>
+> **Def.:** Unter einem *Namensraum* (name space) versteht man die Menge der zu einem Zeitpunkt sichtbaren Bezeichner.
+>
+> Es gibt Sprachen, in denen man eigene Namensräume explizit definieren kann (z.B. C++).
+>
+> Vorsicht: Diese Begriffe werden nicht immer gleich definiert und auch gerne verwechselt.
+
+Im obigen Beispiel ist `x` eine **globale** Variable, die im gesamten Programm sichtbar ist. Dagegen sind `a` und `b` **lokale** Variablen, deren Gültigkeitsbereich sich auf den Körper der `let`-Form beschränkt. D.h. im Inneren der `let`-Form ist `(+ a b)` erlaubt - außerhalb nicht, weil dort `a` und `b` nicht existieren. `x` ist dagegen auch in dem durch die `let`-Form aufgespannten Scope sichtbar: Wir finden `x` nicht direkt im **lokalen Scope** der `let`-Form, aber im umgebenden Scope (hier der **globale Scope**).
+
+In Java würde das Snippet ungefähr so aussehen:
+
+``` java
+int x = 1;
+{
+    int a = 2;
+    int b = 3;
+    a + b;
+    x + b;
+}
+```
+
+Auf diesem Wege könnte man auch **Shadowing** erzeugen: Man könnte im globalen Scope eine Variable `x` definieren, und dann im lokalen Scope erneut eine Variable `x` anlegen. Wenn man im lokalen Scope ist, verdeckt diese lokale Variable `x` die globale Variable `x`:
+
+``` clojure
+(def x : int 1)
+(let ((x : int 2))
+  (let ((x : int 3))
+    (+ x 2)))
+```
+
+Hier sollte das globale `x` in der Addition im innersten Block nicht genutzt werden, d.h. Ergebnis sollte nicht vom globalen `x` abhängen. Im ersten `let`-Block wird ein lokales `x` eingeführt und mit `2` initialisiert, und dann wird im zweiten `let`-Block noch einmal eine neue (überdeckende) lokale Variable `x` mit dem Wert `3` eingeführt. Für das Ergebnis sollte diese letzte (innere) Definition genutzt werden, da die Addition in diesem Scope stattfindet.
+
+Scopes können nahezu beliebig ineinander verschachtelt werden.
+
+##### L-Var: Konkrete Grammatik
+
+Wir bauen auf L-Int und L-Expr auf und ergänzen L-Var. Im Stil von ([Siek 2023](#ref-Siek2023python)) sind über den Trennern `---` die bisherigen Regeln für die konkrete Syntax (L-Int, L-Expr) angegeben. Danach folgen die neuen Regeln für L-Var:
+
+``` ebnf
+eform  ::= '(' '+' eform eform+ ')' | '(' '-' eform eform+ ')' | INT
+INT    ::= [0-9]+
+---
+eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform ')'
+---
+
+eform  ::= ID
+sform  ::= eform
+         | '(' 'def' ID ':' type eform? ')'
+         | '(' 'let' ltBdgs? sform+ ')'
+ltBdgs ::= '(' ltBdg+ ')'
+ltBdg  ::= '(' ID ':' type eform ')' ;
+type   ::= 'int'
+ID     ::= [a-zA-Z][a-zA-Z_0-9]*
+
+lvar   ::= sform* EOF
+```
+
+Mit L-Var ergänzen wir eine neue Expression in der `eform`: lesender Zugriff auf eine Variable. D.h. ein Variablenname (hier als `ID`) stellt für sich eine Expression dar.
+
+Zusätzlich haben wir aber nun auch Statements: Variablendefinition und `let` mit lokalen Bindungen und einem lokalen Scope.
+
+Außerdem taucht zum ersten Mal ein expliziter Typ auf: Integer-Werte werden mit dem Typnamen `int` bezeichnet.
+
+Unser Programm besteht ab jetzt aus einer Menge von Statements, d.h. wir betrachten Listen von `sform`, also *Sequenzen von Statements*. Expressions (`eform`) sind i.d.R. **Teile** von Statements (`sform`).
+
+Diese Definition wird uns zur Laufzeit im Interpreter noch etwas Kopfzerbrechen bereiten: Was genau liefert ein Programm zurück?
+
+##### L-Var: Abstrakte Syntax (AST)
+
+Im Stil von ([Siek 2023](#ref-Siek2023python)) sind über den Trennern `---` die bisherigen Regeln für die abstrakte Syntax (L-Int, L-Expr) angegeben. Danach folgen die neuen Regeln für L-Var:
+
+``` ebnf
+Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | SubExpr(Expr, Expr)
+---
+Expr = MulExpr(Expr, Expr) | DivExpr(Expr, Expr)
+---
+
+Expr = VarExpr(String)
+Stmt = ExprStmt(Expr)
+     | VarDecl(String, Type, Expr?)
+     | BlockStmt([Stmt])
+Type = IntType
+
+Lvar = [Stmt]
+```
+
+Die Expressions bekommen eine neue `VarExpr` für den lesenden Zugriff auf Variablennamen.
+
+Die Statements sind komplett neu und modellieren die Variablendeklaration und das `BlockStmt` für die `let`-Form mit Scopes sowie der "Cast" einer Expression in ein Statement.
+
+Das lässt sich wie bereits bei L-Int und L-Expr in die entsprechenden AST-Klassen übersetzen:
+
+``` java
+public interface Expr {}
+public interface Stmt {}
+```
+
+Wir haben einen neuen Obertyp `Stmt` zur Repräsentation von Statements: `interface Stmt`.
+
+Die bisherigen Klassen aus L-Int und L-Expr gelten weiterhin:
+
+``` java
+public record IntLiteral(int value) implements Expr {}
+public record AddExpr(Expr left, Expr right) implements Expr {}
+public record SubExpr(Expr left, Expr right) implements Expr {}
+
+public record MulExpr(Expr left, Expr right) implements Expr {}
+public record DivExpr(Expr left, Expr right) implements Expr {}
+```
+
+Dazu kommen nun die neuen Klassen für L-Var:
+
+``` java
+public record VarExpr(String name) implements Expr {}
+
+public record VarDecl(String name, Type type, Optional<Expr> init) implements Stmt {}
+public record ExprStmt(Expr expr) implements Stmt {}
+public record BlockStmt(List<Stmt> stmts) implements Stmt {}
+```
+
+Zur Repräsentation der Typen brauchen wir noch ein Interface `Type` und ein initiales Enum `BuiltinType` o.ä. zur Repräsentation der eingebauten Typen, etwa so:
+
+``` java
+public interface Type { String name(); }
+enum BuiltinType implements Type { INT }
+```
+
+Damit lassen sich dann die neuen Features aus L-Var im AST modellieren:
+
+-   `VarExpr` - Lesen einer Variable
+-   `VarDecl` - Einführung/Binden einer Variable
+-   `BlockStmt` - Scope für mehrere Statements (aus der `let`-mit-Scopes-Form)
+
+> [!TIP]
+>
+> ###### Exkurs: Definitionen und Deklarationen von Bezeichnern
+>
+> In der Literatur wird teilweise zwischen **Deklaration** und **Definition** unterschieden.
+>
+> **Def.:** Die **Definition** eines (bisher nicht existenten) Bezeichners in einem Programm generiert einen neuen Bezeichner und legt für ihn seinem Typ entsprechend Speicherplatz an.
+>
+> **Def.:** Unter der **Deklaration** eines (bereits existierenden) Bezeichners verstehen wir seine Bekanntmachung, damit er benutzt werden kann. Er ist oft in einem anderen Scope definiert und bekommt dort Speicherplatz zugeteilt.
+>
+> Insbesondere werden Typen *deklariert*. Hier gibt es in der Regel gar keine Speicherplatzzuweisung.
+>
+> Ein Bezeichner kann in C/C++ beliebig oft deklariert werden, während er in einem Programm nur einmal definiert werden kann. Oft wird bei der Deklarationen eines Elements sein Namensraum mit angegeben. Wir werden in unserem Mini-C++ zur Vereinfachung diese Feinheit nicht ausnutzen.
+>
+> **Vorsicht**: Die Begriffe werden oft auch anders verwendet, beispielsweise findet sich in der Java-Literatur der Begriff *Deklaration* anstelle von *Definition*.
+>
+> **Wir folgen in Lispy diesem unscharfen Sprachgebrauch: `def` in der konkreten Syntax kommt von "Definieren einer Variablen", in der abstrakten Syntax nutzen wir dafür dann aber `VarDecl` von "Deklarieren einer Variablen".**
+
+##### Implementierungsdetails: ANTLR-Grammatik L-Var
+
+Konkrete ANTLR-Grammatik (Ausschnitte):
+
+``` antlr
+grammar Lispy;
+
+lvar        : sform* EOF ;
+lexpr       : eform EOF ;
+
+sform       : exprStmt | varDecl | letStmt ;
+eform       : ...
+
+exprStmt    : eform ;
+varDecl     : '(' 'def' ID ':' type eform? ')' ;
+letStmt     : ...
+...
+
+type        : 'int' ;
+...
+```
+
+Hier ist ein Teil der ANTLR-Grammatik für L-Var, resultierend aus der konkreten Grammatik, gezeigt.
+
+Wir verwenden für L-Var die bereits für L-Expr erstellte Grammatik `Lispy.g4` weiter und ergänzen nur die neuen Regeln.
+
+Per Konvention ist die erste Regel die Startregel, hier wäre das `lvar : sform* EOF ;`. Aber man kann auf dem von ANTLR generierten Parser auch andere Regeln aufrufen. Deshalb bleibt die alte Startregel aus L-Expr `lexpr : eform EOF ;` mit drin, wodurch unser Tooling auf L-Expr-Ebene weiterhin funktioniert (insbesondere der AST-Builder).
+
+Wie in der konkreten Grammatik bereits angemerkt, besteht ein L-Var-Programm aus einer Liste von `sform`-Forms, also einer Sequenz von Statements. Die `eform`-Formen sind Teil von `sform`-Formen, insbesondere gibt es in Lispy die Regel `exprStmt : eform ;` - eine Expression kann überall verwendet werden, wo ein Statement erwartet wird. Dies ist nicht in allen Sprachen so, insbesondere ist in C++ eine Expression erst dann ein Statement, wenn sie von einem Semikolon abgeschlossen wird.
+
+Ansonsten werden wie gewohnt die Regeln aus der konkreten Syntax in die ANTLR-Grammatik übersetzt. Dabei ist es hilfreich, für die Regeln und die Labels auf "sprechende" Namen zu achten. Dies unterstützt die Lesbarkeit der Grammatik, und da zu jeder Regel und jedem Label eine `visitXYZ()`-Methode generiert wird, erleichtert uns das auch das Zurechtfinden im AST-Builder.
+
+##### Implementierungsdetails: AST-Builder L-Var
+
+Wir hatten für `Lispy.g4` auf dem L-Expr-Level bereits einen Visitor zum Bauen des AST aus dem ANTLR-Parse-Tree definiert: `class LispyAstBuilderLexpr extends LispyBaseVisitor<Object>`.
+
+Wir ergänzen diese Grammatik nun mit einer neuen Startregel und den für Lispy L-Var notwendigen neuen Regeln für die konkrete Syntax. Damit funktioniert der `LispyAstBuilderLexpr` immer noch (so lange wir nicht benutzte Regeln umbenennen oder relevante Elemente in den L-Expr-Regeln ändern o.ä.).
+
+In L-Var generiert ANTLR nun für die neuen Regeln und Labels entsprechende zusätzliche `visitXYZ()`-Methoden und bietet in `LispyBaseVisitor` die Defaultimplementierung an. Das nutzen wir aus und leiten den Visitor für L-Var einfach vom Visitor für L-Expr ab und ergänzen die notwendigen Implementierungen beispielsweise für `exprStmt`, `varDecl`, `letStmt`:
+
+``` java
+public class LispyAstBuilderLvar extends LispyAstBuilderLexpr {
+    @Override
+    public List<Stmt> visitLvar(LvarContext ctx) {
+        return ctx.sform().stream().map(this::visit).map(this::asStmt).toList();
+    }
+    @Override
+    public Expr visitVarExpr(VarExprContext ctx) {
+        return new VarExpr(ctx.ID().getText());
+    }
+    @Override
+    public Stmt visitExprStmt(ExprStmtContext ctx) {
+        Expr expr = asExpr(visit(ctx.eform()));
+        return new ExprStmt(expr);
+    }
+    @Override
+    public Type visitType(TypeContext ctx) {
+        if (ctx.getText().equals("int")) return BuiltinType.INT;
+        throw new RuntimeException("'int' type expected");
+    }
+...
+}
+```
+
+Die Hilfsmethode `Stmt asStmt(Object o)` (nicht gezeigt) ist analog zur Hilfsmethode `Expr asExpr(Object o)` in L-Expr aufgebaut. Sie prüft, ob das übergebene Objekt ein `Stmt` ist und casted es dann zu diesem Typ um. Anderenfalls wird eine Exception geworfen.
+
+##### Wrap-up
+
+-   L-Var: Variablen, Scopes und **Zustand**
+    -   **Expressions** (liefern Wert)
+    -   **Statements** (ändern Zustand, liefern keinen Wert)
+
+<!-- -->
+
+-   Scopes bestimmen die **Sichtbarkeit** von Variablen
+    -   innere Scopes sehen äußere Variablen, umgekehrt nicht
+
+<!-- -->
+
+-   Sprachfeatures in L-Var:
+    -   `def`: definiert neue Variablen mit Typ und Initialwert
+    -   `let`: neue **lokale Variablen** mit eigenem lokalem Scope
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> In ([Nystrom 2021](#ref-Nystrom2021)) kann man in Kapitel 8 "Statements and State" nachlesen. Auch die Darstellung im ([Siek 2023](#ref-Siek2023python)) in Kapitel 2 "Integers and Variables" ist sehr hilfreich.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k1: Ich kann die Begriffe *Expression*, *Statement*, *Scope* und *Variable* definieren.
+> -   k2: Ich kann erläutern, wie Scopes die Sichtbarkeit von Variablen beeinflussen und wie globale und lokale Variablen sich unterscheiden.
+> -   k3: Ich kann Lispy-L-Var-Programme in *konkrete* und *abstrakte* Syntax (AST-Bäume mit `Expr`- und `Stmt`-Knoten) übersetzen.
+> -   k3: Ich kann eine bestehende ANTLR-Grammatik (L-Expr) um Variablen, Statements und Scopes zu L-Var erweitern und den AST-Builder entsprechend anpassen.
+> -   k4: Ich kann für ein gegebenes L-Var-Programm den Scope-Baum bestimmen und jede Variablenreferenz (`VarExpr`) der zugehörigen Deklaration (`VarDecl`) zuordnen.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Statements vs. Expressions**
+>
+> 1.  Geben Sie für den folgenden Lispy-Code in **L-Var**-Syntax eine AST-Struktur an:
+>
+>     ``` clojure
+>     (def x : int 10)
+>     (let ((y : int 1)
+>           (z : int 2))
+>       (+ x y)
+>       (+ y z))
+>     ```
+>
+>     -   Welche `Stmt`-Knoten entstehen?
+>     -   Welche `Expr`-Knoten entstehen?
+>
+> 2.  Zeichnen Sie den **Scope-Baum**:
+>
+>     -   Welcher Scope enthält welche Variablen?
+>     -   Welche Referenz (`VarExpr`) bezieht sich auf welche Deklaration (`VarDecl`)?
+>
+> **Konkrete vs. abstrakte Syntax für `let`-mit-Scope**
+>
+> Gegeben ist folgender Lispy-L-Var-Code:
+>
+> ``` clojure
+> (def x : int 1)
+> (def y : int 2)
+> (let ((x : int 3)
+>       (z : int 4))
+>   (+ x y)
+>   (+ x z))
+> (+ x y)
+> ```
+>
+> 1.  Schreiben Sie die konkrete Grammatikableitung (Parse-Tree) für die `let`-Form auf.
+> 2.  Geben Sie den zugehörigen abstrakten Syntaxbaum (AST) für das `let`-Statement an:
+>     -   Welche `Stmt`-Knoten entstehen?
+>     -   Welche `Expr`-Knoten entstehen?
+>     -   Markieren Sie im AST, welche `VarExpr`-Knoten sich auf das innere `x` und welche sich auf das äußere `y` beziehen.
+> 3.  Wo wäre Shadowing möglich, und warum ist das im AST allein noch nicht aufgelöst?
+>
+> **Statements aus Expressions bauen**
+>
+> Betrachten Sie die folgenden Lispy-Fragmente (L-Var):
+>
+> ``` clojure
+> (+ 1 2)
+> (def a : int (+ 1 2))
+> (let (+ a 1))
+> (let ((b : int 10))
+>   (+ b 1)
+>   (+ b (+ b 2)))
+> ```
+>
+> 1.  Ordnen Sie jede Zeile bzw. jeden Block ein als:
+>     -   reine Expression,
+>     -   Statement,
+>     -   Block mit mehreren Statements.
+> 2.  Bestimmen Sie für jede Zeile/jeden Block:
+>     -   Welche `Stmt`-Knoten entstehen?
+>     -   Welche `Expr`-Knoten entstehen?
+> 3.  Diskutieren Sie kurz:
+>     -   Warum ist `(+ 1 2)` in L-Var alleine als Zeile ein Statement, obwohl es syntaktisch wie eine Expression aussieht?
+>     -   Welche Sprache(n), die Sie kennen, erlauben ebenfalls "nackte" Expressions als Statements?
+>
+> </details>
+
+<a id="id-9654002d37c46a4a096ab46b015056812e7cdfd4"></a>
+
+#### L-Var: Scopes, Name-Resolver und Symboltabellen
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> Auf die lexikalische Analyse und die Syntaxanalyse folgt die **semantische Analyse**. Nach dem Parsen steht fest, dass ein Programm *syntaktisch korrekt* ist. Nun muss geprüft werden, ob es auch *semantisch korrekt* ist. Dazu gehören insbesondere die Identifikation und Sammlung von Bezeichnern, die Zuordnung zu den richtigen **Sichtbarkeitsbereichen** (**Scopes**) und das Validieren der Nutzung dieser Bezeichner.
+>
+> Je nach Sprache müssen z.B. Variablen und Funktionen vor ihrer Benutzung deklariert sein; Mehrfachdefinitionen im selben Scope sind oft verboten und Funktionen dürfen nicht wie Variablen verwendet werden (und umgekehrt).
+>
+> Als Werkzeug verwendet man (hierarchische) Tabellen, sogenannte **Symboltabellen**, um alle Symbole und Zusatzinformationen über sie zu verwalten. Wenn die Sprache Nested Scopes kennt, spiegelt sich dies in den Symboltabellen wider: Sie sind entsprechend hierarchisch organisiert, typischerweise als verkettete Tabellenstruktur.
+>
+> Eine zentrale Aufgabe ist das **Binden** von Bezeichnern an den Scope, in dem sie definiert werden: `bind()`, sowie das spätere **Auflösen** von Bezeichnern aus dem aktuellen oder einem umgebenden Scope: `resolve()`.
+>
+> Diese **lexikalische Namensauflösung** ist die Grundlage für weitere semantische Prüfungen, Typprüfung und letztlich Interpretation oder Codegenerierung.
+>
+> </details>
+
+##### Was passiert nach der Syntaxanalyse?
+
+``` clojure
+(def x : int 1)
+(def a : int 2)
+(let ((b : int 3)
+      (x : int 42))
+  (+ a x))
+```
+
+    [Stmt]
+      |- VarDecl "x" : INT = IntLiteral(1)
+      |- VarDecl "a" : INT = IntLiteral(2)
+      \- BlockStmt
+         |- VarDecl "b" : INT = IntLiteral(3)
+         |- VarDecl "x" : INT = IntLiteral(42)
+         |- ExprStmt
+              \- AddExpr
+                  |- VarExpr "a"
+                  \- VarExpr "x"
+
+**Welches `x` sprechen wir in `(+ a x)` an?**
+
+Nach der Syntaxanalyse sammelt und prüft der Compiler in der **semantischen Analyse** (Phase, die sich der Syntaxanalyse oft direkt anschließt) **Informationen über Bezeichner**, z.B.
+
+-   Welcher Bezeichner ist gemeint?
+-   Welchen Typ hat ein Bezeichner?
+
+Auf dem Weg zum Interpreter/Compiler müssen die Symbole im AST korrekt zugeordnet werden. Dies geschieht über **Symboltabellen**. Im Folgenden werden wir verschiedene Aspekte von Symboltabellen betrachten und eine mögliche Implementierung erarbeiten, bevor wir uns in einer anderen Sitzung um die Auswertung (Interpretation) des AST kümmern können.
+
+##### Syntax und Semantik
+
+-   **Syntaxregeln**: Formaler Aufbau eines Programms
+
+<!-- -->
+
+-   **Semantik**: Bedeutung eines (syntaktisch korrekten) Programms
+
+=\> Keine Codegenerierung/Interpretation für syntaktisch/semantisch inkorrekte Programme!
+
+Zur Erinnerung: Die **Syntaxregeln** einer Programmiersprache bestimmen den *formalen Aufbau* eines zu übersetzenden Programms. Die **Semantik** gibt die *Bedeutung* eines syntaktisch korrekten Programms an.
+
+Lexikalische und syntaktische Analyse können formalisiert mit regulären Ausdrücken und endlichen Automaten (umgesetzt als Lexer/Scanner), sowie mit CFG und Parsern durchgeführt werden.
+
+Die Durchführung der semantischen Analyse ist stark von den Eigenschaften der zu übersetzenden Sprache (sowie der Zielsprache) abhängig und kann hier nur beispielhaft für einige Eigenschaften betrachtet werden.
+
+Es darf kein lauffähiges Programm erstellt werden, das nicht syntaktisch und semantisch korrekt ist. Ein lauffähiges Programm muss syntaktisch und semantisch korrekt sein!
+
+##### Aufgaben der semantischen Analyse
+
+-   Identifikation und Sammlung der Bezeichner
+-   Zuordnung zur richtigen Ebene (Scopes)
+
+<!-- -->
+
+-   Validieren der Nutzung von Symbolen
+    -   Vermeidung von Mehrfachdefinition
+    -   Kein Zugriff auf nicht definierte Bezeichner
+    -   (Lesender) Zugriff auf nicht initialisierte Bezeichner
+    -   Funktionen werden nicht als Variablen genutzt
+    -   ...
+
+<!-- -->
+
+-   Typkonsistenz (Ausdrücke, Funktionsaufrufe, ...)
+-   Typinferenz
+
+Die semantische Analyse überprüft die Gültigkeit eines syntaktisch korrekten Programms bzgl. statischer semantischer Eigenschaften und liefert die Grundlage für die (Zwischen-) Codeerzeugung und -optimierung. Insbesondere wird hier die **Typkonsistenz** (in Ausdrücken, von Parametern, ...) überprüft, und implizite Typumwandlungen werden vorgenommen. Oft müssen Typen automatisch bestimmt werden (z.B. bei Polymorphie, **Typinferenz**). Damit Typen bestimmt oder angepasst werden können, müssen Bezeichner zunächst identifiziert werden, d.h. bei namensgleichen Bezeichnern der richtige Bezug bestimmt werden.
+
+=\> Ein wichtiges Hilfsmittel dazu sind **Symboltabellen**
+
+###### Identifizierung von Objekten
+
+Beim Compiliervorgang müssen Namen immer wieder den dazugehörigen Definitionen zugeordnet, ihre Eigenschaften gesammelt und geprüft und darauf zugegriffen werden. Symboltabellen werden im Compiler fast überall gebraucht.
+
+Welche Informationen zu einem Bezeichner gespeichert und ermittelt werden, ist dann abhängig von der Art des Bezeichners.
+
+###### Validieren der Nutzung von Symbolen
+
+Hier sind viele Möglichkeiten denkbar. Dies reicht von den unten aufgeführten Basisprüfungen bis hin zum Prüfen der Typkompatibilität bei arithmetischen Operationen. Dabei müssen für alle Ausdrücke die Ergebnistypen berechnet werden und ggf. automatische Konvertierungen vorgenommen werden, etwa bei `3+4.1` ...
+
+-   Zugriff auf Variablen: Müssen sichtbar sein (und definiert sein)
+-   Zugriff auf Funktionen: Vorwärtsreferenzen sind OK
+-   Variablen werden nicht als Funktionen genutzt
+-   Funktionen werden nicht als Variablen genutzt
+
+Vorgriff auf L-Fun: Da Funktionen oft bereits vor dem Bekanntmachen der Definition aufgerufen werden dürfen, bietet sich ein **zweimaliger Durchlauf** (zwei *passes* über den AST) an: Beim ersten Traversieren des AST werden alle Definitionen in der Symboltabelle gesammelt. Beim zweiten Durchlauf werden dann die Referenzen aufgelöst.
+
+###### Das Mittel der Wahl: Tabellen für die Symbole (= Bezeichner)
+
+**Def.:** **Symboltabellen** sind die zentrale Datenstruktur zur Identifizierung und Verwaltung von bezeichneten Elementen.
+
+Die Organisation der Symboltabellen ist stark anwendungsabhängig. Je nach Sprachkonzept gibt es eine oder mehrere Symboltabellen, deren Einträge vom Lexer oder Parser oder während der semantischen Analyse angelegt werden. Die jeweiligen Inhalte der Einträge kommen aus den verschiedenen Phasen der Compilierung. Symboltabellen werden oft als Hashtables oder auch als Bäume implementiert, manchmal als verkettete Listen. In seltenen Fällen kommt man auch mit einem Stack aus.
+
+Eine Symboltabelle enthält benutzerdefinierte Bezeichner (oder Verweise in eine Hashtable mit allen vorkommenden Namen), manchmal auch die Schlüsselwörter der Programmiersprache. Die einzelnen Felder eines Eintrags variieren stark, abhängig vom Typ des Bezeichners (= Bezeichnerklasse).
+
+Manchmal gibt es für Datentypen eine Extra-Tabelle, ebenso eine für die Werte von Konstanten.
+
+Manchmal werden die Namen selbst in eine (Hash-) Tabelle geschrieben. Die Symboltabelle enthält dann statt der Namen Verweise in diese (Hash-) Tabelle.
+
+##### Symbole und (nested) Scopes
+
+``` clojure
+(def x : int 1)
+(def a : int 2)
+(let ((b : int 3)
+      (x : int 42))
+  (+ a x))
+```
+
+        +-------------------------------+
+        |         GLOBAL SCOPE          |
+        +-------------------------------+
+        | symbols = [x : int, a : int]  |
+        +-------------------------------+
+                        ^
+                        |
+        +-------------------------------+
+        |          LOCAL SCOPE          |
+        +-------------------------------+
+        | symbols = [b : int, x : int]  |
+        +-------------------------------+
+
+**Aufgaben**:
+
+-   `bind()`: Symbole im Scope definieren
+-   `resolve()`: Symbole aus Scope oder Eltern-Scope abrufen
+
+Scopes können ineinander verschachtelt sein. Die Spezifikation der zu übersetzenden Sprache legt fest, in welcher Reihenfolge Scopes zu durchsuchen sind, wenn auf einen Bezeichner Bezug genommen wird, der nicht im aktuellen Scope definiert ist.
+
+Insgesamt bilden die Scopes oft eine Baumstruktur, wobei jeder Knoten einen Scope repräsentiert und seine Kinder die direkt in ihm enthaltenen Scopes sind. Dabei ist es in der Regel so, dass Scopes sich entweder vollständig überlappen oder gar nicht. Wenn ein Bezeichner nicht im aktuellen Scope vorhanden ist, muss er in der Regel entlang der Verkettung nach "oben" zum "Elternscope" gesucht werden.
+
+Im Beispiel würden wir im innersten Scope für `(+ a x)` die Namen `x` und `a` auflösen müssen. Das `x` finden wir direkt im aktuellen (innersten) Scope, während das `a` hier nicht zu finden ist. Deshalb muss hier auf der Suche nach diesem Namen zum umschließenden Elternscope gewechselt werden und dort gesucht werden. Dies wiederholt sich bei Bedarf rekursiv bis zur Wurzel, also bis zum globalen Scope. Wenn der Bezeichner dann immer noch nicht gefunden werden kann, ist dies ein Fehler (Zugriff auf ein nicht definiertes Symbol).
+
+Dieses Verhalten nennt man auch **lexikalische Namensauflösung**.
+
+##### Symboltabelle für Nested Scopes
+
+``` java
+public record Scope(Scope parent, Map<String, Stmt> symbols) {
+
+    public void bind(String name, Stmt symbol) {
+        if (symbols.containsKey(name)) throw new RuntimeException("name already defined");
+        symbols.put(name, symbol);
+    }
+
+    public Resolution resolve(String name) { return resolve(name, 0); }
+    private Resolution resolve(String name, int depth) {
+        if (symbols.containsKey(name)) return new Resolution(symbols.get(name), depth);
+        if (parent != null) return parent.resolve(name, depth + 1);
+        throw new RuntimeException("undefined name");
+    }
+}
+
+public record Resolution(Stmt decl, int depth) {}
+```
+
+###### Implementierung mit hierarchischen (verketteten) Tabellen
+
+Pro Scope wird eine **Symboltabelle `Scope`** angelegt, dabei enthält jede Symboltabelle zusätzlich einen Verweis auf ihre Vorgängersymboltabelle für den umgebenden Scope. Die globale Symboltabelle hat keinen Vorgänger, hier kann man `null` als `parent` nutzen.
+
+> [!TIP]
+>
+> Streng genommen ist die Klasse `Scope` eine Modellierung für den Scope, und das Feld `Map<String, Stmt> symbols` ist die eigentliche Symboltabelle.
+>
+> "Scope" ist streng genommen ein logischer Sichtbarkeitsbereich für Namen, und eine Symboltabelle ist einem Scope zugeordnet und speichert Namen und die zugehörige Definition.
+>
+> Wir werden die beiden Begriffe "Scope" und "Symboltabelle" synonym verwenden, solange die Bedeutung eindeutig ist.
+
+> [!TIP]
+>
+> Es gibt Modellierungen wie beispielsweise ([Parr 2010](#ref-Parr2010), p. 142), die für die zu speichernden Elemente mit einem Namen (Variablen, Funktionen, Klassen, ...) eine elaborierte Klassenstruktur vorsehen. Wir werden stattdessen ausgewählte AST-Knoten zu einem Namen speichern. Das wird später in L-Class etwas umständlicher, dafür müssen wir nicht wie bei ([Parr 2010](#ref-Parr2010)) eine ausgeprägte zusätzliche Klassenhierarchie pflegen.
+
+> [!TIP]
+>
+> Die gezeigte Implementierung von `Scope` ist eine Record-Klasse in Java. Damit man beim Erzeugen eines neuen Objektes nicht immer alle Parameter mitgeben muss, empfiehlt es sich, noch zwei Hilfskonstruktoren zu definieren:
+>
+> ``` java
+> public record Scope(Scope parent, Map<String, Stmt> symbols) {
+>
+>     public Scope() { this(null); }
+>     public Scope(Scope enclosing) { this(enclosing, new HashMap<>()); }
+>
+>     // ...
+> }
+> ```
+
+###### Speichern von Symbolen
+
+**Welche AST-Knoten wollen/müssen wir speichern?**
+
+Es geht eigentlich nur darum, für jeden **Namen** (Bezeichner) denjenigen **Scope** festzuhalten, in dem dieser **Name definiert** wird. Entsprechend wollen wir gar nicht *alle* AST-Knoten festhalten, sondern nur die Klassen im AST, die einen Namen deklarieren.
+
+In L-Var betrifft das nur die `VarDecl`! (Später werden wir in L-Fun für Funktionsdefinitionen und in L-Class für Klassendefinitionen noch die `FunDecl` und die `ClassDecl` einführen.)
+
+In größeren Compilerprojekten würde man dies oft ein wenig typsicherer gestalten und ein Marker-Interface `Decl` einführen, mit dem die relevanten AST-Klassen zusätzlich markiert werden. Dann könnte man hingehen und nur noch diese Typen in der Symboltabelle `Scope` zulassen: `Map<String, Decl> symbols` (statt wie bei uns etwas großzügiger/unsicherer `Map<String, Stmt> symbols`).
+
+Der Vorteil ist für unseren kleinen Lispy-Interpreter aber nicht so stark, deshalb verzichten wir zugunsten der Übersicht auf dieses Marker-Interface.
+
+###### Vorgehen bei der Namensauflösung
+
+####### Auf- und Abbauen der Scopes
+
+Wir legen für die Namensauflösung initial einen globalen Scope an, und starten die Traversierung des AST an dessen Wurzel. Sobald wir dabei einen neuen Scope betreten, legen wir einen neuen Kindscope an und setzen diesen Scope als den aktuellen (Arbeits-) Scope - wir haben also einen lokalen Scope betreten. Das kann in L-Var nur bei `let`-mit-Scopes passieren (also beim Betreten eines `BlockStmt`-AST-Knotens). Später werden wir noch weitere Sprachfeatures kennenlernen, die einen neuen Scope öffnen.
+
+Beim Verlassen eines `BlockStmt`-AST-Knotens nach oben im Baum (alle Kinder des `BlockStmt`-Knotens wurden also besucht) wird der aktuelle Scope auf den Elternscope des bisherigen aktuellen Scopes zurückgesetzt - wir verlassen den lokalen Scope und befinden uns wieder im umgebenden Elternscope.
+
+####### Binden von Namen
+
+Wann immer beim Traversieren des AST ein `VarDecl`-Knoten besucht wird, tragen wir dessen Namen (also den Namen der Variablen) und den AST-Knoten (die Definition dieser Variablen, also ihre `VarDecl`) mit `bind()` in die aktuelle Symboltabelle (in den aktuellen Scope) ein.
+
+> [!TIP]
+>
+> Ein **mehrfaches Eintragen** im selben Scope bedeutet in Lispy einen **semantischen Fehler**. Es gibt andere Sprachen, die eine wiederholte Definition im selben Scope erlauben. Beispiele: JavaScript, Python, ...
+
+####### Auflösen von Namen
+
+Wenn wir umgedreht einen Namen suchen, etwa beim Abarbeiten eines `VarExpr`-Knotens im AST, suchen wir diesen Namen mit `resolve()` im aktuellen Scope. Wenn wir den Namen hier finden, ist diese Variablen in diesem Scope definiert und wir können mit der Abarbeitung fortfahren. Anderenfalls versuchen wir den Namen rekursiv über die Elternscopes aufzulösen. Erst, wenn wir den Namen nicht finden können, liegt in Lispy ein Fehler vor.
+
+> [!TIP]
+>
+> Es gibt Sprachen wie (klassisches) JavaScript, die Probleme beim Auflösen von Namen nicht als Fehler betrachten und dann on-the-fly diesen Namen einfach neu definieren.
+
+> [!IMPORTANT]
+>
+> Wir haben die `resolve()`-Methode vorsorglich bereits mit einer Datenklasse `Resolution` für den Rückgabewert versehen: Hierin können wir die gefundene Deklaration (den AST-Knoten) und auch die Suchtiefe (also Anzahl der Schritte, die vom aktuellen Scope aus nach "oben" gegangen werden musste) gemeinsam speichern und zurückliefern. Das spart uns später im Interpreter das erneute Suchen der Namen ...
+
+> [!IMPORTANT]
+>
+> ###### Lexikalische Namensauflösung
+>
+> Wir betrachten hier ausschließlich **lexikalische (statische) Namensauflösung**; dynamische Scopes (wie etwa in Lisp) behandeln wir nicht.
+>
+> Wir führen in der **Namensauflösung** keine Schleifen oder Funktionsaufrufe im verarbeiteten Programm durch - wir **prüfen lediglich für jeden Namen im AST, zu welcher Definition dieser gehört**.
+>
+> Es gibt **bei der Namensauflösung keine Seiteneffekte und keinen Kontrollfluss**: Wenn wir ein Statement anschauen, führen wir dieses nicht aus! Wenn wir eine Schleife im AST sehen, besuchen wir deren Körper genau einmal, um Namen darin aufzulösen - unabhängig davon, wie oft sie später zur Laufzeit ausgeführt wird. Bei einer `if`-Anweisung besuchen wir während der Namensauflösung immer beide Branches, weil wir rein strukturell prüfen, ob alle Namen auflösbar sind - unabhängig davon, ob der Branch zur Laufzeit überhaupt erreicht wird.
+>
+> Es lohnt sich, diesen Prozess als eigenständigen Pass über den AST durchzuführen und vor dem Interpreter laufen zu lassen. Der Interpreter muss später die Schleifen durchlaufen und die Funktionsaufrufe ausführen - und wir müssten die Namensauflösung dann in jedem einzelnen Schleifendurchlauf oder Funktionsaufruf immer wieder durchführen!
+
+##### Name-Resolver - lexikalische Auflösung von Namen
+
+###### Aufgaben vom Name-Resolver
+
+Wir wollen mit dem `NameResolverLvar` prüfen, ob alle Namen (in L-Var nur Variablen) korrekt verwendet wurden.
+
+Insbesondere dürfen in L-Var Variablen in einem Scope nicht mehrfach definiert werden (`VarDecl`). Eine Definition in einem lokalen Scope darf aber die Definition einer Variable in einem der Elternscopes überdecken (*shadowing*).
+
+Beim lesenden Zugriff auf eine Variable per `VarExpr` müssen wir sicherstellen, dass diese Variable von dem aktuellen Scope aus sichtbar ist. Sie kann also entweder im selben Scope definiert sein, oder in einem der von diesem Scope aus erreichbaren Elternscopes.
+
+Jeder Block (`BlockStmt`) öffnet einen neuen lokalen Scope, wobei der bisherige Scope der Elternscope wird. Am Ende des Blockes müssen wir unseren aktuellen Scope dann wieder zurücksetzen.
+
+``` java
+public class NameResolverLvar {
+    public Scope scope = new Scope();  // current scope (initially global)
+    public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
+    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+
+    public void resolve(List<Stmt> stmts) {
+        stmts.forEach(this::resolve);
+    }
+
+    // protected void resolve(Stmt stmt) ...
+    // protected void resolve(Expr expr) ...
+}
+```
+
+###### Hilfsvariablen / Felder
+
+Der Name-Resolver braucht eine Hilfsvariable `Scope scope`, um sich bei der Traversierung den aktuellen Scope zu merken. Beim Start initialisieren wir diesen einmal, d.h. initial ist `scope` der globale Scope.
+
+Beim Auflösen von Namen berechnen wir jeweils, wo wir diesen Namen in Bezug zum aktuellen Scope gefunden haben, d.h. wir berechnen die Anzahl der Schritte vom aktuellen Scope zu den Elternscopes hoch. Eine "0" bedeutet, dass wir den Namen im aktuellen Scope gefunden haben, "1" wäre dann der direkte Elternscope, usw. Diese Information wollen wir für den Interpreter speichern. Dazu legen wir das Feld `Map<Expr, Integer> depths` an.
+
+> [!IMPORTANT]
+>
+> In der `Map<Expr, Integer> depths` speichern wir für jeden besuchten `VarExpr`-Knoten die Suchtiefe. Andere `Expr`-Knoten erhalten in unserer Implementierung in L-Var keinen Eintrag (wir werden später noch weitere Einträge haben ...).
+>
+> Unsere Modellierung nutzt für `VarExpr` die Record-Klassen aus Java, d.h. hier wird vom Compiler/Laufzeitsystem automatisch eine `equals()`- und `hashCode()`-Implementierung bereitgestellt. Wenn wir eine einfache `HashMap` nehmen würden, würden zwei unterschiedliche `VarExpr`-Objekte mit dem selben Inhalt als gleich betrachtet und entsprechend in der Map zusammenfallen.
+>
+> Wir können aber im AST in unterschiedlichen Scopes Referenzen auf die selbe Variable haben bzw. sogar mit dem selben Namen auf unterschiedliche Variablen in unterschiedlichen Scopes verweisen (*shadowing*). D.h. wir haben deshalb unterschiedliche `VarExpr`-Objekte im AST, die aber über die automatische `equals()`- und `hashCode()`-Implementierung für die Record-Klassen bei gleichem Variablennamen in einer normalen `HashMap` als gleich betrachtet würden. Damit wir die konkreten `VarExpr`-Objekte in der Map unterscheiden können (wir wollen ja zu jeder konkreten Verwendung einer Variablen die entsprechend dort gültige Suchtiefe speichern), nutzen wir als Implementierung eine `IdentityHashMap`, die auf die Objekt-ID schaut.
+>
+> Analog gilt für `Map<Stmt, Scope> symbols`: Wir wollen wirklich pro konkretem AST-Knoten (Identität) den Scope speichern, nicht pro semantisch gleichem Statement (Wertgleichheit). Das dürfte bei Statements zwar i.d.R. zusammenfallen, sicherheitshalber nutzen wir hier aber auch eine `IdentityHashMap` ...
+
+Wir bauen bei der Traversierung des AST die Symboltabellenstruktur auf. Jeder lokale Scope kennt seinen Elternscope, d.h. die Verzeigerung geht im Baum von unten nach oben. Sobald wir einen lokalen Scope nach oben verlassen, würden wir deshalb nicht mehr auf diesen Scope zugreifen können. Das ist im Name-Resolver nicht weiter relevant, aber wir werden später noch weitere Passes über den AST aufbauen, die den Zugriff auf den korrekten Scope bzw. die in einem Scope geltende Symboltabelle benötigen. Damit wir dann die Symboltabellenstruktur nicht erneut aufbauen müssen, speichern wir für jedes Statement einfach den Scope (bzw. die Symboltabelle), die zu dem Zeitpunkt des Besuchs dieses Statements galt. Dafür nutzen wir das Feld `Map<Stmt, Scope> symbols`.
+
+> [!TIP]
+>
+> Wer genau hinschaut, wundert sich über die Sichtbarkeit der Felder im `NameResolverLvar`: Diese steht auf `public`, was in der objektorientierten Programmierung unüblich ist. Der Hintergrund dafür ist, dass wir auf diese drei Felder später Zugriff brauchen - aber wir können in der Einstiegsmethode `resolve(List<Stmt> stmts)` leider nur ein Ergebnis zurückliefern und nicht alle drei ... Wir werden das Problem weiter unten über eine **Sidetable** lösen.
+
+###### Ablauf
+
+Wir starten mit dem globalen Scope und laufen den AST in Form der als Parameter übergebenen Liste der Statements ab. Für jedes Statement müssen wir den Auflösevorgang anstoßen, d.h. für jedes `Stmt` im übergebenen AST wird `resolve(stmt)` aufgerufen.
+
+Hier müssen wir die einzelnen Statement-Typen unterscheiden und entsprechend agieren (s.u.). Expressions tauchen nicht als eigenständiges Element in L-Var-Programmen auf, sondern nur als Teile von Statements. Beim Besuchen der Statements müssen wir entsprechend jeweils auch das Auflösen per `resolve(expr)` anstoßen (s.u.).
+
+##### Name-Resolver - Traversierung für Statements (Ausschnitt)
+
+Der Name-Resolver iteriert in der Einstiegsmethode über alle übergebenen Statements und ruft für jedes Statement `resolve(stmt)` auf.
+
+Nun müssen wir unterscheiden, um welchen `Stmt`-Knoten im AST es sich jeweils handelt und die weitere Traversierung anstoßen. Dies könnten wir über das Visitor-Pattern machen - da wir unseren AST mit Record-Klassen modelliert haben, können wir hier auch komfortabel die Traversierung über `switch`-Expressions und Pattern Matching erledigen und gleich auch die Dekonstruktion der Felder praktisch nutzen.
+
+Erinnerung an die abstrakte Syntax in L-Var (nur der Teile der `Stmt`-Regel gezeigt):
+
+``` ebnf
+Stmt = VarDecl(String, Type, Expr?) | BlockStmt([Stmt]) | ...
+```
+
+``` java
+protected void resolve(Stmt stmt) {
+    symbols.put(stmt, scope);
+
+    switch (stmt) {
+        case VarDecl(var name, var type, var init) -> {
+            init.ifPresent(this::resolve);  resolveType(type);
+            scope.bind(name, stmt);
+        }
+        case BlockStmt(var s) -> {
+            scope = new Scope(scope);
+            s.forEach(this::resolve);
+            scope = scope.parent();
+        }
+        default -> throw new RuntimeException("unexpected statement");
+    }
+}
+```
+
+**Wichtig**: In der Skizze oben ist nur ein Ausschnitt gezeigt - die Verarbeitung von `ExprStmt` bleibt als Challenge oder Hausaufgabe.
+
+###### Variablen-Definition
+
+Ein `VarDecl`-Statement besteht aus einem Variablennamen (Typ `String`), einem Typ in unserer Lispy-Sprache (Typ `Type`) und einer Expression für die Initialisierung (Typ `Expr`).
+
+Wir müssen im Name-Resolver prüfen, ob es diesen Typ wirklich gibt und dieser vom aktuellen Scope aus sichtbar ist, d.h. wir rufen `resolveType(type)` auf.
+
+> [!TIP]
+>
+> In L-Var gibt es zunächst nur den "eingebauten" Typ `int` in Lispy. Hier müssen wir nichts prüfen bei der Namensauflösung:
+>
+> ``` java
+> protected void resolveType(Type type) {} // nothing to do here
+> ```
+>
+> Wir werden aber später kennenlernen, wie man in Lispy Klassen definiert (Sprachstufe L-Class). Diese nutzerdefinierten Klassen sind eigene Typen, die dynamisch im AST auftauchen. Dann müssen wir entsprechend prüfen, ob der Typname in der `VarDecl` tatsächlich sichtbar ist und ein Klassentyp ist - deshalb legen wir uns hier vorausschauend eine **Hook-Methode** `resolveType(Type type)` an. Da wir in L-Var nichts tun müssen, bleibt diese Hook-Methode zunächst leer - später in L-Class werden wir diese geeignet überschreiben.
+
+Die Initialisierung der Variablen ist eine Expression, d.h. dort können Verweise auf andere Variablen vorkommen. Entsprechend rufen wir hier `init.ifPresent(this::resolve)` auf - wenn es keine Initialisierung gab, ist auch nichts zu prüfen.
+
+Danach können wir dann die neue Variable **binden**: Wir legen für den Variablennamen im aktuellen Scope eine Referenz auf den aktuellen `VarDecl`-Knoten an. Das `bind()` prüft dabei, ob es für diesen Namen noch keinen Eintrag gibt. Damit wissen wir, dass die Variable korrekt definiert wurde: Sie wurde bisher noch nicht in diesem Scope definiert, und der angegebene Typ ist sichtbar (später, in L-Class) und in der Initialisierungs-Expression sind alle Variablennamen vom aktuellen Scope aus sichtbar. Wenn wir später auf diesen Variablennamen verweisen (etwa in einer `VarExpr`), dann können wir ihn rekursiv über die Scopes hier im aktuellen Scope finden (sofern die Kette passt).
+
+> [!IMPORTANT]
+>
+> Es spielt eine große Rolle, in welcher Reihenfolge man den Initialisierungsausdruck und die neue Variable bearbeitet!
+>
+> Was würde passieren, wenn man zuerst die Variable bindet und danach die Initialisierung auswertet? (siehe Challenge)
+
+###### BlockStmt
+
+Ein `BlockStmt` wurde in L-Var für ein `let`-Statement angelegt. Es öffnet einen neuen lokalen Scope, in dem die im `BlockStmt` gespeicherten Statements ausgewertet werden sollen.
+
+Entsprechend legen wir einen neuen Scope an und nutzen als Elternscope den aktuellen Scope. Der neue Scope wird der aktuelle Scope. Dann iterieren wir über die Statements des `BlockStmt` und führen hier die Namensauflösung durch. Am Ende setzen wir den aktuellen Scope wieder auf den vorigen Scope zurück.
+
+###### Besonderheiten
+
+Wir haben damit alle in L-Var bekannten AST-Knoten vom Typ `Stmt` besucht (`ExprStmt` sei noch hinzugefügt). Wenn wir hier über einen anderen `Stmt`-Knoten laufen würden, wäre das ein Fehler - das wäre ein unbehandeltes Statement aus einer späteren Sprachstufe!
+
+Der Name-Resolver baut die Scope-Strukturen und damit die Symboltabellen während der AST-Traversierung auf und wieder ab. Wir werden später in L-If einen Type-Checker hinzufügen, der als zweiter Pass nach dem Name-Resolver noch einmal über den AST läuft und die Typen prüft. Hier brauchen wir für jedes Statement erneut den Scope bzw. die Symboltabelle, die für dieses Statement relevant ist. Damit wir die Symboltabellen dann nicht erneut aufbauen müssen, speichern wir einfach diese Information am Anfang von `resolve(stmt)` im Feld `symbols`.
+
+##### Name-Resolver - Traversierung für Expressions (Ausschnitt)
+
+In Lispy können Expressions als Teil von Statements vorkommen. In `resolve(stmt)` haben wir beispielsweise die `VarDecl` bearbeitet und für die Initialisierungs-Expression `resolve(expr)` aufgerufen.
+
+Erinnerung an die abstrakte Syntax in L-Var (nur ein kleiner Teil der `Expr`-Hierarchie gezeigt):
+
+``` ebnf
+Expr = IntLiteral(Int) | AddExpr(Expr, Expr) | VarExpr(String) | ...
+```
+
+``` java
+protected void resolve(Expr expr) {
+    switch (expr) {
+        case IntLiteral _ -> {} // nothing to do
+
+        case AddExpr(var l, var r) -> List.of(l, r).forEach(this::resolve);
+
+        case VarExpr e -> {
+            var res = scope.resolve(e.name());
+            depths.put(e, res.depth());
+        }
+
+        default -> throw new RuntimeException("unexpected expression");
+    }
+}
+```
+
+**Wichtig**: In der Skizze oben ist nur ein Ausschnitt gezeigt - die Verarbeitung von `SubExpr`, `MulExpr` und `DivExpr` bleiben als Challenge oder Hausaufgabe.
+
+###### Integer-Literal
+
+In einem `IntLiteral` speichern wir nur einen Integerwert, keine weiteren Namen. Dieser Knoten stellt ein Blatt im AST dar. Deshalb brauchen wir hier nichts tun.
+
+###### Addition
+
+Ein `AddExpr`-Knoten hat zwei Kinder, die wiederum Expressions sind. Für beide Kinder stoßen wir die rekursive Namensauflösung an. Mehr ist hier nicht zu tun.
+
+###### Lesender Variablenzugriff
+
+Eine `VarExpr` ist ein Verweis auf einen Variablennamen in einer Expression, beispielsweise `x` in `(+ x 2)`. Dies sind lesende Zugriffe, d.h. der Variablenname muss vom aktuellen Scope aus sichtbar sein.
+
+Wir rufen entsprechend auf dem aktuellen Scope ein `resolve()` für den Namen auf. Wenn die Variable in diesem Scope oder in einem der darüber erreichbaren Elternscopes gebunden wurde, bekommen wir als Ergebnis den definierenden AST-Knoten (eine `VarDecl`) sowie die Tiefe (Anzahl der Schritte vom aktuellen Scope aus) zurück - anderenfalls wirft `Scope#resolve()` einen Fehler. Die Tiefe speichern wir für den Interpreter in unserem Feld `depths`.
+
+###### Besonderheiten
+
+Wie bei `resolve(stmt)` haben wir damit alle in L-Var bekannten AST-Knoten vom Typ `Expr` besucht (`SubExpr`, `MulExpr` und `DivExpr` seien noch hinzugefügt). Wenn wir hier über einen anderen `Expr`-Knoten laufen würden, wäre das ein Fehler - das wäre eine unbehandelte Expression aus einer späteren Sprachstufe!
+
+##### Implementierungsdetail: Sammeln der Daten in einer Sidetable
+
+Wir haben im `NameResolverLvar` einige auf `public` gestellte Felder gesehen: `Scope scope`, `Map<Stmt, Scope> symbols` und `Map<Expr, Integer> depths`. Hier werden bei der Traversierung des AST im Name-Resolver Daten gesammelt, die in späteren AST-Passes (Type-Checker, Interpreter) relevant sind.
+
+Wir werden in späteren Sprachstufen noch weitere Daten sammeln, beispielsweise Typ-Informationen oder Informationen für die statische Namensauflösung.
+
+Im `NameResolverLvar` haben wir diese Felder selbst initialisiert. Dies ist einerseits aus SWE-Sicht ungünstig (schlechte Testbarkeit), andererseits werden wir später den Bedarf haben, "vordefinierte" Namen im globalen Scope anzulegen, bevor der Resolver oder irgendein anderer Pass die Arbeit aufnimmt.
+
+Deshalb bietet es sich an, diese Daten in ein gemeinsames Objekt zu kapseln, die sogenannte **Sidetable**. Dieses Objekt wird extern initialisiert und an jeden Pass als Input gegeben. Die Passes können die relevanten Informationen aus dem Sidetable benutzen und ergänzen und am Ende des Durchlaufs die aktualisierte Sidetable zurückgeben.
+
+Wir definieren als Sidetable hier die Klasse `SemaInfo`:
+
+``` java
+public class SemaInfo {
+    public Scope globalScope = new Scope();
+    public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
+    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+}
+```
+
+`SemaInfo` sammelt alle derzeit relevanten Ergebnisse der semantischen Analyse. In späteren Sprachstufen werden wir noch weitere Felder hinzufügen.
+
+Die `SemaInfo` ist eine reine "Datenklasse" - wir haben hier nur eine Aggregierung von Feldern und kein Verhalten, weshalb die Felder der Einfachheit alle `public` sind.
+
+Damit können wir unseren `NameResolverLvar` anpassen:
+
+``` java
+public class NameResolverLvar {
+    protected SemaInfo sema;
+    protected Scope scope; // current scope
+
+    public SemaInfo resolve(List<Stmt> stmts, SemaInfo semaInfo) {
+        sema = semaInfo;  scope = sema.globalScope;
+        stmts.forEach(this::resolve);
+        return sema;
+    }
+    // protected void resolve(Stmt stmt) ...
+    // protected void resolve(Expr expr) ...
+}
+```
+
+Wir behalten das lokale Feld `scope` - das ist der aktuelle Scope beim Traversieren, das hat nichts mit dem Sidetable zu tun. Die anderen beiden Felder `symbols` und `depth` wandern in den Sidetable, den wir als neues Feld `SemaInfo sema` festhalten.
+
+Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere Änderungen notwendig:
+
+1.  In `resolve(Stmt stmt)` würden wir dann entsprechend `sema.symbols.put(stmt, scope);` ausführen (statt wie oben `symbols.put(stmt, scope);`).
+2.  Zusätzlich müssten wir in `resolve(Expr expr)` noch `sema.depths.put(e, res.depth());` (statt `depths.put(e, res.depth());`, in `case VarExpr e`) ändern.
+
+##### Wrap-Up
+
+-   **Semantische Analyse**: Traversierung des AST (oft mehrere Passes über den AST notwendig)
+    -   Identifikation und Sammlung der Bezeichner (in L-Var Variablen, später Funktionen/Klassen)
+    -   Zuordnung zur richtigen Ebene (Scopes)
+    -   Validieren der Nutzung von Symbolen (Mehrfachdefinition, Nutzung undefinierter Namen)
+    -   Später (L-If, ...): Typkonsistenz
+
+<!-- -->
+
+-   **Symboltabellen**: Verwaltung von Symbolen (und Informationen über Bezeichner)
+    -   Blöcke: Nested Scopes =\> hierarchische Organisation (Scopes sind zu einer Kette (bzw. einem Baum) verlinkt)
+    -   **Binden** von Bezeichnern an ihren jeweiligen Scope =\> `bind()`
+    -   **Abrufen** von Bezeichnern aus dem aktuellen Scope oder den Elternscopes =\> `resolve()`
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Zur Namensauflösung kann man in ([Nystrom 2021](#ref-Nystrom2021)) in Kapitel 11 "Resolving and Binding" nachlesen. Dabei behandelt Nystrom ([2021](#ref-Nystrom2021)) die Verbindung zwischen Name-Resolver und Interpreter technisch anders als wir, aber das Grundprinzip der Namensauflösung ist ähnlich wie hier gezeigt.
+>
+> Wir haben für unsere Symboltabellen die bereits vorhandenen AST-Knoten benutzt, um die Anzahl der Klassen möglichst übersichtlich zu halten. In ([Parr 2010](#ref-Parr2010)) (Kapitel 6, 7 und 8) wird eine "ordentliche" Symbols-Klassenstruktur entwickelt und für die Namensauflösung eingesetzt. Die Grundprinzipien sind wie in diesem Skript gezeigt, aber die separate Klassenstruktur bringt gewisse Vorteile mit sich.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den Unterschied zwischen Syntaxanalyse und semantischer Analyse erklären und typische Aufgaben der semantischen Analyse benennen.
+> -   k2: Ich kann erklären, was Scopes und lexikalische Namensauflösung sind und wie sie das Verhalten von Programmen beeinflussen.
+> -   k3: Ich kann eine Symboltabellen-Struktur für Nested Scopes in Java implementieren (inkl. `bind()` und `resolve()`) und auf einen gegebenen AST anwenden.
+> -   k3: Ich kann einen einfachen Name-Resolver entwerfen und implementieren, der beim Traversieren des AST Scopes anlegt, Namen bindet und Referenzen auflöst.
+> -   k3: Ich kann mit Hilfe einer Sidetable (z.B. `SemaInfo`) Informationen wie Scopes und Suchtiefen zwischen verschiedenen Compiler-Pässen (Name-Resolver, Interpreter) austauschen.
+> -   k4: Ich kann an einem gegebenen L-Var-Programm begründen, ob die Namensauflösung korrekt ist, und Fehlerfälle (z.B. Mehrfachdefinition, Zugriff auf undefinierte Namen) analysieren.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Lexikalisches Auflösen von Namen und Shadowing**
+>
+> Betrachten Sie dieses L-Var-Programm:
+>
+> ``` clojure
+> (def x : int 1)
+> (def y : int 2)
+> (let ((x : int 10))
+>   (let ((y : int 20)
+>         (z : int (+ x y)))
+>     (+ x z)))
+> ```
+>
+> -   Zeichnen Sie den Scope-Baum.
+> -   Ordnen Sie jede `VarDecl` einem Scope zu.
+> -   Ordnen Sie jede `VarExpr` (`x`, `y`, `z`) derjenigen `VarDecl` zu, die tatsächlich verwendet wird.
+> -   Notieren Sie für jede `VarExpr`, welchen `depth`-Wert der gezeigte `Scope#resolve(name, depth)`-Mechanismus liefern würde.
+>
+> **Fehlerfälle der Namensauflösung klassifizieren**
+>
+> Sie sehen drei Varianten eines L-Var-Programms (hypothetische Beispiele):
+>
+> ``` clojure
+> (def x : int 1)
+> (def x : int 2)
+> ```
+>
+> ``` clojure
+> (+ x 1)
+> ```
+>
+> ``` clojure
+> (let ((x : int (+ x 1)))
+>   x)
+> ```
+>
+> Diskutieren Sie in der Gruppe:
+>
+> -   Welche dieser Programme sind **semantisch** fehlerhaft in Lispy/L-Var und warum?
+> -   An welcher Stelle in Ihrem Name-Resolver würde der Fehler jeweils erkannt? (Beim `bind()`? Beim `resolve()`? In welcher Traversierungsreihenfolge?)
+> -   Wie würden Sie die Fehlermeldung formulieren, damit man den Fehler möglichst schnell finden kann?
+>
+> **Reihenfolge bei `VarDecl` - zwei Varianten vergleichen**
+>
+> Betrachten Sie zwei alternative Implementierungen des `VarDecl`-Falls im Name-Resolver (Pseudocode):
+>
+> ``` java
+> case VarDecl(var name, var type, var init) -> {
+>     init.ifPresent(this::resolve);
+>     resolveType(type);
+>     scope.bind(name, stmt);
+> }
+> ```
+>
+> ``` java
+> case VarDecl(var name, var type, var init) -> {
+>     scope.bind(name, stmt);
+>     init.ifPresent(this::resolve);
+>     resolveType(type);
+> }
+> ```
+>
+> -   Überlegen Sie sich ein L-Var-Programm, bei dem sich die beiden Varianten unterschiedlich verhalten.
+> -   Beschreiben Sie, was jeweils passiert:
+>     -   Wann wird ein Fehler geworfen?
+>     -   Welcher Programmzustand (Scope-Inhalt) liegt zu diesem Zeitpunkt vor?
+> -   Diskutieren Sie, welche Variante in Lispy gewünscht ist und warum.
+>
+> **Grenzen der semantischen Analyse**
+>
+> Welche semantischen Eigenschaften einer Sprache kann die semantische Analyse nicht überprüfen?
+>
+> -   Wer ist dann dafür verantwortlich?
+> -   Wie äußert sich das im Fehlerfall?
+>
+> </details>
+
+<a id="id-6fbe930997449265a9d599ec2ac6a27c02d3a9d8"></a>
+
+#### L-Var: Interpreter mit Environments und Statements
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> In L-Var erweitern wir den Interpreter um Anweisungen (Statements) und modellieren dazu den Laufzeitzustand mit sogenannten Environments. Ein solches `Env` steht für einen lexikalischen Scope zur Laufzeit und enthält eine Zuordnung von Namen zu Werten sowie einen Zeiger auf das Eltern-Environment. Beim Betreten eines neuen Blocks (`BlockStmt`) erzeugen wir ein neues `Env` mit dem bisherigen Environment als Eltern, beim Verlassen setzen wir `env` wieder auf das vorherige Environment zurück.
+>
+> Variablen werden über `VarDecl` im aktuellen Environment definiert: Wir werten die Initialisierungsausdrücke aus und speichern den resultierenden Wert unter dem Variablennamen im aktuellen Environment. Lesezugriffe auf Variablen benutzen nicht mehr eine rekursive Suche durch die Environment-Struktur nach "oben", sondern greifen mithilfe der im Name-Resolver vorberechneten Tiefe gezielt auf das passende Environment zu. Der Name-Resolver hat bereits geprüft, ob Namen definiert und sichtbar sind und ob es keine Mehrfachdefinitionen gibt, sodass der Interpreter hier keine aufwändige Fehlerprüfung mehr benötigt.
+>
+> Expressions werten wir weiterhin mit `eval(expr)` aus, Statements mit einer neuen Methode `exec(stmt)`. Ein Programm in L-Var ist eine Liste von Statements; beim Interpretieren durchlaufen wir alle Statements und merken uns den Wert der jeweils letzten ausgewerteten Expression (`ExprStmt`). Damit trennen wir klar zwischen statischer Namensauflösung mit `Scope` und dynamischer Ausführung mit `Env`, obwohl beide Strukturen äußerlich ähnlich aussehen.
+>
+> </details>
+
+##### Erinnerung: Interpreter für L-Expr
+
+``` java
+public class InterpreterLexpr extends InterpreterLint {
+
+    @Override
+    public Value eval(Expr expr) {
+        return switch (expr) {
+            case MulExpr(var l, var r) -> {
+                int a = asInt(eval(l));
+                int b = asInt(eval(r));
+                yield new IntVal(a * b);
+            }
+
+            default -> super.eval(expr);
+        };
+    }
+}
+```
+
+Wir hatten eine Methode `Value eval(Expr expr)` zum Auswerten von Ausdrücken (Expressions) definiert. Da der `InterpreterLexpr` von `InterpreterLint` ableitet, überschreiben wir diese Methode. Wir müssen nur die neuen Auswertungen ergänzen, und für die bisherigen Fälle rufen wir einfach `super.eval(expr)` auf.
+
+Diese werden wir in L-Var wie gewohnt mit weiteren Ausdrücken ergänzen.
+
+Aber wir haben in L-Var zusätzlich noch Anweisungen (Statements), die bei der Auswertung keinen Wert liefern. Die Statements können wir ähnlich auswerten wie die Expressions, aber wir brauchen noch ein Konzept, wie wir mit dem Zustand umgehen ...
+
+##### Zustände: Auswerten von Anweisungen
+
+``` clojure
+(def x : int 1)
+(def a : int 2)
+(let ((b : int 3)
+      (x : int 42))
+  (+ a x))
+```
+
+    +--------------------+
+    |     GLOBAL ENV     |
+    +--------------------+
+    | values = [x : 1,   |
+    |           a : 2]   |
+    +--------------------+
+               ^
+               |
+               |
+    +--------------------+
+    |     LOCAL ENV      |
+    +--------------------+
+    | values = [b : 3,   |
+    |           x : 42]  |
+    +--------------------+
+
+Das erinnert nicht nur zufällig an den Aufbau der Symboltabellen ...
+
+Und so lange es nur um Variablen ginge, könnte man die Symboltabellen (`Scope`) erweitern und für das Speichern der Werte nutzen. Allerdings müssen wir noch Funktionen und Klassen realisieren, und spätestens dann funktioniert diese Idee nicht mehr! (vgl. Challenge)
+
+Also lohnt es sich, eigenständige Strukturen für das Halten von Variablen und Werten aufzubauen: "Environments".
+
+##### Environments - Laufzeit-Sicht auf Scopes
+
+Wir benötigen analog zu `Scope` eine Datenstruktur, die einen Verweis auf das Eltern-Environment hat und die zu einem Namen Werte (also `Value` statt `Stmt` wie in `Scope`) speichert. Nachfolgend die Kernfunktionalität (unvollständig):
+
+``` java
+public record Env(Env parent, Map<String, Value> values) {
+
+    public void define(String name, Value value) { values.put(name, value); }
+
+    public Value get(String name, int depth) {
+        Env env = envAtDepth(depth);
+        return env.values.get(name);
+    }
+
+    private Env envAtDepth(int depth) {
+        return (depth == 0) ? this : parent.envAtDepth(depth - 1);
+    }
+}
+```
+
+-   `Env` bildet **lexikalische Scopes zur *Laufzeit*** ab:
+    -   `parent` zeigt auf das "umgebende" Environment ("Eltern-Environment")
+    -   `values` speichert zu einem Namen den Wert für den aktuellen Scope
+-   Zugriffsmöglichkeiten:
+    -   Definieren von Namen mit `define()`
+    -   Abfrage von Werten mit `get()`
+
+Hier modellieren wir die Semantik von Lispy mit. Ein Name (Variable, ...) kann nur genau einmal pro Scope definiert werden - Mehrfachdefinitionen stellen einen Fehler dar. Das haben wir bereits in einem früheren Pass (Name-Resolver) geprüft, deshalb können wir hier das Definieren eines Namens in `define()` einfach halten. Das Definieren eines Namens (hier einer Variablen) passiert immer im aktuellen Scope/Environment.
+
+Für den Abruf eines Wertes zu einem Namen mit `get()` nutzen wir die im früheren Pass (Name-Resolver) berechnete Tiefeninformation: Dort hatten wir bereits für jeden Namen (a) geprüft, ob dieser vom aktuellen Scope aus sichtbar ist, und (b) berechnet, wie viele Schritte (Scopes) man nach "oben" gehen muss. Eine `depth = 0` bedeutet dabei das aktuelle Environment, `depth = 1` das direkte Eltern-Environment usw. - genau mit dieser Konvention hat der Name-Resolver die Tiefen berechnet. Diese Information nutzen wir jetzt: Wir suchen uns nicht mehr rekursiv durch die Environments nach "oben" (wie in `Scope#resolve()`), sondern lassen uns gezielt das passende (Eltern-) Environment geben und rufen dort in der Hashmap `values` den gespeicherten Wert ab. Dass der Name vorhanden ist und in dieser "Tiefe", hatten wir bereits im Name-Resolver geprüft und müssen das hier nicht wiederholen.
+
+Wir haben eine *immutable* Semantik in Lispy, d.h. Variablen können im Laufe ihres Lebens **keine** neuen Werte zugewiesen werden. Deshalb müssen wir in `Env` keine Möglichkeit zum Ändern bereits gebundener Werte implementieren.
+
+> [!TIP]
+>
+> ###### (Mini-) C++ kennt Zuweisungen
+>
+> Wenn es wie in (Mini-) C++ Zuweisungen in der Sprache gibt, dann braucht man eine Möglichkeit, um Namen in einem `Env` einen neuen Wert zuzuweisen. Für diese Neuzuweisung von Namen kann man sich eine Methode `void assign(String name, Value value, int depth)` in der Klasse `Env` definieren, die analog zu `get()` das Elternenvironment in der Tiefe `depth` aufsucht und dort dem Namen `name` den neuen Wert `value` zuweist. (siehe Challenge/Hausaufgabe)
+
+> [!IMPORTANT]
+>
+> ###### Zusammenspiel semantische Analyse und Interpretation
+>
+> Die Prüfung der aufgezählten Fehlerzustände ist bereits im Name-Resolver (`NameResolverLvar` in Verbindung mit `Scope`) erfolgt! Dort haben wir bereits geprüft:
+>
+> -   ob ein Name doppelt definiert (gebunden) werden soll: bei der Behandlung von `VarDecl` mit `Scope#bind()`
+> -   ob ein Name vom aktuellen Scope/Environment aus sichtbar ist: bei der Behandlung von `VarExpr` mit `Scope#resolve()`
+>
+> Für jedes `define()` und `get()` hier im Interpreter bzw. Environment haben wir (wenn wir alles richtig gemacht haben) bereits **vorher** im Name-Resolver und Symboltabelle ein entsprechendes `bind()` und `resolve()` geprüft.
+>
+> **Deshalb braucht der Code für `Env` für diese Punkte keine extra Fehlerprüfungen!**
+>
+> Wer sich damit unwohl fühlt, kann gern hier zusätzliche Prüfungen mit einbauen. Dann bitte aber in der Fehlermeldung auf einen **internen Fehler** hinweisen - diese Inkonsistenzen hätten nämlich bereits in der semantischen Analyse auffallen müssen!
+
+> [!TIP]
+>
+> ###### Implementierungsdetail `Env`
+>
+> Es lohnt sich, der Klasse `Env` wieder zwei extra Hilfskonstruktoren mitzugeben:
+>
+> ``` java
+> public record Env(Env parent, Map<String, Value> values) {
+>
+>     public Env() { this(null); }
+>     public Env(Env parent) { this(parent, new HashMap<>()); }
+>
+>     // ...
+> }
+> ```
+>
+> Das erleichtert später das Anlegen neuer Environments.
+
+> [!TIP]
+>
+> ###### Exkurs: Nested Environments vs. Stack von Environments
+>
+> Unsere Environments sind analog zu den Scopes aufgebaut und haben einen Verweis auf das Eltern-Environment. Damit kann man einen Namen rekursiv vom aktuellen Environment aus nach "oben" bis zur Wurzel (globales Environment) suchen.
+>
+> In vielen Fällen könnte man auf diese Verzeigerung verzichten und im Interpreter einfach einen Stack von einfachen Environments pflegen - jeder neue Scope legt ein neues Environment oben auf den Stack, jedes Verlassen eines Scopes entfernt den obersten Eintrag. Das funktioniert sogar für Funktionsaufrufe!
+>
+> Es gibt aber Szenarien, wo dies nicht ausreicht. Wir werden möglicherweise für unser Lispy so ein Szenario sehen. Können Sie sich selbst ein Szenario überlegen, wo ein `Stack<Env>` im Interpreter nicht reicht und wir wissen müssen, was das Eltern-Environment `Env parent` ist? (vgl. Challenges)
+
+> [!IMPORTANT]
+>
+> ###### Unterscheidung Symboltabellen (`Scope`) und Environments (`Env`)
+>
+> `Scope` beantwortet "Wo ist ein Name definiert?", `Env` beantwortet "Welchen Wert hat dieser Name gerade in diesem Aufrufkontext?".
+>
+> Beide Strukturen (`Scope` für die Symboltabellen und `Env` für die Environments) sind strukturell ähnlich aufgebaut. Beide haben einen Verweis auf den Eltern-Scope bzw. das Eltern-Environment. Beide speichern zu einem Namen eine Information. Beide haben eine Art Auflösemechanismus, um die Information zu einem Namen abzurufen. Beide dienen ähnlichen Zwecken: Ein `Scope`-Objekt spiegelt wie ein `Env`-Objekt einen Sichtbarkeitsbereich (Scope) in unserem zu verarbeitenden Programm.
+>
+> Der Unterschied liegt in der Benutzung:
+>
+> -   `Scope` ist eine **statische** Sicht auf die Sichtbarkeitsbereiche, d.h. sie hängt **nur von der Quelltextstruktur** ab, nicht vom tatsächlichen Programmverlauf.
+>
+>     In einem `Scope`-Objekt ordnen wir während der semantischen Analyse jedem im Scope sichtbaren Namen genau seinen Deklarationsknoten (`Stmt`) im AST zu. Wir bauen mit `Scope` die Symboltabellenstruktur im Name-Resolver auf. Dabei betreten wir jeden Scope im Quelltext (AST), beispielsweise das `let`-with-Scopes (oder später in L-Fun den Funktionskörper) und prüfen, ob wir semantischen Regeln der Sprache Lispy eingehalten wurden: Sind alle Namen sichtbar (ggf. über die Eltern-Beziehung bis zum globalen Scope hoch), werden keine Namen im selben Scope mehrfach definiert, ist der Name bei einem Lesevorgang bereits vorher definiert worden? Entsprechend speichern wir zu einem Namen die Information der Definition, also den `Stmt`-Knoten des AST, der zu diesem Namen gehört. Wir werden später in L-Fun sehen, dass wir zwar die lokalen Variablen im Funktionskörper ganz normal auflösen, aber keine Funktionsaufrufe verfolgen! **Wir interpretieren in der semantischen Analyse keine Anweisungen oder Ausdrücke, sondern prüfen nur die Sichtbarkeiten.**
+>
+> -   `Env` ist die **dynamische** Sicht auf die Sichtbarkeitsbereiche.
+>
+>     Wir speichern bei der Interpretation zu jedem Namen den zugehörigen Wert in der `Env`. **Wir interpretieren nun die Ausdrücke und Anweisungen**, d.h. wir berechnen Werte und erzeugen Nebeneffekte. Jedes Env-Objekt entspricht einem **konkreten Aktivierungskontext eines Scopes** im Programm (z.B. einem Funktionsaufruf). Derselbe Funktionskörper kann also zur Laufzeit viele verschiedene `Env`-Objekte haben - eine `Env` pro Aufruf. Die Environment-Struktur baut sich dynamisch während der Verarbeitung auf und ab, und im Unterschied zur semantischen Analyse verfolgen wir später in L-Fun dann (natürlich) auch die Funktionsaufrufe - jeder Funktionsaufruf legt einen neuen "Scope" an, in dem die lokalen Variablen im Funktionskörper für diesen Aufruf definiert sind. Dies nennt man auch oft "Call Frame" oder "Stack Frame" - unsere `Env`-Objekte modellieren genau diese Call Frames. In vielen Implementierungen wird dafür intern tatsächlich ein Stack von Frames verwendet, aber manche Dinge gehen leider nur über die Struktur mit dem Eltern-Zeiger - siehe Challenges. Unsere Eltern-Zeiger-Struktur bildet dasselbe Konzept explizit im Heap nach. Wir führen hier im Gegensatz zur Namensauflösung alle Schleifen und Funktionsaufrufe im verarbeiteten Programm aus und erzeugen dabei die gewünschten Seiteneffekte. Wir haben jetzt Kontrollfluss und interpretieren beispielsweise Fallunterscheidungen - je nachdem, wie die Auswertung der Bedingung ausfällt, betrachten wir jetzt nur noch einen der Branches ...
+>
+> **Merksatz**:
+>
+> -   `Scope` (semantische Analyse/Namensauflösung):
+>     -   Name $\to$ Deklaration (`*Decl`-Knoten im AST)
+>     -   statisch, ein oder mehrere Passes über den AST
+>     -   kein Kontrollfluss, keine Ausführung
+> -   `Env` (Interpreter):
+>     -   Name $\to$ Wert zur Laufzeit
+>     -   dynamisch, verändert sich während der Ausführung
+>     -   führt Kontrollfluss, Schleifen, Funktionsaufrufe tatsächlich aus
+
+##### Interpreter für L-Var - Überblick
+
+###### Vorüberlegungen
+
+Der Interpreter für L-Var wird wie üblich vom Interpreter der Vorstufe ableiten, d.h. wir haben `class InterpreterLvar extends InterpreterLexpr`.
+
+In L-Var haben wir eine zusätzliche Expression: `VarExpr`. Wir überschreiben entsprechend die geerbte Methode `eval(expr)` und fügen einen neuen Fall hinzu.
+
+Zusätzlich haben wir in L-Var jetzt Statements. Da Statements "ausgeführt" werden und dabei Nebeneffekte erzeugen, werden wir analog zu den Expressions eine Methode `exec(stmt)` einführen, um die Statements zu verarbeiten.
+
+Außerdem besteht ein L-Var-Programm aus einer Liste von Statements: `Lvar = [Stmt]`. Wir benötigen entsprechend eine neue Einstiegsmethode und Felder, um den Zustand zu speichern. Wir bekommen zusätzlich aus der semantischen Analyse die Symboltabellen und die Sprunginformationen (gekapselt in einen Sidetable).
+
+Wenn unser Interpreter nun eine Liste von Statements abarbeitet - was soll er dann zurückliefern? Eine Expression evaluiert ja zu einem Wert, aber Statements nicht. Trotzdem wäre es schön, wenn wir den zuletzt erzeugten Wert speichern und zurückgeben könnten: Wir haben ja das `ExprStmt`, welches eine Expression ist - den Wert dieser Expression könnten wir zurückgeben, so in unserem Programm überhaupt ein `ExprStmt` vorkommt. Wenn es mehrere davon gibt, interessiert uns das zuletzt ausgewertete `ExprStmt`.
+
+###### Start des Interpreters
+
+``` java
+public class InterpreterLvar extends InterpreterLexpr {
+    protected SemaInfo sema;
+    protected Env env;  // current environment
+    protected Value last;
+
+    public Value interpret(List<Stmt> stmts, SemaInfo semaInfo) {
+        sema = semaInfo;  env = sema.globalEnv;  last = null;
+
+        stmts.forEach(this::exec);
+
+        return last;
+    }
+
+    // protected void exec(Stmt stmt) ...
+    // protected Value eval(Expr expr) ...
+}
+```
+
+Damit haben wir den Kern des Interpreters für L-Var aufgebaut.
+
+Wir benötigen ein Start-Environment, welches wir über den Sidetable `semaInfo` holen. Dazu ergänzen wir diese Klasse wie folgt:
+
+``` java
+public class SemaInfo {
+    public Scope globalScope = new Scope();
+    public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
+    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+
+    public Env globalEnv = new Env();  // NEU
+}
+```
+
+Da wir das `semaInfo`-Objekt außerhalb des Interpreters anlegen, haben wir so die Gelegenheit, bei Bedarf das globale Environment mit Defaults vorzubefüllen. Das werden wir später in L-Fun tun.
+
+Im Feld `env` merkt sich der Interpreter, in welchem Environment wir uns aktuell befinden. Zu Beginn ist dies das globale Environment. Wann immer wir einen Scope öffnen, erzeugen wir ein neues Kind-Environment (Eltern-Environment ist `env`) und halten es in `env` fest. Wenn wir einen Block verlassen, setzen wir das `env` wieder zurück. Wenn wir alles richtig machen, sollte am Ende der Ausführung des Programms `env` wieder auf dem globalen Environment stehen.
+
+Ansonsten iterieren wir über die Liste der Statements und führen jedes einzelne aus. Die Ergebnisse von `ExprStmt` merken wir uns in `last`, dieses liefern wir am Ende zurück.
+
+##### Statements: Ausführen einer Variablendeklaration und eines 'let'-with-Scope
+
+``` ebnf
+Stmt = ExprStmt(Expr) | VarDecl(String, Type, Expr?) | BlockStmt([Stmt])
+```
+
+Wie oben angeteasert haben wir einige neue Statements in L-Var:
+
+-   `ExprStmt`: "Cast" einer Expression als Statement
+-   `VarDecl`: Definiert eine neue Variable (samt potentieller Initialisierung)
+-   `BlockStmt`: Öffnet einen neuen lokalen Scope für die Ausführung der enthaltenen Statements
+
+Für diese Statements definieren wir nun die Methode `exec(stmt)` in `InterpreterLvar`:
+
+``` java
+protected void exec(Stmt stmt) {
+    switch (stmt) {
+        case ExprStmt(var expr) -> last = eval(expr);
+        case VarDecl(var name, var type, var init) -> {
+            Value i = init.map(this::eval).orElseGet(() -> defaultFor(type));
+            env.define(name, i);
+        }
+        case BlockStmt(var s) -> {
+            env = new Env(env);
+            s.forEach(this::exec);
+            env = env.parent();
+        }
+        default -> throw new RuntimeException("unexpected statement");
+    }
+}
+```
+
+> [!TIP]
+>
+> **Hinweis**: `exec(stmt)` hat keinen Rückgabewert, ist also `void`! Statements werden ausgeführt, und dabei ergibt sich kein Wert.
+>
+> Im Unterschied dazu ergeben Expressions bei der Auswertung einen Wert:
+>
+> ``` java
+> void exec(Stmt stmt);
+> Value eval(Expr expr);
+> ```
+
+###### Auswertung von Expression-Statements
+
+In L-Var können keine Expressions mehr direkt in der obersten Sprachebene vorkommen - jede Expression wird in ein `ExprStmt` verpackt.
+
+Um diese auszuwerten, wird einfach die `eval()`-Methode mit der Expression aufgerufen. Dabei entsteht ein Wert, und diesen merken wir uns im Feld `last` des `InterpreterLvar`. Falls wir später noch einmal ein `ExprStmt` verarbeiten, würden wir das Feld entsprechend überschreiben. Damit merken wir uns in diesem Feld den jeweils letzten Wert ...
+
+###### Auswertung einer Variablendefinition
+
+Eine Variablendefinition (`VarDecl`) besteht aus drei Teilen: einem Namen, dem Typ und der potentiellen Initialisierung.
+
+Die Initialisierung ist eine Expression - diese werten wir wie gewohnt mit `eval()` aus. Da es sich hier um ein `Optional<Expr>` handelt, müssen wir im Fall des Nichtvorhandenseins einen Defaultwert für den Typ der Variablen bestimmen. Das könnte in L-Var etwa so aussehen:
+
+``` java
+protected Value defaultFor(Type t) {
+    if (t == BuiltinType.INT) return new IntVal(0);
+    throw new RuntimeException("(internal error) unsupported type");
+}
+```
+
+Als Typ kann in L-Var nur ein `int` vorkommen, mehr erlaubt die Grammatik nicht. Später werden wir noch weitere Typen ergänzen und in einem weiteren AST-Pass vor dem Interpreter prüfen - das ist der sogenannte "Type Checker". Für den Interpreter spielt der Typ an sich aber keine weitere Rolle - wir werten die Initialisierungsexpression aus oder nutzen alternativ einen typabhängigen Defaultwert, und der dabei entstehende Wert passt zum Typ der Variablen, anderenfalls hätte der Type-Checker einen Fehler gemeldet.
+
+> [!TIP]
+>
+> Die Entscheidung für einen Wert als Defaultwert ist eine wichtige Entscheidung für die Semantik der Sprache! In C/C++ beispielsweise wird in vielen Fällen **keine** automatische Initialisierung vorgenommen, was zwar eine höhere Effizienz zur Laufzeit bewirkt, aber eben auch in meiner Erfahrung eine häufige Quelle für Fehler darstellt.
+>
+> Wir werden in unserem Mini-C++ deshalb abweichend vom echten C++ **Variablen immer automatisch mit einem Defaultwert initialisieren**, wenn es keinen Initialisierungsausdruck gibt.
+
+Da eine `VarDecl` einen neuen Namen (die Variable) im aktuellen Scope einführt, definieren wir den Namen im aktuellen Environment und speichern den Wert aus der Initialisierungsexpression.
+
+###### Auswerten eines `let`
+
+Ein `let`-Statement kapselt Statements, die in einem neuen lokalen Scope ausgeführt werden sollen und bindet ggf. noch lokale Variablen. Im AST finden wir das als `BlockStmt`-Knoten.
+
+Wir legen ein neues Environment an, wobei das bisherige Environment das Eltern-Environment wird, und halten es in `env` fest. Dann iterieren wir über alle Statements im `BlockStmt` und rufen jeweils `exec()` auf. Am Ende setzen wir das Environment wieder auf das alte Environment zurück.
+
+##### Expressions: Lese-Zugriff auf Variablen
+
+``` ebnf
+Expr = VarExpr(String)
+```
+
+In L-Var haben wir eine neue Expression: den lesenden Zugriff auf Variablen, d.h. `VarExpr`. Diese bauen wir wie gewohnt ein, indem wir die `eval()`-Methode überschreiben und passend ergänzen:
+
+``` java
+@Override
+protected Value eval(Expr expr) {
+    return switch (expr) {
+        case VarExpr v -> {
+            int depth = sema.depths.get(v);
+            yield env.get(v.name(), depth);
+        }
+
+        default -> super.eval(expr);
+    };
+}
+```
+
+Wenn wir eine Variable lesen wollen, beispielsweise in `(+ a b)`, dann taucht das als `VarExpr` im AST auf. Jede `VarExpr` kapselt dabei den Namen der Variablen (`a`, `b`).
+
+Wir haben vor dem Interpreter den Name-Resolver laufen lassen. Der hat (a) geprüft, ob im aktuellen Scope dieser Name sichtbar ist, und (b) berechnet, wie viele Schritte (Scopes) man nach "oben" gehen muss.
+
+Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, und dann vom aktuellen Environment entsprechend viele Schritte nach "oben" gehen und dort auf die Variable zugreifen und den dort gespeicherten Wert zurückliefern.
+
+> [!IMPORTANT]
+>
+> ###### Zusammenspiel semantische Analyse und Interpretation
+>
+> Auch hier gilt: Die notwendigen Prüfungen sind bereits im Name-Resolver (`NameResolverLvar` in Verbindung mit `Scope`) erfolgt! Wenn es dabei einen Fehler gegeben hätte, wären wir nicht im Interpreter angekommen. Beispielsweise wenn die referenzierte Variable nicht sichtbar wäre vom aktuellen Scope aus, dann hätte das der Name-Resolver bereits vorher festgestellt.
+>
+> **Deshalb brauchen wir hier keine extra Fehlerprüfungen!**
+>
+> Wer sich damit unwohl fühlt, kann gern hier zusätzliche Prüfungen mit einbauen. Dann bitte aber in der Fehlermeldung auf einen **internen Fehler** hinweisen - diese Fehler hätten nämlich bereits in der semantischen Analyse auffallen müssen!
+
+##### Wrap-up
+
+-   Laufzeitzustand: verkettete `Env`-Objekte (Name $\to$ Wert)
+
+<!-- -->
+
+-   `exec(stmt)`:
+    -   führt Statements aus (Zustand, Nebeneffekte)
+    -   zuletzt ausgewertetes `ExprStmt` ist Rückgabewert des Interpreters
+
+<!-- -->
+
+-   Block-Ausführung:
+    -   beim `BlockStmt` neues `Env(env)` anlegen
+    -   nach dem Block `env` auf `parent` zurücksetzen
+-   `VarDecl`: Initialisierung evaluieren, Name und Wert im aktuellen `Env` mit `define(name, value)` eintragen
+-   `VarExpr`:
+    -   über vom Name-Resolver berechnete Tiefe das passende `Env` finden, und
+    -   Wert mit `get(name, depth)` lesen
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>📖 Zum Nachlesen</strong></summary>
+>
+> Zur Interpretation von Statements kann man in ([Nystrom 2021](#ref-Nystrom2021)) in Kapitel 8 "Statements and State" nachlesen, dort noch ohne Tiefeninformation. In Kapitel 11 "Resolving and Binding" wird dann die Namensauflösung und Berechnung der Tiefeninformation eingeführt. Dabei behandelt Nystrom ([2021](#ref-Nystrom2021)) die Verbindung zwischen Name-Resolver und Interpreter technisch anders als wir, aber das Grundprinzip der Namensauflösung ist ähnlich wie hier gezeigt.
+>
+> </details>
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den Unterschied zwischen Symboltabellen (`Scope`) und Environments (`Env`) erklären
+> -   k2: Ich kann beschreiben, wie lexikalische Scopes zur Laufzeit durch verschachtelte Environments modelliert werden
+> -   k3: Ich kann eine `Env`-Struktur in Java implementieren, die Namen und Werte mit Eltern-Environments verwaltet
+> -   k3: Ich kann einen bestehenden Ausdrucksinterpreter um die Ausführung von Statements mit `exec(Stmt)` erweitern
+> -   k3: Ich kann Variablenzugriffe (`VarExpr`) so implementieren, dass die vom Name-Resolver berechnete Tiefe zur Auswahl des richtigen Environments verwendet wird
+> -   k4: Ich kann anhand eines gegebenen Programms den Zustand des Environments zu ausgewählten Programmpunkten analysieren und begründen
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Nested Scopes**
+>
+> Betrachten Sie folgendes Lispy-Programm in der Sprachstufe L-Var:
+>
+> ``` clojure
+> (def x : int 10)
+> (def y : int 100)
+>
+> (let ((x : int 1))
+>   (+ x y)
+>   (let ((y : int 2))
+>     (+ x y))
+>   (+ x y))
+> ```
+>
+> -   Zeichnen Sie zu den folgenden Programmpunkten jeweils den Zustand der Environments und geben Sie die Werte von `x` und `y` an:
+>     -   direkt nach `def x`
+>     -   nach Eintritt in den ersten `let`‑Block (noch vor dem ersten `(+ x y)`)
+>     -   nach Eintritt in den inneren `let`‑Block (vor `(+ x y)` im inneren Block)
+>     -   nach Verlassen des inneren `let`‑Blocks (vor dem letzten `(+ x y)` im äußeren Block)
+> -   Erläutern Sie kurz, wie der `BlockStmt`‑Fall in `exec(stmt)` dafür sorgt, dass die richtigen Environments angelegt und wieder verlassen werden.
+>
+> **Mini-C++: Implementieren von `assign()` im Environment**
+>
+> Wenn es wie in Mini-C++ Zuweisungen in der Sprache gibt, dann braucht man eine Möglichkeit, um Namen in einem `Env` einen neuen Wert zuzuweisen.
+>
+> Für diese Neuzuweisung von Namen in Mini-C++ kann man sich eine Methode `void assign(String name, Value value, int depth)` definieren, die analog zu `get()` das Elternenvironment in der Tiefe `depth` aufsucht und dort dem Namen `name` den neuen Wert `value` zuweist. Skizzieren Sie diese Methode.
+>
+> Beachten Sie die Semantik: Bei einer Zuweisung wie `c = 42;` muss die Variable vom aktuellen Scope aus sichtbar sein, aber sie muss nicht im aktuellen Scope selbst definiert sein. Im Name-Resolver hatten wir bereits die Sichtbarkeit geprüft und berechnet, wie viele Schritte man in der Scope-/Environment-Kette nach "oben" gehen muss bis zum Scope/Environment, in dem dieser Name definiert wurde. Nutzen Sie diese Information.
+>
+> **Mini-C++: Implementieren von `AssignStmt` im Interpreter**
+>
+> In L-Var gibt es keine Zuweisung, deshalb wurde die Behandlung von `AssignStmt` in der Methode `exec(Stmt stmt)` ausgelassen. In Mini-C++ existiert die Zuweisung - skizzieren Sie diesen Fall in Java.
+>
+> Welche Elemente hat ein `AssignStmt`-Knoten (wie sah der entsprechende Teil der konkreten und abstrakten Syntax aus)? Gab es Einschränkungen für die linke Seite der Zuweisung? Wie sollte die Zuweisung durchgeführt werden?
+>
+> **Fehlerfälle - Was passiert, wenn der Name-Resolver "versagt"?**
+>
+> Angenommen, in Ihrem L-Var-Compiler gäbe es (hypothetisch) einen Bug im Name-Resolver, sodass für einige `VarExpr`-Knoten keine oder eine falsche Tiefe in `sema.depths` eingetragen wird.
+>
+> 1.  Diskutieren Sie anhand eines kleinen Beispiels:
+>
+>     ``` clojure
+>     (def x : int 1)
+>     (let ((y : int 2))
+>       (+ x y))
+>     ```
+>
+>     was passieren könnte, wenn:
+>
+>     -   `depth` für beide `VarExpr` fälschlicherweise 0 wäre,
+>     -   `depth` für `x` korrekt und für `y` zu groß ist.
+>
+> 2.  Überlegen Sie, welche zusätzlichen Prüfungen man in `Env#get` und `Env#define` ergänzen könnte, um solche internen Inkonsistenzen zu erkennen.
+>
+> 3.  Formulieren Sie, wie eine Fehlermeldung in diesem Fall aussehen sollte, damit klar ist, dass es sich um einen **internen Fehler** des Compilers (und nicht um einen Fehler im Programm der User) handelt.
+>
+> **`Scope` vs. `Env`**
+>
+> Im Skript wurde behauptet, dass man zum Speichern der Werte während der Interpretation neue Datenstrukturen benötigt und nicht die bereits in der semantischen Analyse aufgebauten Symboltabellen dafür nutzen kann.
+>
+> Demonstrieren Sie an einem praktischen Beispiel, warum dies so ist.
+>
+> **Nested Environments vs. Stack von Environments**
+>
+> Unsere Environments sind analog zu den Scopes aufgebaut und haben einen Verweis auf das Eltern-Environment. Damit kann man einen Namen rekursiv vom aktuellen Environment aus nach "oben" bis zur Wurzel (globales Environment) suchen.
+>
+> In vielen Fällen könnte man auf diese Verzeigerung verzichten und im Interpreter einfach einen Stack von einfachen Environments pflegen - jeder neue Scope legt ein neues Environment oben auf den Stack, jedes Verlassen eines Scopes entfernt den obersten Eintrag. Das funktioniert sogar für Funktionsaufrufe!
+>
+> Es gibt aber Szenarien, wo dies nicht ausreicht. Wir werden möglicherweise für unser Lispy so ein Szenario sehen. Können Sie sich selbst ein Szenario überlegen, wo ein `Stack<Env>` im Interpreter nicht reicht und wir wissen müssen, was das Eltern-Environment `Env parent` ist?
+>
+> </details>
+
+<a id="id-66f5b6de521db28f066c73c170b61741af8a0710"></a>
+
+#### L-Var: Integration & Pipeline-Gesamtbild
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🎯 TL;DR</strong></summary>
+>
+> In L-Var fügen wir zu Lispy Variablen und Blöcke mit eigenen Scopes hinzu. Ein L-Var-Programm durchläuft eine feste Pipeline: Quelltext $\to$ Lexer/Parser (ANTLR) $\to$ Parse-Tree $\to$ AST-Builder $\to$ AST $\to$ Name-Resolver $\to$ Interpreter.
+>
+> Der AST-Builder für L-Var (`LispyAstBuilderLvar`) erweitert den AST-Builder aus L-Expr und übersetzt den Parse-Tree in unsere abstrakte Syntax (AST).
+>
+> Der Name-Resolver (`NameResolverLvar`) läuft als erster Pass über den AST, verwaltet Scopes, prüft die Gültigkeit von Namen und trägt in den Sidetable `SemaInfo` unter anderem die Symboltabellen als auch die Tiefeninformationen ein.
+>
+> Im Interpreter (`InterpreterLvar`) als letztem Pass über den AST evaluieren wir nun nicht nur Ausdrücke, sondern führen nun auch Statements aus und verwalten zur Laufzeit verschachtelte Environments (`Env`). Bei lesenden Variablenzugriffen nutzt der Interpreter die im Resolver berechneten Tiefeninformationen, um gezielt das richtige Environment auszuwählen, ohne zur Laufzeit rekursiv suchen zu müssen.
+>
+> Dieses Muster "AST $\to$ Resolver $\to$ Interpreter mit *side tables* (z.B. `depths` in `SemaInfo`)" wird sich in den späteren Sprachstufen (L-If, L-Fun, L-Class, ...) wiederholen. Alle Sprachstufen leiten ihre Grammatik, AST-Klassen, Resolver und Interpreter etc. jeweils von der vorherigen Stufe ab und erweitern diese nur um die neuen Sprachfeatures.
+>
+> </details>
+
+##### Pipeline-Gesamtbild für L-Var
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/_w26/lecture/04-lvar/images/lvar-overview_inv.png" /><img src="https://raw.githubusercontent.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/_w26/lecture/04-lvar/images/lvar-overview.png"  /></picture></p>
+
+1.  **Lexing & Parsing** (ANTLR):
+    -   Konkrete Grammatik $\to$ ANTLR-Grammatik
+    -   Quelltext $\to$ Parse-Tree: `LispyLexer` & `LispyParser` (generiert)
+2.  **AST-Builder**:
+    -   Abstrakte Grammatik $\to$ AST-Klassen
+    -   Parse-Tree $\to$ AST: `LispyAstBuilderLvar`
+        -   `class LispyAstBuilderLvar extends LispyAstBuilderLexpr`
+        -   Visitor-Pattern
+3.  **Name-Resolver**:
+    -   `Scope`: **statische** Sicht (Namen $\to$ Deklarationen = Symboltabelle)
+    -   AST $\to$ `SemaInfo` (Sidetable), gefüllt mit:
+        -   `Map<Stmt, Scope> symbols`: Statement $\to$ Scope (Symboltabellen)
+        -   `Map<Expr, Integer> depths`: `VarExpr` $\to$ Tiefeninformation
+        -   `Scope globalScope`, `Env globalEnv`
+    -   `resolve(expr)`, `resolve(stmt)` mit `switch`-Expressions und Pattern Matching
+4.  **Interpreter**:
+    -   AST + `SemaInfo` $\to$ Ausführung:
+        -   `Env env`: **dynamische** Sicht (Namen $\to$ Laufzeitwerte)
+        -   `class InterpreterLvar extends InterpreterLexpr`
+        -   `eval(expr)` und `exec(stmt)` nutzen `depths` für gezielte Environment-Zugriffe
+
+##### Gesamtbild im Code
+
+``` java
+var source = "(def x : int 10)  (let ((x : int 1)) (+ x 1))  (+ x 5)";
+
+var input = CharStreams.fromString(source);
+var lexer = new LispyLexer(input);
+var tokens = new CommonTokenStream(lexer);
+var parser = new LispyParser(tokens);
+var parsetree = parser.lvar();
+
+var astBuilder = new LispyAstBuilderLvar();
+var ast = astBuilder.visitLvar(parsetree);
+
+SemaInfo sema = new SemaInfo();
+new NameResolverLvar().resolve(ast, sema);
+
+Value result = new InterpreterLvar().interpret(ast, sema);
+```
+
+##### InterpreterLvar - Rolle von `interpret(...)`
+
+Noch einmal der Einstiegspunkt des Interpreters ab jetzt:
+
+``` java
+public class InterpreterLvar extends InterpreterLexpr {
+    protected SemaInfo sema;
+    protected Env env;
+    protected Value last;
+
+    public Value interpret(List<Stmt> stmts, SemaInfo semaInfo) {
+        sema = semaInfo;  env = sema.globalEnv;  last = null;
+
+        stmts.forEach(this::exec);
+
+        return last;
+    }
+
+    // protected void exec(Stmt stmt) ...
+    // protected Value eval(Expr expr) ...
+}
+```
+
+-   `sema.globalEnv` kann bereits vordefinierte Klassen/Funktionen/Variablen enthalten
+-   `exec(stmt)` & `eval(expr)`:
+    -   Deklarationen binden Werte in `env`
+    -   Blocks erzeugen neue `Env`-Instanzen
+    -   `VarExpr` nutzt `sema.depths` zur Navigation
+
+##### Reflexion: Muster für spätere Sprachstufen
+
+Das folgende Muster wird uns in L-If, L-Fun, L-Class usw. begleiten:
+
+1.  **Konkrete Syntax** erweitern (ANTLR)
+2.  **Abstrakte Syntax** erweitern (AST, AST-Builder)
+3.  **Name-Resolver**:
+    -   erster AST-Pass, baut Symboltabellen auf
+    -   neue Prüfungen, neue Scopes (z.B. Funktions-Scopes, Klassen-Scopes)
+    -   zusätzliche Einträge in `SemaInfo` (z.B. Funktions-Typen, Klasseninfos)
+4.  **Type-Checker**:
+    -   weiterer AST-Pass
+    -   Prüfung der Typen, statische vs. dynamische Polymorphie, ...
+5.  **Interpreter**:
+    -   finaler AST-Pass
+    -   Behandlung der neuen Features
+    -   "vertraut" auf Ergebnisse von semantischer Analyse (im Sidetable)
+
+**Alle Bausteine leiten jeweils von den Bausteinen der Vorgängerstufe ab.**
+
+##### Wrap-up
+
+-   **Pipeline** L-Var:
+    -   Quelltext $\to$ Lexer/Parser (ANTLR) $\to$ Parse-Tree
+    -   Parse-Tree $\to$ AST (`LispyAstBuilderLvar`)
+    -   AST $\to$ `SemaInfo` (`NameResolverLvar`)
+    -   AST + `SemaInfo` $\to$ Ausführung (`InterpreterLvar`)
+-   **Resolver** (`NameResolverLvar`):
+    -   verwaltet Scopes (Symboltabellen) und prüft Namenssichtbarkeit
+    -   befüllt `SemaInfo.symbols` (Statements $\to$ `Scope`)
+    -   berechnet `SemaInfo.depths` für alle `VarExpr` (lexikalische Tiefe)
+-   **Interpreter** (`InterpreterLvar`):
+    -   führt Statements aus und evaluiert Expressions
+    -   nutzt `Env`-Kette zur Laufzeit für Variablenwerte
+    -   verwendet `depths` für direkten Zugriff auf richtiges Environment
+
+<!-- -->
+
+-   **Muster**: Jede neue Sprachstufe erweitert die Bausteine der Vorgängerstufe
+
+> [!NOTE]
+>
+> <details >
+> <summary><strong>✅ Lernziele</strong></summary>
+>
+> -   k2: Ich kann den Unterschied zwischen `Scope` (statische Sicht) und `Env` (Laufzeitumgebung) erklären.
+> -   k2: Ich kann beschreiben, welche Aufgaben der `NameResolverLvar` übernimmt und welche der `InterpreterLvar`.
+> -   k3: Ich kann für ein gegebenes L-Var-Programm die Scopes und Environments skizzieren und erklären, wie `depths` berechnet werden.
+> -   k3: Ich kann einen bestehenden Resolver/Interpreter um ein einfaches neues Statement oder eine neue Ausdrucksform erweitern.
+> -   k3: Ich kann den Datenfluss in der Pipeline (Quelltext $\to$ Parse-Tree $\to$ AST $\to$ SemaInfo $\to$ Ausführung) auf konkrete Beispiele anwenden.
+> -   k4: Ich kann kritisch beurteilen, welche Prüfungen sinnvoll im Resolver und welche im Interpreter oder Typechecker stattfinden sollten.
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details open>
+> <summary><strong>🏅 Challenges</strong></summary>
+>
+> **Pipeline für L-Var**
+>
+> 1.  Zeichnen Sie für ein kleines L-Var-Programm die gesamte Pipeline als Kette von Bausteinen. Was geht jeweils hinein, was kommt heraus? Welche Informationen werden benötigt, wo kommen diese her?
+> 2.  Markieren Sie:
+>     -   Wo werden **Namen gebunden**?
+>     -   Wo werden **Werte gespeichert**?
+>     -   Wo werden **depth-Werte benutzt**?
+> 3.  Diskutieren Sie: Welche Teile würden Sie gerne separiert vom Rest testen?
+>
+> **Scopes vs. Environments für ein L-Var-Beispiel**
+>
+> Gegeben sei das L-Var-Programm (vereinfacht, in Lispy-Notation):
+>
+> ``` clojure
+> (def x : int 1)
+> (let ((y : int 2))
+>   (+ x y))
+> (+ x 10)
+> ```
+>
+> 1.  Zeichnen Sie die statischen Scopes für dieses Programm (als Baum/Grafik) und tragen Sie ein, wo `x` und `y` deklariert werden.
+> 2.  Skizzieren Sie die Environments zur Laufzeit:
+>     -   direkt nach `(def x : int 1)`
+>     -   innerhalb von `let` vor der Addition von `x` und `y`
+>     -   nach Addition von `x` und `y`
+> 3.  Überlegen Sie:
+>     -   Welchen `depth`-Wert bekommt der Zugriff auf `x` innerhalb des `let`-Blocks?
+>     -   Wie nutzt der Interpreter diesen `depth`-Wert, um das richtige `Env` zu finden?
+>
+> **Welche Prüfung macht wer?**
+>
+> Betrachten Sie die folgenden (hypothetischen) Fehlerfälle in L-Var:
+>
+> -   Eine Variable wird gelesen, bevor sie deklariert wurde.
+> -   Eine Variable wird zweimal im gleichen Scope deklariert.
+> -   Eine Variable wird gelesen, ist aber in einem äußeren Scope deklariert.
+> -   Eine Division durch 0 tritt zur Laufzeit auf.
+>
+> Diskutieren Sie in der Gruppe:
+>
+> -   Welche dieser Fälle soll der Resolver erkennen? Begründen Sie.
+> -   Welche Fälle können nur zur Laufzeit im Interpreter erkannt werden?
+> -   Markieren Sie die Stellen in der Pipeline, an denen Sie die jeweilige Prüfung implementieren würden.
+>
+> **Tiefenberechnung verstehen**
+>
+> Gegeben sei ein (vereinfachtes) L-Var-Programm:
+>
+> ``` clojure
+> (def x : int 1)
+> (let ((y : int 2))
+>   (let ((z : int 3))
+>     (+ x (+ y z))))
+> ```
+>
+> 1.  Zeichnen Sie den AST.
+> 2.  Überlegen Sie, welche `depth`-Werte der Resolver für die drei `VarExpr` (`x`, `y`, `z`) einträgt.
+> 3.  Beschreiben Sie kurz, wie der Interpreter mit einem `depth`-Wert von z.B. `2` das richtige `Env` findet (ausgehend vom aktuellen `Env`).
+>
+> </details>
+
 <a id="id-0e638f12c1da2fa388a172d5149c9094d3f2971a"></a>
 
 ### Sprache L-If: Datentyp Boolean, Vergleiche, Kontrollstrukturen (if/else, while)
@@ -5225,40 +6989,22 @@ Beschreiben Sie Schritt für Schritt, wie der PDA die Eingaben *baba* und *bba* 
 
 ### Blatt 03: L-Int und C-Int (Integer, Addition, Subtraktion)
 
-> [!IMPORTANT]
->
-> Für die erfolgreiche Bearbeitung dieses Übungsblattes müssen mindestens alle mit `*` und `**` markierten Aufgaben gelöst werden.
->
-> Die Aufgaben mit `***` sind als Vertiefung gedacht.
-
-Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
-
--   L-Int: Die Sprache Lispy
--   L-Int: Konkrete und abstrakte Syntax
--   L-Int: Lexer - Handcodierte Implementierung
--   L-Int: LL-Parser mit Recursive Descent
--   L-Int: Von Ausdrücken zum Interpreter
-
 #### A3.1: L-Int: Subtraktion verstehen und ergänzen (\*)
 
 L-Int unterstützt Integer-Literale, Addition und Subtraktion. Im Skript wurde die Implementierung nur für Integer und Addition im Detail gezeigt.
 
 ##### 1. Sprache und Semantik nachvollziehen
 
--   Welche Eingaben sind **gültige** L-Int-Ausdrücke?
+Welche Werte ergeben die folgenden Ausdrücke?
 
--   Wie werden mehrere Operanden einer Addition oder Subtraktion gruppiert?
+``` clojure
+(+ 1 2)
+(- 8 3)
+(- 20 5 3)
+(- 10 (+ 3 5))
+```
 
--   Welche Werte ergeben die folgenden Ausdrücke?
-
-    ``` clojure
-    (+ 1 2)
-    (- 8 3)
-    (- 20 5 3)
-    (- 10 (+ 3 5))
-    ```
-
-Notieren Sie mindestens zwei **ungültige** L-Int-Eingaben. Mindestens eine davon soll eine Operation mit weniger als zwei Operanden sein.
+Was wären **ungültige** L-Int-Eingaben?
 
 ##### 2. Auswertung der Subtraktion skizzieren
 
@@ -5337,17 +7083,15 @@ public class LispyLexerLint {
 
 1.  Zeichnen Sie den DFA für `skipIrrelevant()`.
 2.  Implementieren Sie `skipIrrelevant()`.
-3.  Erstellen Sie mindestens vier Testfälle. Berücksichtigen Sie dabei mindestens:
-    -   eine Eingabe ohne Whitespace oder Kommentare
-    -   eine Eingabe mit Whitespace vor einem Token
-    -   eine Eingabe mit einem Kommentar
-    -   eine Eingabe, die nach Whitespace oder einem Kommentar das Dateiende erreicht
+3.  Erstellen Sie einige relevante Testfälle. Was sind interessante Fälle?
 
-#### A3.3: C++ ausprobieren: Compiler und ein erstes Programm (\*)
+#### A3.3: C++ ausprobieren: Compiler einrichten und ein erstes Programm übersetzen (\*)
 
 Wir werden in dieser Veranstaltung Schritt für Schritt C++ kennenlernen und einen Interpreter in Java für einen kleinen C++-Ausschnitt ("Mini-C++") entwickeln.
 
 In dieser Aufgabe richten Sie zunächst einen C++-Compiler ein, schreiben ein kleines Programm und übersetzen sowie starten es mit `clang++` oder `g++`.
+
+Später können wir den "echten" C++-Compiler als Referenz für unsere Java-Implementierung des Interpreters einsetzen.
 
 ##### Schritt 1: Compiler überprüfen und installieren
 
@@ -5399,9 +7143,9 @@ Variieren Sie den arithmetischen Ausdruck in `result` und überprüfen Sie die A
 
 > [!TIP]
 >
-> ##### Mini-Waschzettel: `hello.cpp` im Vergleich zu L-Int / C-Int / Java
+> ##### Erklärung des `hello.cpp` im Vergleich zu L-Int / C-Int / Java
 >
-> Zum Verständnis von `hello.cpp` benötigen Sie hier nur wenige Konstrukte:
+> Zum Verständnis des obigen `hello.cpp` benötigen Sie nur wenige Konstrukte:
 >
 > | Zweck | C++ | Java | L-Int | C-Int |
 > |:----------------|:-------------------|:-------------|:----------|:----------|
@@ -5412,6 +7156,8 @@ Variieren Sie den arithmetischen Ausdruck in `result` und überprüfen Sie die A
 > | Ausgabe einer Variablen | `std::cout << result << '\n';` | `IO.println(result)` | n.a. | n.a. |
 > | Zeilenkommentar | `// Kommentar` | `// Kommentar` | `;; Kommentar` | `// Kommentar` |
 > | Import von Bibliotheken | `#include <iostream>` | `import ...;` | n.a. | n.a. |
+>
+> **Wichtig**: Dieser Programmrahmen und diese Konstrukte sind notwendig, um ein minimales C++-Programm mit dem clang/gcc zu übersetzen. Der Sprachumfang von C-Int, den wir auf diesem Blatt implementieren, ist viel kleiner!
 
 #### A3.4: C-Int: Addition und Subtraktion für Integer in C++ (\*\*)
 
@@ -5421,7 +7167,7 @@ C-Int erlaubt analog zu L-Int **Integer-Literale, Addition und Subtraktion**, ve
 
 > [!IMPORTANT]
 >
-> ##### Waschzettel: In C++ sieht es so aus ...
+> ##### Waschzettel: In (Mini-) C++ sieht es so aus ...
 >
 > | Sprachelement   | L-Int (Lispy)            | C-Int (Mini-C++)         |
 > |:----------------|:-------------------------|:-------------------------|
@@ -5447,21 +7193,13 @@ C-Int erlaubt analog zu L-Int **Integer-Literale, Addition und Subtraktion**, ve
 >
 > Ein L-Int-Ausdruck wie `(- (+ 1 2) 3)` entspricht in C-Int beispielsweise:
 >
->     ((1 + 2) - 3)
->     (1 + 2) - 3
+>     ((1 + 2) - 3)  // oder auch
+>     (1 + 2) - 3    // oder auch
 >     1 + 2 - 3
 >
 > Addition und Subtraktion sind *linksassoziativ*. Ohne zusätzliche Klammern wird also von links nach rechts gruppiert.
 >
-> **Wichtig**: Damit ein C++-Compiler diese Ausdrücke übersetzen kann, müssen sie in einen passenden Programmrahmen eingebettet werden, beispielsweise in eine `main()`-Funktion und geeignete Statements für Zuweisung und Ausgabe.
->
-> Die im Semester betrachteten Sprachstufen entwickeln sich schrittweise weiter. Die genaue Reihenfolge und der Umfang der späteren Sprachstufen werden im Skript eingeführt.
->
-> Syntaktisch und semantisch betrachten wir im Laufe des Semesters folgende Abstufung:
->
->     C++ <: C-Self <: C-Inherit <: C-Class <: C-Fun <: C-If <: C-Var <: C-Expr <: C-Int
->
-> In diesem Semester enden wir (voraussichtlich) bei C-Self.
+> **Wichtig**: Damit ein C++-Compiler diese Ausdrücke übersetzen kann, müssen sie in einen passenden Programmrahmen eingebettet werden, d.h. in eine `main()`-Funktion und geeignete Statements für Zuweisung und Ausgabe.
 
 ##### Schritt 1: Java-Projekt für C-Int einrichten
 
@@ -5474,26 +7212,25 @@ Legen Sie eine für Sie nachvollziehbare Paket- und Verzeichnisstruktur fest. Si
 
 ##### Schritt 2: Konkrete Syntax für C-Int festlegen
 
-Definieren Sie analog zur Vorlesung die **konkrete Syntax für C-Int**. Sie legen damit fest, welche Programme von Ihrem Lexer und Parser akzeptiert werden.
+Definieren Sie analog zum Skript die **konkrete Syntax für C-Int**. Sie legen damit fest, welche Programme von Ihrem Lexer und Parser akzeptiert werden.
 
 Berücksichtigen Sie dabei folgende Anforderungen:
 
--   Whitespace darf zwischen den Bestandteilen eines Ausdrucks stehen und wird übersprungen.
--   Zeilenkommentare `// ...` bis zum Zeilenende werden unterstützt und übersprungen.
+-   Es gibt Addition und Subtraktion und Integerzahlen.
 -   Addition und Subtraktion verwenden jeweils zwei Integer-Operanden, z.B. `1-2`.
 -   Mehrfach verkettete Ausdrücke wie `1+2+3+4` sind erlaubt.
 -   Ausdrücke dürfen geklammert sein.
 -   Nicht geklammerte Ausdrücke werden implizit **von links nach rechts** gruppiert.
-
-Notieren Sie Ihre konkrete Syntax, zum Beispiel als Grammatik. Halten Sie außerdem fest, welche Token, Schlüsselwörter und Symbole Ihr Lexer erkennen muss.
+-   Whitespace darf zwischen den Bestandteilen eines Ausdrucks stehen und wird übersprungen.
+-   Zeilenkommentare `// ...` bis zum Zeilenende werden unterstützt und übersprungen.
 
 ##### Schritt 3: Abstrakte Syntax für C-Int definieren
 
-Definieren Sie analog zur Vorlesung die **abstrakte Syntax** (AST) für **C-Int** und repräsentieren Sie diese in Java.
+Definieren Sie analog zum Skript die **abstrakte Syntax** (AST) für **C-Int**.
 
-Berücksichtigen Sie dabei folgende Fragen:
+Überlegen Sie vorher folgende Fragen:
 
--   Welche Informationen aus dem Parse-Tree müssen im AST erhalten bleiben?
+-   Welche Informationen aus dem Parse-Tree müssen im AST für den Interpreter erhalten bleiben?
 -   Warum müssen Klammern im AST nicht zwingend als eigene Knoten vorkommen?
 -   Wie wird die Linksassoziativität in der Struktur des AST dargestellt?
 
@@ -5507,7 +7244,7 @@ Erstellen Sie analog zum Vorgehen im Skript für C-Int:
 -   einen handgeschriebenen Recursive-Descent-Parser,
 -   einen Interpreter `InterpreterCint`.
 
-Verwenden Sie in dieser Aufgabe **keinen** generierten ANTLR-Parser. Implementieren Sie die Pipeline wie in der Vorlesung mit handgeschriebenem Java-Code.
+Verwenden Sie in dieser Aufgabe **keinen** generierten ANTLR-Parser. Implementieren Sie die Pipeline wie im Skript mit handgeschriebenem Java-Code.
 
 ##### Schritt 5: Tests für C-Int schreiben
 
@@ -5522,25 +7259,28 @@ Schreiben Sie JUnit-Tests für Ihre C-Int-Pipeline. Testen Sie mindestens:
 -   eine fehlende schließende Klammer,
 -   einen ungültigen Operator oder ein unerwartetes Zeichen.
 
-Ein weiterer Test soll aufdecken, ob bei der Subtraktion versehentlich linker und rechter Operand vertauscht wurden. Testen Sie daher beispielsweise sowohl `(- 7 2)` als auch `(- 2 7)`.
-
-Testen Sie nach Möglichkeit nicht nur die Auswertung, sondern auch die erzeugten Token und ASTs. Dadurch können Sie Fehler in den einzelnen Phasen der Pipeline besser voneinander unterscheiden.
-
-##### Schritt 6: C-Int-Ergebnisse mit nativem C++ vergleichen
-
-Schreiben Sie zu den folgenden Ausdrücken jeweils ein vollständiges C++-Programm mit `main()`, das den Ausdruck berechnet und das Ergebnis ausgibt:
+Betrachten Sie auch diese Eingaben:
 
     42
     (1 + 2)
     ((1 + 2) - 3)
     (10 - (3 + 5))
 
-Übersetzen und starten Sie Ihre Programme mit clang++ oder g++.
+Ein weiterer Test soll aufdecken, ob bei der Subtraktion versehentlich linker und rechter Operand vertauscht wurden. Testen Sie daher beispielsweise sowohl `(- 7 2)` als auch `(- 2 7)`.
 
-Vergleichen Sie die Ausgaben mit den Ergebnissen Ihres C-Int-Interpreters und notieren Sie kurz:
+> [!IMPORTANT]
+>
+> Testen Sie die Bausteine einzeln: Die Testfälle sind immer dieselben, aber Sie prüfen
+>
+> -   nach dem Lexer, ob die korrekten Token erzeugt werden,
+> -   nach dem Parser, ob der korrekte AST erzeugt wurde,
+> -   nach dem Interpreter, ob der korrekte Wert erzeugt wurde.
+>
+> Dazu müssen Sie die Eingaben entsprechend formulieren: Eingabe-String für den Lexer, Liste mit Token für den Parser, AST für den Interpreter.
 
--   Zwei Gemeinsamkeiten zwischen der Auswertung im nativen C++-Programm und der Auswertung durch Ihren Interpreter.
--   Zwei Unterschiede zwischen den beiden Verarbeitungswegen (z.B. Laufzeit, Fehlermeldungen, Komfort).
+##### Schritt 6: C-Int-Ergebnisse mit nativem C++ vergleichen
+
+Schreiben Sie für die in Ihren Tests verwendeten Eingaben/Ausdrücke ein vollständiges C++-Programm mit `main()`, das diese Ausdrücke berechnet und die Ergebnisse ausgibt. Damit haben Sie eine Referenz, wie sich das "echte" C++ verhält.
 
 #### A3.5: Vertiefung: Interpreter für L-Int mit Visitor-Pattern (\*\*\*)
 
@@ -5572,7 +7312,7 @@ public class InterpreterLint {
 
             // TODO: SubExpr
 
-            default -> throw new RuntimeException("unexpected expression: " + expr);
+            default -> throw new RuntimeException("unexpected expression");
         };
     }
 
@@ -5592,24 +7332,11 @@ public class InterpreterLint {
 
 ### Blatt 04: L-Expr und C-Expr (Multiplikation/Division, Vorrang und ANTLR)
 
-> [!IMPORTANT]
->
-> Für die erfolgreiche Bearbeitung dieses Übungsblattes müssen mindestens alle mit `*` und `**` markierten Aufgaben gelöst werden.
->
-> Die Aufgaben mit `***` sind als Vertiefung gedacht.
-
-Dieses Blatt knüpft an folgende Vorlesungseinheiten an:
-
--   L-Expr: Multiplikation/Division und unäres Minus
--   L-Expr: Vorrang und Assoziativität
--   L-Expr: ANTLR-Grammatik und Vorrangregeln
--   L-Expr: ANTLR-Visitoren und Rückgabewerte
-
 #### A4.1: L-Expr: Division ergänzen (\*)
 
-Im Skript haben Sie L-Expr als Erweiterung von L-Int um Multiplikation und Division kennengelernt. In der Vorlesung wurde die Multiplikation im Detail behandelt.
+Im Skript haben Sie L-Expr als Erweiterung von L-Int um Multiplikation und Division kennengelernt. Dabei wurde die Multiplikation im Detail behandelt.
 
-Wenden Sie das gezeigte Muster auf die Division an und skizzieren Sie in Java, wie die Auswertung einer `DivExpr` aussehen könnte. Geben Sie dabei an, welche Teil-Ausdrücke ausgewertet und wie ihre Ergebnisse kombiniert werden.
+Wenden Sie das im Skript gezeigte Muster auf die Division an und skizzieren Sie in Java, wie die Auswertung einer `DivExpr` aussehen könnte.
 
 Gegeben sei dazu der folgende Code-Rahmen.
 
@@ -5639,7 +7366,7 @@ public class InterpreterLint {
 
             // TODO: SubExpr
 
-            default -> throw new RuntimeException("unexpected expression: " + expr);
+            default -> throw new RuntimeException("unexpected expression");
         };
     }
 
@@ -5671,24 +7398,21 @@ public class InterpreterLexpr extends InterpreterLint {
 
 </details>
 
-Weitere Aufgabenteile:
+Weitere Fragen:
 
 1.  Wie behandeln Sie Vorrangregeln und die Assoziativität im Interpreter für L-Expr?
-2.  Notieren Sie, wie der mehrstellige Ausdruck `(/ 12 3 2)` gruppiert wird und welches Ergebnis er nach dieser Gruppierung hat.
+2.  Wie wird der mehrstellige Ausdruck `(/ 12 3 2)` gruppiert?
 3.  Wie wird die Division durch null behandelt? Brauchen wir hier eine explizite Fehlerbehandlung im Interpreter?
-4.  Erstellen Sie außerdem mindestens zwei Testfälle:
-    -   einen Test, der die Java-Integer-Division sichtbar macht
-    -   einen Test für eine verschachtelte Division
 
 #### A4.2: C-Expr: Vorrangregeln in einer gestuften Grammatik (\*\*)
 
-Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** um Multiplikation, Division, unäres Minus und geklammerte Ausdrücke erweitern.
+Wir erstellen nun **C-Expr**, indem wir **C-Int vom letzten Blatt** erweitern.
 
 C-Expr soll analog zu L-Expr **Multiplikation und Division und unäres Minus und geklammerte Ausdrücke** erlauben, aber in C++-üblicher Infix-Notation und unter Beachtung der üblichen Vorrang- und Assoziativitätsregeln.
 
 > [!IMPORTANT]
 >
-> ##### Waschzettel: In C++ sieht es so aus ...
+> ##### Waschzettel: In (Mini-) C++ sieht es so aus ...
 >
 > | Zweck          | L-Expr (Lispy)  | C-Expr (Mini-C++) |
 > |:---------------|:----------------|:------------------|
@@ -5720,7 +7444,7 @@ Schreiben Sie ein C++-Programm `expr.cpp`, das folgende Ausdrücke auswertet und
 
 ##### Schritt 2: Konkrete Syntax für C-Expr (gestufte Variante)
 
-Definieren Sie eine **konkrete Grammatik für C-Expr** (in EBNF), die folgende Anforderungen erfüllt:
+Ergänzen Sie Ihre **konkrete Grammatik** aus C-Int für C-Expr (in EBNF) mit folgenden Anforderungen:
 
 -   Zulässige Ausdrücke enthalten:
     -   Integer-Literale
@@ -5730,7 +7454,7 @@ Definieren Sie eine **konkrete Grammatik für C-Expr** (in EBNF), die folgende A
 -   Vorrang:
     -   `*` und `/` **binden stärker** als `+` und `-`
     -   Unäres Minus und geklammerte Ausdrücke haben höchsten Vorrang
--   Alle vier Operatoren sind **linksassoziativ**
+-   Alle vier binären Operatoren sind **linksassoziativ**
 -   Whitespace darf an beliebigen sinnvollen Stellen stehen und wird ignoriert
 -   Zeilenkommentare werden ab dem `//` bis zum Zeilenende ignoriert
 
@@ -5745,40 +7469,48 @@ Skizzieren Sie Ihre Grammatik ausdrücklich mit **gestuften Regeln**, z.B. mit d
 
 Zeichnen Sie jeweils den Parse-Tree. Entspricht das dem Verhalten von C++ aus der vorigen Aufgabe?
 
-##### Schritt 3: ANTLR-Grammatiken für C-Expr
+##### Schritt 3: ANTLR-Grammatik für C-Expr
 
-Definieren Sie nun ausgehend von der konkrete Grammatik aus der vorigen Aufgabe zwei **ANTLR-Grammatiken** für **C-Expr**:
-
--   einmal mit **gestuften Regeln**, und
--   einmal mit **linksrekursiven Alternativen**.
+Definieren Sie nun ausgehend von der konkreten Grammatik eine **ANTLR-Grammatik** für **C-Expr**.
 
 Berücksichtigen Sie dabei die für C-Expr formulierten Operatoren und Vorrangregeln und Assoziativitäten.
 
 ##### Schritt 4: Abstrakte Syntax für C-Expr
 
-Definieren Sie nun die **abstrakte Syntax für C-Expr**. Orientieren Sie sich an der Vorlesung und bauen Sie auf Ihrer abstrakten Syntax von C-Int auf.
+Definieren Sie nun die **abstrakte Syntax für C-Expr**. Orientieren Sie sich am Skript und bauen Sie auf Ihrer abstrakten Syntax von C-Int auf.
 
 Diskutieren Sie: Welche neuen AST-Knoten sind notwendig und warum?
 
 ##### Schritt 5: Parsen von C-Expr und bauen des AST
 
+###### Handimplementierte Lexer und Parser
+
 1.  Implementieren Sie für Ihre konkrete Grammatik (mit den gestuften Regeln) für **C-Expr einen Lexer**. Erweitern Sie dazu die Tokendefinitionen passend.
+
 2.  Implementieren Sie einen **RD-Parser für C-Expr**, der als Ausgabe einen AST erzeugt. Ergänzen Sie dazu die AST-Klassen entsprechend Ihrer abstrakten Syntax.
-3.  Lassen Sie sich von **ANTLR** für die beiden Grammatiken aus der vorigen Aufgabe je einen **Lexer, Parser und Visitor generieren**.
-4.  Erstellen Sie **zwei AST-Builder**, die aus den beiden unterschiedlichen ANTLR-Parse-Trees je einen AST entsprechend Ihrer abstrakten Syntax erzeugen. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
+
+###### ANTLR und AST-Builder
+
+3.  Lassen Sie sich von **ANTLR** für die Grammatik aus der vorigen Aufgabe je einen **Lexer, Parser und Visitor generieren**.
+
+4.  Erstellen Sie analog zum Skript einen **AST-Builder**, der aus dem ANTLR-Parse-Tree einen AST entsprechend Ihrer abstrakten Syntax erzeugt. Nutzen Sie das **Visitor-Pattern**. Diskutieren Sie:
+
     -   Welchen generischen Typ brauchen Sie für das Ableiten des generierten `XyzBaseVisitor`?
     -   Welche der `visitXYZ()`-Methoden sollten Sie überschreiben, welche nicht? Begründen Sie Ihre Aussage.
-5.  Testen Sie die neue C-Expr-Pipeline: Implementieren Sie die **obigen Beispiele in JUnit** und führen Sie diese auf **allen drei Varianten** aus (RD-Parser, ANTLR mit gestuften Regeln, ANTLR mit linkrekursiven Alternativen). Was beobachten Sie?
+
+##### C-Expr Pipeline
+
+5.  Testen Sie die neue C-Expr-Pipeline: Implementieren Sie die **obigen Beispiele in JUnit** und führen Sie diese jeweils auf den **beiden Varianten** aus (RD-Parser, ANTLR). Was beobachten Sie?
 
 > [!TIP]
 >
-> **Hinweis**: Sie können die Funktionalität aus dem Lexer und RD-Parser für C-Int als Basis per Copy&Paste übernehmen und für C-Expr ergänzen/umbauen. Die gestuften Regeln vertragen sich nicht gut mit dem sonst in diesem Kurs praktizierten Ableiten `class RdParserCexpr extends RdParserCint`, weshalb wir hier an dieser Stelle darauf verzichten.
+> **Hinweis**: Sie können die Funktionalität aus dem C-Int-Lexer und -RD-Parser als Basis per Copy&Paste übernehmen und für C-Expr ergänzen/umbauen. Die gestuften Regeln vertragen sich nicht gut mit dem sonst in diesem Kurs praktizierten Ableiten `class RdParserCexpr extends RdParserCint`, weshalb wir hier an dieser Stelle darauf verzichten.
 
 ##### Schritt 6: Interpreter-Pipeline für C-Expr
 
 Implementieren Sie nun den **Interpreter für C-Expr** in einer Klasse `InterpreterCexpr`. Dabei soll wie üblich in diesem Kurs gelten `class InterpreterCexpr extends InterpreterCint`.
 
-Ergänzen Sie die neuen Fälle für C-Expr durch Überschreiben von `eval()`. Rufen Sie für die bisherigen C-Int-Fälle `super.eval(expr)` auf.
+Ergänzen Sie analog zum Skript die neuen Fälle für C-Expr durch Überschreiben von `eval()`. Rufen Sie für die bisherigen C-Int-Fälle `super.eval(expr)` auf.
 
 Testen Sie Ihren Interpreter mit JUnit mit den obigen Beispielen. Dabei soll wie bei L-Expr gelten: `class InterpreterCexprTest extends InterpreterCintTest`.
 
@@ -5786,7 +7518,7 @@ Testen Sie Ihren Interpreter mit JUnit mit den obigen Beispielen. Dabei soll wie
 >
 > Der Interpreter bekommt als Eingabe den AST und ist damit unabhängig vom konkreten Parser!
 >
-> Testen Sie Ihren Interpreter sowohl mit dem handgeschriebenen RD-Parser als auch mit den beiden ANTLR-Parsern plus AST-Buildern.
+> Testen Sie Ihren Interpreter sowohl mit dem handgeschriebenen RD-Parser als auch mit dem ANTLR-Parser plus AST-Builder.
 
 Vergleichen Sie die Resultate der Testfälle von `InterpreterCexpr` mit dem mit g++/clang übersetzten nativen C++-Code. Gibt es Unterschiede? Woran liegt das?
 
@@ -5805,6 +7537,246 @@ WS      : [ \t\n]+ -> skip ;
 Was passiert bei der Eingabe von `10` und `01` und `a() = 0`, wie sieht der Parse-Tree aus? Was passiert bei der Eingabe von `0`?
 
 Erklären Sie die Resultate.
+
+<a id="id-98118cc81d6a530ca49ad4f799cdefcae735a708"></a>
+
+### Blatt 05: L-Var und C-Var (Variablen, State, Scopes)
+
+#### A5.1: L-Var: Scopes und Tiefenwerte verfolgen (\*)
+
+Betrachten Sie das folgende L-Var-Programm:
+
+``` clojure
+(def x : int 10)
+
+(let ((y : int 2))
+  (+ x y)
+  (let ((x : int 5))
+    (+ x y))
+  (+ x y))
+```
+
+Skizzieren Sie die Arbeit des Name-Resolvers:
+
+1.  Zeichnen Sie den Scope-Baum und tragen Sie in jeden Scope die dort definierten Variablen ein.
+2.  Gehen Sie die Statements und Expressions in der Reihenfolge durch, in der der Resolver sie besucht. Notieren Sie dabei, wann ein neuer Scope betreten und wieder verlassen wird.
+3.  Ordnen Sie jede `VarExpr` der passenden `VarDecl` zu.
+4.  Geben Sie für jede `VarExpr` den von `scope.resolve(name)` gelieferten `depth`-Wert an.
+
+#### A5.2: L-Var: `NameResolverLvar#resolve()` ergänzen (\*)
+
+Sie haben im Skript für L-Var den Name-Resolver `NameResolverLvar` kennengelernt. Dabei wurde die Implementierung für die AST-Knoten `ExprStmt` (`Stmt`) sowie `SubExpr`, `MulExpr` und `DivExpr` (alle drei `Expr`) nicht gezeigt.
+
+<details>
+
+``` java
+public class NameResolverLvar {
+    protected SemaInfo sema;
+    protected Scope scope;
+
+    public SemaInfo resolve(List<Stmt> stmts, SemaInfo semaInfo) {
+        sema = semaInfo;  scope = sema.globalScope;
+        stmts.forEach(this::resolve);
+        return sema;
+    }
+
+    protected void resolve(Stmt stmt) {
+        sema.symbols.put(stmt, scope);
+
+        switch (stmt) {
+            case VarDecl(var name, var type, var init) -> {
+                init.ifPresent(this::resolve);
+                resolveType(type);
+                scope.bind(name, stmt);
+            }
+            case BlockStmt(var s) -> {
+                scope = new Scope(scope);
+                s.forEach(this::resolve);
+                scope = scope.parent();
+            }
+            default -> throw new RuntimeException("unexpected statement");
+        }
+    }
+
+    protected void resolve(Expr expr) {
+        switch (expr) {
+            case IntLiteral _ -> { } // nothing to do
+            case AddExpr(var l, var r) -> List.of(l, r).forEach(this::resolve);
+            case VarExpr e -> {
+                var res = scope.resolve(e.name());
+                sema.depths.put(e, res.depth());
+            }
+            default -> throw new RuntimeException("unexpected expression");
+        }
+    }
+}
+```
+
+</details>
+
+Skizzieren Sie die fehlenden Fälle in `resolve(stmt)` und `resolve(expr)` für `ExprStmt`, `SubExpr`, `MulExpr` und `DivExpr` in Java.
+
+#### A5.3: L-Var: Von `depth` zum Laufzeitwert (\*)
+
+Betrachten Sie erneut das Programm von oben:
+
+``` clojure
+(def x : int 10)
+
+(let ((y : int 2))
+  (+ x y)
+  (let ((x : int 5))
+    (+ x y))
+  (+ x y))
+```
+
+Der Name-Resolver hat für jede `VarExpr` eine Tiefe berechnet. Der Interpreter verwendet diese Tiefe, um vom aktuellen `Env` aus das passende Environment auszuwählen.
+
+1.  Skizzieren Sie die Environments während der Ausführung schrittweise.
+2.  Erklären Sie anhand des inneren `(+ x y)`, warum `x` und `y` über unterschiedliche Tiefen aufgelöst werden.
+3.  Was würde im Interpreter schiefgehen, wenn für das innere Vorkommen von `x` fälschlich die Tiefe des globalen `x` gespeichert wäre?
+
+#### A5.4: C-Var: Variablen, State und nested Scopes (\*\*)
+
+Wir erweitern **C-Expr aus dem letzten Übungsblatt zu C-Var**. Dabei ergänzen wir u.a. Variablendeklarationen, Zuweisungen und Blöcke mit eigenen Scopes.
+
+> [!TIP]
+>
+> Nutzen Sie Ihre bestehende **ANTLR-Pipeline** aus C-Expr als Ausgangspunkt. Erweitern Sie die ANTLR-Grammatik, leiten Sie den AST-Builder und die übrigen Komponenten von den entsprechenden C-Expr-Bausteinen ab und ergänzen Sie die neuen Fälle. Ein handgeschriebener Lexer oder RD-Parser ist ab diesem Blatt nicht (mehr) erforderlich.
+
+> [!IMPORTANT]
+>
+> ##### Waschzettel: In (Mini-) C++ sieht es so aus ...
+>
+> | Zweck | L-Var (Lispy) | C-Var (Mini-C++) |
+> |:---------------------|:----------------------------|:--------------------|
+> | Variable definieren (mit Initialisierung) | `(def x : int 10)` | `int x = 10;` |
+> | Variable definieren (Defaultwert) | `(def x : int)` | `int x;` |
+> | Zuweisung an Variablen | n.a. | `x = 2;` |
+> | Variable lesen (Teil eines Ausdruck) | `x` | `x` |
+> | Nested Scopes | `(def x : int 10) (let ((a : int 2) (x : int 3)) (+ a x))` | `int x=10; { int a=2; int x=3; a+x; }` |
+>
+> Ein `let` öffnet in Lispy einen neuen lokalen Scope mit lokalen Variablen:
+>
+> ``` clojure
+> (def x : int 10)
+> (let ((a : int 2)
+>       (x : int 3))
+>   (+ a x))
+> ```
+>
+> In C++ nutzen wir dafür die geschweiften Klammern:
+>
+> ``` cpp
+> int x=10;
+> {
+>     int a=2;
+>     int x=3;
+>     a+x;
+> }
+> ```
+>
+> Für C-Var gelten die folgenden Festlegungen:
+>
+> -   Variablen haben den Typ `int` und können bei der Definition mit einem Ausdruck initialisiert werden.
+> -   Eine Variable darf in ihrer Initialisierung nicht auf sich selbst verweisen.
+> -   Eine Variable darf innerhalb desselben Scopes nur einmal definiert werden.
+> -   Eine Definition in einem inneren Scope darf eine Definition in einem äußeren Scope verdecken (*shadowing*).
+> -   Variablenzugriffe werden lexikalisch aufgelöst.
+> -   Es darf keine Zugriffe (lesend, schreibend) auf nicht sichtbare Variablen geben.
+> -   Zuweisungen dürfen in C-Var nur an Variablen erfolgen.
+> -   Der Name-Resolver speichert für jede Variablenreferenz (auch für die Zielvariable einer Zuweisung!) die Tiefe, die der Interpreter später zum Zugriff auf das passende Environment verwendet.
+> -   Ein C-Var-Programm besteht aus einer **Folge von Statements**.
+> -   **Abweichungen** vom "echten" C++:
+>     -   Zuweisungen ergeben in Mini-C++ keinen Wert (sind also Statements und nicht Expressions).
+>     -   Der Wert des zuletzt ausgewerteten Expression-Statements ist der Rückgabewert des Interpreters.
+>     -   Der Interpreter nutzt für Integer-Variablen den Defaultwert `0`, falls eine Variable nicht vom User initialisiert wird.
+
+##### Schritt 1: C-Var ausprobieren
+
+Wir wollen Variablendeklarationen, Zuweisungen und Blockverhalten zunächst direkt in C++ ausprobieren.
+
+Schreiben Sie ein C++-Programm `var.cpp` mit dem üblichen `main()`-Block und den folgenden Statements:
+
+``` cpp
+int x = 10;
+x = x + 1;
+x + 2;
+{
+    int y = 3;
+    x + y;
+}
+```
+
+Ergänzen Sie an geeigneten Stellen `std::cout`-Ausgaben, sodass die Werte vor und nach der Zuweisung sowie im und nach dem Block sichtbar werden.
+
+Übersetzen Sie es mit g++/clang und prüfen Sie, ob jeweils das Ergebnis Ihren Erwartungen entspricht.
+
+##### Schritt 2: C-Var-Grammatiken und AST ergänzen
+
+1.  Ergänzen Sie die **konkrete Grammatik** um passende Regeln für die neuen Sprachkonstrukte. Orientieren Sie dabei am Vorgehen im Skript.
+
+2.  Leiten Sie aus der konkreten Grammatik die notwendigen Ergänzungen Ihrer **ANTLR-Grammatik** aus C-Expr ab.
+
+3.  Ergänzen Sie die **abstrakte Grammatik** und leiten Sie daraus die neuen Knotentypen für den AST ab.
+
+4.  Leiten Sie Ihren C-Expr-AST-Builder zu einem **C-Var-AST-Builder** ab. Überschreiben Sie die benötigten `visitXYZ()`-Methoden und erläutern Sie kurz, welche bisherigen Methoden Sie weiterverwenden können.
+
+##### Schritt 3: Name-Resolver und Scopes
+
+Implementieren Sie einen `NameResolverCvar`. Orientieren Sie sich am Vorgehen im Skript.
+
+Testen Sie den Resolver mindestens mit diesen Fällen:
+
+``` cpp
+int x = 1;
+x + 2;
+```
+
+``` cpp
+int x = 1;
+{
+    int y = x + 2;
+    y + x;
+}
+```
+
+``` cpp
+int x = 1;
+{
+    int x = 2;
+    x + 1;
+}
+```
+
+Prüfen Sie für diese Tests, ob die richtigen Namen im richtigen Scope gebunden wurden und die korrekte Tiefeninformation berechnet wurde.
+
+Erstellen Sie außerdem noch **Negativtests**: Welche Eingaben sollte der Name-Resolver zurückweisen?
+
+##### Schritt 4: Interpreter und Environments
+
+Erweitern Sie Ihren C-Expr-Interpreter zu einem `InterpreterCvar`. Ergänzen Sie eine `Env`-Struktur, die Namen und Laufzeitwerte speichert und auf das Eltern-Environment verweist.
+
+Erläutern Sie, welche Informationen der Interpreter aus der Sidetable benötigt.
+
+Legen Sie fest, welchen Wert Ihr Interpreter für ein Programm zurückgibt. Orientieren Sie sich dabei an der L-Var-Semantik: Der Wert des letzten ausgewerteten Expression-Statements wird zurückgegeben; falls keines vorkommt, wird ein Einheitswert zurückgegeben.
+
+Ergänzen Sie Ihre JUnit-Tests so, dass die neuen Sprachkonstrukte in der Pipeline getestet werden.
+
+Vergleichen Sie das beobachtbare Verhalten Ihres Interpreters mit einem entsprechenden C++-Programm (clang/g++). Welche Unterschiede ergeben sich durch die Festlegungen von Mini-C++?
+
+#### A5.5: Vertiefung: Namensauflösung (\*\*\*)
+
+Betrachten Sie:
+
+``` cpp
+int x = 1;
+{
+    int x = x + 1;
+}
+```
+
+Was passiert bei der Namensauflösung des `x` im Initialisierungsausdruck? Vergleichen Sie das mit dem Verhalten des "echten" C++.
 
 ------------------------------------------------------------------------
 
@@ -5839,6 +7811,12 @@ Erklären Sie die Resultate.
 >
 > </div>
 >
+> <div id="ref-Parr2010" class="csl-entry">
+>
+> Parr, T. 2010. *Language Implementation Patterns*. Pragmatic Bookshelf. <https://learning.oreilly.com/library/view/language-implementation-patterns/9781680500097/>.
+>
+> </div>
+>
 > <div id="ref-Parr2014" class="csl-entry">
 >
 > Parr, T. 2014. *The Definitive ANTLR 4 Reference*. Pragmatic Bookshelf. <https://learning.oreilly.com/library/view/the-definitive-antlr/9781941222621/>.
@@ -5869,13 +7847,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 4b4ce04 2026-11-24 l-var: improve formatting (slides)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 01fb14b 2026-11-24 homework: reduce noise (sheet05)<br></sub></sup></p></blockquote>
