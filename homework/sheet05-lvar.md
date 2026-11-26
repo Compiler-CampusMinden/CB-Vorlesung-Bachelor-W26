@@ -44,7 +44,7 @@ public class NameResolverLvar {
         switch (stmt) {
             case VarDecl(var name, var type, var init) -> {
                 init.ifPresent(this::resolve);
-                resolveType(type);
+                resolve(type);
                 scope.bind(name, stmt);
             }
             case BlockStmt(var s) -> {
@@ -242,4 +242,4 @@ Was passiert bei der Namensauflösung des `x` im Initialisierungsausdruck? Vergl
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 01fb14b 2026-11-24 homework: reduce noise (sheet05)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> d959fd9 2026-11-26 l-var: rename resolve method for types (use same name as for expr and stmt)<br></sub></sup></p></blockquote>

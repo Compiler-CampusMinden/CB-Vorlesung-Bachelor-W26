@@ -329,7 +329,7 @@ protected void resolve(Stmt stmt) {
 
     switch (stmt) {
         case VarDecl(var name, var type, var init) -> {
-            init.ifPresent(this::resolve);  resolveType(type);
+            init.ifPresent(this::resolve);  resolve(type);
             scope.bind(name, stmt);
         }
         case BlockStmt(var s) -> {
@@ -348,17 +348,17 @@ protected void resolve(Stmt stmt) {
 
 Ein `VarDecl`-Statement besteht aus einem Variablennamen (Typ `String`), einem Typ in unserer Lispy-Sprache (Typ `Type`) und einer Expression für die Initialisierung (Typ `Expr`).
 
-Wir müssen im Name-Resolver prüfen, ob es diesen Typ wirklich gibt und dieser vom aktuellen Scope aus sichtbar ist, d.h. wir rufen `resolveType(type)` auf.
+Wir müssen im Name-Resolver prüfen, ob es diesen Typ wirklich gibt und dieser vom aktuellen Scope aus sichtbar ist, d.h. wir rufen `resolve(type)` auf.
 
 > [!TIP]
 >
 > In L-Var gibt es zunächst nur den "eingebauten" Typ `int` in Lispy. Hier müssen wir nichts prüfen bei der Namensauflösung:
 >
 > ``` java
-> protected void resolveType(Type type) {} // nothing to do here
+> protected void resolve(Type type) {} // nothing to do here
 > ```
 >
-> Wir werden aber später kennenlernen, wie man in Lispy Klassen definiert (Sprachstufe L-Class). Diese nutzerdefinierten Klassen sind eigene Typen, die dynamisch im AST auftauchen. Dann müssen wir entsprechend prüfen, ob der Typname in der `VarDecl` tatsächlich sichtbar ist und ein Klassentyp ist - deshalb legen wir uns hier vorausschauend eine **Hook-Methode** `resolveType(Type type)` an. Da wir in L-Var nichts tun müssen, bleibt diese Hook-Methode zunächst leer - später in L-Class werden wir diese geeignet überschreiben.
+> Wir werden aber später kennenlernen, wie man in Lispy Klassen definiert (Sprachstufe L-Class). Diese nutzerdefinierten Klassen sind eigene Typen, die dynamisch im AST auftauchen. Dann müssen wir entsprechend prüfen, ob der Typname in der `VarDecl` tatsächlich sichtbar ist und ein Klassentyp ist - deshalb legen wir uns hier vorausschauend eine **Hook-Methode** `resolve(Type type)` an. Da wir in L-Var nichts tun müssen, bleibt diese Hook-Methode zunächst leer - später in L-Class werden wir diese geeignet überschreiben.
 
 Die Initialisierung der Variablen ist eine Expression, d.h. dort können Verweise auf andere Variablen vorkommen. Entsprechend rufen wir hier `init.ifPresent(this::resolve)` auf - wenn es keine Initialisierung gab, ist auch nichts zu prüfen.
 
@@ -571,7 +571,7 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 > ``` java
 > case VarDecl(var name, var type, var init) -> {
 >     init.ifPresent(this::resolve);
->     resolveType(type);
+>     resolve(type);
 >     scope.bind(name, stmt);
 > }
 > ```
@@ -580,7 +580,7 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 > case VarDecl(var name, var type, var init) -> {
 >     scope.bind(name, stmt);
 >     init.ifPresent(this::resolve);
->     resolveType(type);
+>     resolve(type);
 > }
 > ```
 >
@@ -630,4 +630,4 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 9df8030 2026-11-24 lvar: finalize lesson (resolver)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> d959fd9 2026-11-26 l-var: rename resolve method for types (use same name as for expr and stmt)<br></sub></sup></p></blockquote>

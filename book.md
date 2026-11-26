@@ -5843,7 +5843,7 @@ protected void resolve(Stmt stmt) {
 
     switch (stmt) {
         case VarDecl(var name, var type, var init) -> {
-            init.ifPresent(this::resolve);  resolveType(type);
+            init.ifPresent(this::resolve);  resolve(type);
             scope.bind(name, stmt);
         }
         case BlockStmt(var s) -> {
@@ -5862,17 +5862,17 @@ protected void resolve(Stmt stmt) {
 
 Ein `VarDecl`-Statement besteht aus einem Variablennamen (Typ `String`), einem Typ in unserer Lispy-Sprache (Typ `Type`) und einer Expression für die Initialisierung (Typ `Expr`).
 
-Wir müssen im Name-Resolver prüfen, ob es diesen Typ wirklich gibt und dieser vom aktuellen Scope aus sichtbar ist, d.h. wir rufen `resolveType(type)` auf.
+Wir müssen im Name-Resolver prüfen, ob es diesen Typ wirklich gibt und dieser vom aktuellen Scope aus sichtbar ist, d.h. wir rufen `resolve(type)` auf.
 
 > [!TIP]
 >
 > In L-Var gibt es zunächst nur den "eingebauten" Typ `int` in Lispy. Hier müssen wir nichts prüfen bei der Namensauflösung:
 >
 > ``` java
-> protected void resolveType(Type type) {} // nothing to do here
+> protected void resolve(Type type) {} // nothing to do here
 > ```
 >
-> Wir werden aber später kennenlernen, wie man in Lispy Klassen definiert (Sprachstufe L-Class). Diese nutzerdefinierten Klassen sind eigene Typen, die dynamisch im AST auftauchen. Dann müssen wir entsprechend prüfen, ob der Typname in der `VarDecl` tatsächlich sichtbar ist und ein Klassentyp ist - deshalb legen wir uns hier vorausschauend eine **Hook-Methode** `resolveType(Type type)` an. Da wir in L-Var nichts tun müssen, bleibt diese Hook-Methode zunächst leer - später in L-Class werden wir diese geeignet überschreiben.
+> Wir werden aber später kennenlernen, wie man in Lispy Klassen definiert (Sprachstufe L-Class). Diese nutzerdefinierten Klassen sind eigene Typen, die dynamisch im AST auftauchen. Dann müssen wir entsprechend prüfen, ob der Typname in der `VarDecl` tatsächlich sichtbar ist und ein Klassentyp ist - deshalb legen wir uns hier vorausschauend eine **Hook-Methode** `resolve(Type type)` an. Da wir in L-Var nichts tun müssen, bleibt diese Hook-Methode zunächst leer - später in L-Class werden wir diese geeignet überschreiben.
 
 Die Initialisierung der Variablen ist eine Expression, d.h. dort können Verweise auf andere Variablen vorkommen. Entsprechend rufen wir hier `init.ifPresent(this::resolve)` auf - wenn es keine Initialisierung gab, ist auch nichts zu prüfen.
 
@@ -6085,7 +6085,7 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 > ``` java
 > case VarDecl(var name, var type, var init) -> {
 >     init.ifPresent(this::resolve);
->     resolveType(type);
+>     resolve(type);
 >     scope.bind(name, stmt);
 > }
 > ```
@@ -6094,7 +6094,7 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 > case VarDecl(var name, var type, var init) -> {
 >     scope.bind(name, stmt);
 >     init.ifPresent(this::resolve);
->     resolveType(type);
+>     resolve(type);
 > }
 > ```
 >
@@ -7586,7 +7586,7 @@ public class NameResolverLvar {
         switch (stmt) {
             case VarDecl(var name, var type, var init) -> {
                 init.ifPresent(this::resolve);
-                resolveType(type);
+                resolve(type);
                 scope.bind(name, stmt);
             }
             case BlockStmt(var s) -> {
@@ -7847,13 +7847,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 36560ec 2026-11-26 lvar: fix typo in grammar (lvar)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> d959fd9 2026-11-26 l-var: rename resolve method for types (use same name as for expr and stmt)<br></sub></sup></p></blockquote>
