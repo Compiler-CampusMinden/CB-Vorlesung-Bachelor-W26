@@ -5230,9 +5230,8 @@ eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform '
 eform  ::= ID
 sform  ::= eform
          | '(' 'def' ID ':' type eform? ')'
-         | '(' 'let' ltBdgs? sform+ ')'
-ltBdgs ::= '(' ltBdg+ ')'
-ltBdg  ::= '(' ID ':' type eform? ')' ;
+         | '(' 'let' '(' ltBdg* ')' sform+ ')'
+ltBdg  ::= '(' ID ':' type eform? ')
 type   ::= 'int'
 ID     ::= [a-zA-Z][a-zA-Z_0-9]*
 
@@ -5726,9 +5725,11 @@ Es geht eigentlich nur darum, für jeden **Namen** (Bezeichner) denjenigen **Sco
 
 In L-Var betrifft das nur die `VarDecl`! (Später werden wir in L-Fun für Funktionsdefinitionen und in L-Class für Klassendefinitionen noch die `FunDecl` und die `ClassDecl` einführen.)
 
-In größeren Compilerprojekten würde man dies oft ein wenig typsicherer gestalten und ein Marker-Interface `Decl` einführen, mit dem die relevanten AST-Klassen zusätzlich markiert werden. Dann könnte man hingehen und nur noch diese Typen in der Symboltabelle `Scope` zulassen: `Map<String, Decl> symbols` (statt wie bei uns etwas großzügiger/unsicherer `Map<String, Stmt> symbols`).
-
-Der Vorteil ist für unseren kleinen Lispy-Interpreter aber nicht so stark, deshalb verzichten wir zugunsten der Übersicht auf dieses Marker-Interface.
+> [!TIP]
+>
+> In größeren Compilerprojekten würde man dies oft ein wenig typsicherer gestalten und ein Marker-Interface `Decl` einführen, mit dem die relevanten AST-Klassen zusätzlich markiert werden. Dann könnte man hingehen und nur noch diese Typen in der Symboltabelle `Scope` zulassen: `Map<String, Decl> symbols` (statt wie bei uns etwas großzügiger/unsicherer `Map<String, Stmt> symbols`).
+>
+> Der Vorteil ist für unseren kleinen Lispy-Interpreter aber nicht so stark, deshalb verzichten wir zugunsten der Übersicht auf dieses Marker-Interface.
 
 ###### Vorgehen bei der Namensauflösung
 
@@ -5786,7 +5787,7 @@ Jeder Block (`BlockStmt`) öffnet einen neuen lokalen Scope, wobei der bisherige
 public class NameResolverLvar {
     public Scope scope = new Scope();  // current scope (initially global)
     public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
-    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+    public Map<Expr, Resolution> decls = new IdentityHashMap<>();
 
     public void resolve(List<Stmt> stmts) {
         stmts.forEach(this::resolve);
@@ -5801,15 +5802,15 @@ public class NameResolverLvar {
 
 Der Name-Resolver braucht eine Hilfsvariable `Scope scope`, um sich bei der Traversierung den aktuellen Scope zu merken. Beim Start initialisieren wir diesen einmal, d.h. initial ist `scope` der globale Scope.
 
-Beim Auflösen von Namen berechnen wir jeweils, wo wir diesen Namen in Bezug zum aktuellen Scope gefunden haben, d.h. wir berechnen die Anzahl der Schritte vom aktuellen Scope zu den Elternscopes hoch. Eine "0" bedeutet, dass wir den Namen im aktuellen Scope gefunden haben, "1" wäre dann der direkte Elternscope, usw. Diese Information wollen wir für den Interpreter speichern. Dazu legen wir das Feld `Map<Expr, Integer> depths` an.
+Beim Auflösen von Namen berechnen wir jeweils, wo wir diesen Namen in Bezug zum aktuellen Scope gefunden haben, d.h. wir berechnen die Anzahl der Schritte vom aktuellen Scope zu den Elternscopes hoch. Eine "0" bedeutet, dass wir den Namen im aktuellen Scope gefunden haben, "1" wäre dann der direkte Elternscope, usw. Diese Information wollen wir für den Interpreter speichern. Dazu legen wir das Feld `Map<Expr, Resolution> decls` an.
 
 > [!IMPORTANT]
 >
-> In der `Map<Expr, Integer> depths` speichern wir für jeden besuchten `VarExpr`-Knoten die Suchtiefe. Andere `Expr`-Knoten erhalten in unserer Implementierung in L-Var keinen Eintrag (wir werden später noch weitere Einträge haben ...).
+> In der `Map<Expr, Resolution> decls` speichern wir für jeden besuchten `VarExpr`-Knoten (also für jeden Variablenzugriff) die Suchtiefe in der Scope-Hierarchie und den aufgelösten Deklarationsknoten aus dem AST. Andere `Expr`-Knoten erhalten in unserer Implementierung in L-Var keinen Eintrag (wir werden später noch weitere Einträge haben ...).
 >
 > Unsere Modellierung nutzt für `VarExpr` die Record-Klassen aus Java, d.h. hier wird vom Compiler/Laufzeitsystem automatisch eine `equals()`- und `hashCode()`-Implementierung bereitgestellt. Wenn wir eine einfache `HashMap` nehmen würden, würden zwei unterschiedliche `VarExpr`-Objekte mit dem selben Inhalt als gleich betrachtet und entsprechend in der Map zusammenfallen.
 >
-> Wir können aber im AST in unterschiedlichen Scopes Referenzen auf die selbe Variable haben bzw. sogar mit dem selben Namen auf unterschiedliche Variablen in unterschiedlichen Scopes verweisen (*shadowing*). D.h. wir haben deshalb unterschiedliche `VarExpr`-Objekte im AST, die aber über die automatische `equals()`- und `hashCode()`-Implementierung für die Record-Klassen bei gleichem Variablennamen in einer normalen `HashMap` als gleich betrachtet würden. Damit wir die konkreten `VarExpr`-Objekte in der Map unterscheiden können (wir wollen ja zu jeder konkreten Verwendung einer Variablen die entsprechend dort gültige Suchtiefe speichern), nutzen wir als Implementierung eine `IdentityHashMap`, die auf die Objekt-ID schaut.
+> Wir können aber im AST in unterschiedlichen Scopes Referenzen auf dieselbe Variable haben bzw. sogar mit demselben Namen auf unterschiedliche Variablen in unterschiedlichen Scopes verweisen (*shadowing*). D.h. wir haben deshalb unterschiedliche `VarExpr`-Objekte im AST, die aber über die automatische `equals()`- und `hashCode()`-Implementierung für die Record-Klassen bei gleichem Variablennamen in einer normalen `HashMap` als gleich betrachtet würden. Damit wir die konkreten `VarExpr`-Objekte in der Map unterscheiden können (wir wollen ja zu jeder konkreten Verwendung einer Variablen die entsprechend dort gültige Suchtiefe speichern), nutzen wir als Implementierung eine `IdentityHashMap`, die auf die Objekt-ID schaut.
 >
 > Analog gilt für `Map<Stmt, Scope> symbols`: Wir wollen wirklich pro konkretem AST-Knoten (Identität) den Scope speichern, nicht pro semantisch gleichem Statement (Wertgleichheit). Das dürfte bei Statements zwar i.d.R. zusammenfallen, sicherheitshalber nutzen wir hier aber auch eine `IdentityHashMap` ...
 
@@ -5817,7 +5818,7 @@ Wir bauen bei der Traversierung des AST die Symboltabellenstruktur auf. Jeder lo
 
 > [!TIP]
 >
-> Wer genau hinschaut, wundert sich über die Sichtbarkeit der Felder im `NameResolverLvar`: Diese steht auf `public`, was in der objektorientierten Programmierung unüblich ist. Der Hintergrund dafür ist, dass wir auf diese drei Felder später Zugriff brauchen - aber wir können in der Einstiegsmethode `resolve(List<Stmt> stmts)` leider nur ein Ergebnis zurückliefern und nicht alle drei ... Wir werden das Problem weiter unten über eine **Sidetable** lösen.
+> Wer genau hinschaut, wundert sich über die Sichtbarkeit der Felder im `NameResolverLvar`: Diese steht auf `public`, was in der objektorientierten Programmierung unüblich ist. Der Hintergrund dafür ist, dass wir auf diese drei Felder später Zugriff brauchen - aber wir können in der Einstiegsmethode `resolve(List<Stmt> stmts)` leider nur ein Ergebnis zurückliefern und nicht alle drei ... Wir werden das Problem weiter unten über eine **Sidetable** lösen und dafür den "Kopf" der Klasse `NameResolverLvar` noch einmal anpassen.
 
 ###### Ablauf
 
@@ -5915,7 +5916,7 @@ protected void resolve(Expr expr) {
 
         case VarExpr e -> {
             var res = scope.resolve(e.name());
-            depths.put(e, res.depth());
+            decls.put(e, res);
         }
 
         default -> throw new RuntimeException("unexpected expression");
@@ -5937,7 +5938,7 @@ Ein `AddExpr`-Knoten hat zwei Kinder, die wiederum Expressions sind. Für beide 
 
 Eine `VarExpr` ist ein Verweis auf einen Variablennamen in einer Expression, beispielsweise `x` in `(+ x 2)`. Dies sind lesende Zugriffe, d.h. der Variablenname muss vom aktuellen Scope aus sichtbar sein.
 
-Wir rufen entsprechend auf dem aktuellen Scope ein `resolve()` für den Namen auf. Wenn die Variable in diesem Scope oder in einem der darüber erreichbaren Elternscopes gebunden wurde, bekommen wir als Ergebnis den definierenden AST-Knoten (eine `VarDecl`) sowie die Tiefe (Anzahl der Schritte vom aktuellen Scope aus) zurück - anderenfalls wirft `Scope#resolve()` einen Fehler. Die Tiefe speichern wir für den Interpreter in unserem Feld `depths`.
+Wir rufen entsprechend auf dem aktuellen Scope ein `resolve()` für den Namen auf. Wenn die Variable in diesem Scope oder in einem der darüber erreichbaren Elternscopes gebunden wurde, bekommen wir als Ergebnis den definierenden AST-Knoten (eine `VarDecl`) sowie die Tiefe (Anzahl der Schritte vom aktuellen Scope aus) zurück - anderenfalls wirft `Scope#resolve()` einen Fehler. Diese Informationen speichern wir für den Interpreter in unserem Feld `decls`.
 
 ###### Besonderheiten
 
@@ -5945,7 +5946,7 @@ Wie bei `resolve(stmt)` haben wir damit alle in L-Var bekannten AST-Knoten vom T
 
 ##### Implementierungsdetail: Sammeln der Daten in einer Sidetable
 
-Wir haben im `NameResolverLvar` einige auf `public` gestellte Felder gesehen: `Scope scope`, `Map<Stmt, Scope> symbols` und `Map<Expr, Integer> depths`. Hier werden bei der Traversierung des AST im Name-Resolver Daten gesammelt, die in späteren AST-Passes (Type-Checker, Interpreter) relevant sind.
+Wir haben im `NameResolverLvar` einige auf `public` gestellte Felder gesehen: `Scope scope`, `Map<Stmt, Scope> symbols` und `Map<Expr, Resolution> decls`. Hier werden bei der Traversierung des AST im Name-Resolver Daten gesammelt, die in späteren AST-Passes (Type-Checker, Interpreter) relevant sind.
 
 Wir werden in späteren Sprachstufen noch weitere Daten sammeln, beispielsweise Typ-Informationen oder Informationen für die statische Namensauflösung.
 
@@ -5959,7 +5960,7 @@ Wir definieren als Sidetable hier die Klasse `SemaInfo`:
 public class SemaInfo {
     public Scope globalScope = new Scope();
     public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
-    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+    public Map<Expr, Resolution> decls = new IdentityHashMap<>();
 }
 ```
 
@@ -5989,7 +5990,7 @@ Wir behalten das lokale Feld `scope` - das ist der aktuelle Scope beim Traversie
 Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere Änderungen notwendig:
 
 1.  In `resolve(Stmt stmt)` würden wir dann entsprechend `sema.symbols.put(stmt, scope);` ausführen (statt wie oben `symbols.put(stmt, scope);`).
-2.  Zusätzlich müssten wir in `resolve(Expr expr)` noch `sema.depths.put(e, res.depth());` (statt `depths.put(e, res.depth());`, in `case VarExpr e`) ändern.
+2.  Zusätzlich müssten wir in `resolve(Expr expr)` noch `sema.decls.put(e, res);` (statt `decls.put(e, res);` in `case VarExpr e`) benutzen.
 
 ##### Wrap-Up
 
@@ -6286,7 +6287,7 @@ Wir haben eine *immutable* Semantik in Lispy, d.h. Variablen können im Laufe ih
 >
 > -   `Env` ist die **dynamische** Sicht auf die Sichtbarkeitsbereiche.
 >
->     Wir speichern bei der Interpretation zu jedem Namen den zugehörigen Wert in der `Env`. **Wir interpretieren nun die Ausdrücke und Anweisungen**, d.h. wir berechnen Werte und erzeugen Nebeneffekte. Jedes Env-Objekt entspricht einem **konkreten Aktivierungskontext eines Scopes** im Programm (z.B. einem Funktionsaufruf). Derselbe Funktionskörper kann also zur Laufzeit viele verschiedene `Env`-Objekte haben - eine `Env` pro Aufruf. Die Environment-Struktur baut sich dynamisch während der Verarbeitung auf und ab, und im Unterschied zur semantischen Analyse verfolgen wir später in L-Fun dann (natürlich) auch die Funktionsaufrufe - jeder Funktionsaufruf legt einen neuen "Scope" an, in dem die lokalen Variablen im Funktionskörper für diesen Aufruf definiert sind. Dies nennt man auch oft "Call Frame" oder "Stack Frame" - unsere `Env`-Objekte modellieren genau diese Call Frames. In vielen Implementierungen wird dafür intern tatsächlich ein Stack von Frames verwendet, aber manche Dinge gehen leider nur über die Struktur mit dem Eltern-Zeiger - siehe Challenges. Unsere Eltern-Zeiger-Struktur bildet dasselbe Konzept explizit im Heap nach. Wir führen hier im Gegensatz zur Namensauflösung alle Schleifen und Funktionsaufrufe im verarbeiteten Programm aus und erzeugen dabei die gewünschten Seiteneffekte. Wir haben jetzt Kontrollfluss und interpretieren beispielsweise Fallunterscheidungen - je nachdem, wie die Auswertung der Bedingung ausfällt, betrachten wir jetzt nur noch einen der Branches ...
+>     Wir speichern bei der Interpretation zu jedem Namen den zugehörigen Wert in der `Env`. **Wir interpretieren nun die Ausdrücke und Anweisungen**, d.h. wir berechnen Werte und erzeugen Nebeneffekte. Jedes Env-Objekt entspricht einem **konkreten Aktivierungskontext eines Scopes** im Programm (z.B. einem Funktionsaufruf). Derselbe Funktionskörper kann also zur Laufzeit viele verschiedene `Env`-Objekte haben - eine `Env` pro Aufruf. Die Environment-Struktur baut sich dynamisch während der Verarbeitung auf und ab, und im Unterschied zur semantischen Analyse verfolgen wir später in L-Fun dann (natürlich) auch die Funktionsaufrufe - jeder Funktionsaufruf legt einen neuen "Scope" an, in dem die lokalen Variablen im Funktionskörper für diesen Aufruf definiert sind. Dies nennt man auch oft "Call Frame" oder "Stack Frame" - unsere `Env`-Objekte modellieren genau diese Call-Frames. In vielen Implementierungen wird dafür intern tatsächlich ein Stack von Frames verwendet, aber manche Dinge gehen leider nur über die Struktur mit dem Eltern-Zeiger - siehe Challenges. Unsere Eltern-Zeiger-Struktur bildet dasselbe Konzept explizit im Heap nach. Wir führen hier im Gegensatz zur Namensauflösung alle Schleifen und Funktionsaufrufe im verarbeiteten Programm aus und erzeugen dabei die gewünschten Seiteneffekte. Wir haben jetzt Kontrollfluss und interpretieren beispielsweise Fallunterscheidungen - je nachdem, wie die Auswertung der Bedingung ausfällt, betrachten wir jetzt nur noch einen der Branches ...
 >
 > **Merksatz**:
 >
@@ -6342,7 +6343,7 @@ Wir benötigen ein Start-Environment, welches wir über den Sidetable `semaInfo`
 public class SemaInfo {
     public Scope globalScope = new Scope();
     public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
-    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+    public Map<Expr, Resolution> decls = new IdentityHashMap<>();
 
     public Env globalEnv = new Env();  // NEU
 }
@@ -6445,7 +6446,7 @@ In L-Var haben wir eine neue Expression: den lesenden Zugriff auf Variablen, d.h
 protected Value eval(Expr expr) {
     return switch (expr) {
         case VarExpr v -> {
-            int depth = sema.depths.get(v);
+            int depth = sema.decls.get(v).depth();
             yield env.get(v.name(), depth);
         }
 
@@ -6556,7 +6557,7 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 >
 > **Fehlerfälle - Was passiert, wenn der Name-Resolver "versagt"?**
 >
-> Angenommen, in Ihrem L-Var-Compiler gäbe es (hypothetisch) einen Bug im Name-Resolver, sodass für einige `VarExpr`-Knoten keine oder eine falsche Tiefe in `sema.depths` eingetragen wird.
+> Angenommen, in Ihrem L-Var-Compiler gäbe es (hypothetisch) einen Bug im Name-Resolver, sodass für einige `VarExpr`-Knoten keine oder eine falsche Tiefe in `sema.decls` eingetragen wird.
 >
 > 1.  Diskutieren Sie anhand eines kleinen Beispiels:
 >
@@ -6608,7 +6609,7 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 >
 > Im Interpreter (`InterpreterLvar`) als letztem Pass über den AST evaluieren wir nun nicht nur Ausdrücke, sondern führen nun auch Statements aus und verwalten zur Laufzeit verschachtelte Environments (`Env`). Bei lesenden Variablenzugriffen nutzt der Interpreter die im Resolver berechneten Tiefeninformationen, um gezielt das richtige Environment auszuwählen, ohne zur Laufzeit rekursiv suchen zu müssen.
 >
-> Dieses Muster "AST $\to$ Resolver $\to$ Interpreter mit *side tables* (z.B. `depths` in `SemaInfo`)" wird sich in den späteren Sprachstufen (L-If, L-Fun, L-Class, ...) wiederholen. Alle Sprachstufen leiten ihre Grammatik, AST-Klassen, Resolver und Interpreter etc. jeweils von der vorherigen Stufe ab und erweitern diese nur um die neuen Sprachfeatures.
+> Dieses Muster "AST $\to$ Resolver $\to$ Interpreter mit *side tables* (z.B. `decls` in `SemaInfo`)" wird sich in den späteren Sprachstufen (L-If, L-Fun, L-Class, ...) wiederholen. Alle Sprachstufen leiten ihre Grammatik, AST-Klassen, Resolver und Interpreter etc. jeweils von der vorherigen Stufe ab und erweitern diese nur um die neuen Sprachfeatures.
 >
 > </details>
 
@@ -6628,14 +6629,14 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
     -   `Scope`: **statische** Sicht (Namen $\to$ Deklarationen = Symboltabelle)
     -   AST $\to$ `SemaInfo` (Sidetable), gefüllt mit:
         -   `Map<Stmt, Scope> symbols`: Statement $\to$ Scope (Symboltabellen)
-        -   `Map<Expr, Integer> depths`: `VarExpr` $\to$ Tiefeninformation
+        -   `Map<Expr, Resolution> decls`: `VarExpr` $\to$ Tiefeninformation
         -   `Scope globalScope`, `Env globalEnv`
     -   `resolve(expr)`, `resolve(stmt)` mit `switch`-Expressions und Pattern Matching
 4.  **Interpreter**:
     -   AST + `SemaInfo` $\to$ Ausführung:
         -   `Env env`: **dynamische** Sicht (Namen $\to$ Laufzeitwerte)
         -   `class InterpreterLvar extends InterpreterLexpr`
-        -   `eval(expr)` und `exec(stmt)` nutzen `depths` für gezielte Environment-Zugriffe
+        -   `eval(expr)` und `exec(stmt)` nutzen `decls` für gezielte Environment-Zugriffe
 
 ##### Gesamtbild im Code
 
@@ -6684,7 +6685,7 @@ public class InterpreterLvar extends InterpreterLexpr {
 -   `exec(stmt)` & `eval(expr)`:
     -   Deklarationen binden Werte in `env`
     -   Blocks erzeugen neue `Env`-Instanzen
-    -   `VarExpr` nutzt `sema.depths` zur Navigation
+    -   `VarExpr` nutzt `sema.decls` zur Navigation
 
 ##### Reflexion: Muster für spätere Sprachstufen
 
@@ -6716,11 +6717,11 @@ Das folgende Muster wird uns in L-If, L-Fun, L-Class usw. begleiten:
 -   **Resolver** (`NameResolverLvar`):
     -   verwaltet Scopes (Symboltabellen) und prüft Namenssichtbarkeit
     -   befüllt `SemaInfo.symbols` (Statements $\to$ `Scope`)
-    -   berechnet `SemaInfo.depths` für alle `VarExpr` (lexikalische Tiefe)
+    -   berechnet `SemaInfo.decls` für alle `VarExpr` (lexikalische Tiefe)
 -   **Interpreter** (`InterpreterLvar`):
     -   führt Statements aus und evaluiert Expressions
     -   nutzt `Env`-Kette zur Laufzeit für Variablenwerte
-    -   verwendet `depths` für direkten Zugriff auf richtiges Environment
+    -   verwendet `decls` für direkten Zugriff auf richtiges Environment
 
 <!-- -->
 
@@ -6733,7 +6734,7 @@ Das folgende Muster wird uns in L-If, L-Fun, L-Class usw. begleiten:
 >
 > -   k2: Ich kann den Unterschied zwischen `Scope` (statische Sicht) und `Env` (Laufzeitumgebung) erklären.
 > -   k2: Ich kann beschreiben, welche Aufgaben der `NameResolverLvar` übernimmt und welche der `InterpreterLvar`.
-> -   k3: Ich kann für ein gegebenes L-Var-Programm die Scopes und Environments skizzieren und erklären, wie `depths` berechnet werden.
+> -   k3: Ich kann für ein gegebenes L-Var-Programm die Scopes und Environments skizzieren und erklären, wie `decls` berechnet werden.
 > -   k3: Ich kann einen bestehenden Resolver/Interpreter um ein einfaches neues Statement oder eine neue Ausdrucksform erweitern.
 > -   k3: Ich kann den Datenfluss in der Pipeline (Quelltext $\to$ Parse-Tree $\to$ AST $\to$ SemaInfo $\to$ Ausführung) auf konkrete Beispiele anwenden.
 > -   k4: Ich kann kritisch beurteilen, welche Prüfungen sinnvoll im Resolver und welche im Interpreter oder Typechecker stattfinden sollten.
@@ -7604,7 +7605,7 @@ public class NameResolverLvar {
             case AddExpr(var l, var r) -> List.of(l, r).forEach(this::resolve);
             case VarExpr e -> {
                 var res = scope.resolve(e.name());
-                sema.depths.put(e, res.depth());
+                sema.decls.put(e, res);
             }
             default -> throw new RuntimeException("unexpected expression");
         }
@@ -7847,13 +7848,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
 -   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 -   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
 -   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> d959fd9 2026-11-26 l-var: rename resolve method for types (use same name as for expr and stmt)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> a73f193 2026-11-28 lvar: improve sidetable (sheet 05)<br></sub></sup></p></blockquote>

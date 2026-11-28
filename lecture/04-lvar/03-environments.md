@@ -169,7 +169,7 @@ Wir haben eine *immutable* Semantik in Lispy, d.h. Variablen können im Laufe ih
 >
 > -   `Env` ist die **dynamische** Sicht auf die Sichtbarkeitsbereiche.
 >
->     Wir speichern bei der Interpretation zu jedem Namen den zugehörigen Wert in der `Env`. **Wir interpretieren nun die Ausdrücke und Anweisungen**, d.h. wir berechnen Werte und erzeugen Nebeneffekte. Jedes Env-Objekt entspricht einem **konkreten Aktivierungskontext eines Scopes** im Programm (z.B. einem Funktionsaufruf). Derselbe Funktionskörper kann also zur Laufzeit viele verschiedene `Env`-Objekte haben - eine `Env` pro Aufruf. Die Environment-Struktur baut sich dynamisch während der Verarbeitung auf und ab, und im Unterschied zur semantischen Analyse verfolgen wir später in L-Fun dann (natürlich) auch die Funktionsaufrufe - jeder Funktionsaufruf legt einen neuen "Scope" an, in dem die lokalen Variablen im Funktionskörper für diesen Aufruf definiert sind. Dies nennt man auch oft "Call Frame" oder "Stack Frame" - unsere `Env`-Objekte modellieren genau diese Call Frames. In vielen Implementierungen wird dafür intern tatsächlich ein Stack von Frames verwendet, aber manche Dinge gehen leider nur über die Struktur mit dem Eltern-Zeiger - siehe Challenges. Unsere Eltern-Zeiger-Struktur bildet dasselbe Konzept explizit im Heap nach. Wir führen hier im Gegensatz zur Namensauflösung alle Schleifen und Funktionsaufrufe im verarbeiteten Programm aus und erzeugen dabei die gewünschten Seiteneffekte. Wir haben jetzt Kontrollfluss und interpretieren beispielsweise Fallunterscheidungen - je nachdem, wie die Auswertung der Bedingung ausfällt, betrachten wir jetzt nur noch einen der Branches ...
+>     Wir speichern bei der Interpretation zu jedem Namen den zugehörigen Wert in der `Env`. **Wir interpretieren nun die Ausdrücke und Anweisungen**, d.h. wir berechnen Werte und erzeugen Nebeneffekte. Jedes Env-Objekt entspricht einem **konkreten Aktivierungskontext eines Scopes** im Programm (z.B. einem Funktionsaufruf). Derselbe Funktionskörper kann also zur Laufzeit viele verschiedene `Env`-Objekte haben - eine `Env` pro Aufruf. Die Environment-Struktur baut sich dynamisch während der Verarbeitung auf und ab, und im Unterschied zur semantischen Analyse verfolgen wir später in L-Fun dann (natürlich) auch die Funktionsaufrufe - jeder Funktionsaufruf legt einen neuen "Scope" an, in dem die lokalen Variablen im Funktionskörper für diesen Aufruf definiert sind. Dies nennt man auch oft "Call Frame" oder "Stack Frame" - unsere `Env`-Objekte modellieren genau diese Call-Frames. In vielen Implementierungen wird dafür intern tatsächlich ein Stack von Frames verwendet, aber manche Dinge gehen leider nur über die Struktur mit dem Eltern-Zeiger - siehe Challenges. Unsere Eltern-Zeiger-Struktur bildet dasselbe Konzept explizit im Heap nach. Wir führen hier im Gegensatz zur Namensauflösung alle Schleifen und Funktionsaufrufe im verarbeiteten Programm aus und erzeugen dabei die gewünschten Seiteneffekte. Wir haben jetzt Kontrollfluss und interpretieren beispielsweise Fallunterscheidungen - je nachdem, wie die Auswertung der Bedingung ausfällt, betrachten wir jetzt nur noch einen der Branches ...
 >
 > **Merksatz**:
 >
@@ -225,7 +225,7 @@ Wir benötigen ein Start-Environment, welches wir über den Sidetable `semaInfo`
 public class SemaInfo {
     public Scope globalScope = new Scope();
     public Map<Stmt, Scope> symbols = new IdentityHashMap<>();
-    public Map<Expr, Integer> depths = new IdentityHashMap<>();
+    public Map<Expr, Resolution> decls = new IdentityHashMap<>();
 
     public Env globalEnv = new Env();  // NEU
 }
@@ -328,7 +328,7 @@ In L-Var haben wir eine neue Expression: den lesenden Zugriff auf Variablen, d.h
 protected Value eval(Expr expr) {
     return switch (expr) {
         case VarExpr v -> {
-            int depth = sema.depths.get(v);
+            int depth = sema.decls.get(v).depth();
             yield env.get(v.name(), depth);
         }
 
@@ -439,7 +439,7 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 >
 > **Fehlerfälle - Was passiert, wenn der Name-Resolver "versagt"?**
 >
-> Angenommen, in Ihrem L-Var-Compiler gäbe es (hypothetisch) einen Bug im Name-Resolver, sodass für einige `VarExpr`-Knoten keine oder eine falsche Tiefe in `sema.depths` eingetragen wird.
+> Angenommen, in Ihrem L-Var-Compiler gäbe es (hypothetisch) einen Bug im Name-Resolver, sodass für einige `VarExpr`-Knoten keine oder eine falsche Tiefe in `sema.decls` eingetragen wird.
 >
 > 1.  Diskutieren Sie anhand eines kleinen Beispiels:
 >
@@ -499,4 +499,4 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> d887ffd 2026-11-24 lvar: finalize lesson (environments)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 7c85370 2026-11-28 lvar: improve sidetable (interpreter)<br></sub></sup></p></blockquote>

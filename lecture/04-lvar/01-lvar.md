@@ -184,9 +184,8 @@ eform  ::= '(' '*' eform eform+ ')' | '(' '/' eform eform+ ')' | '(' '-' eform '
 eform  ::= ID
 sform  ::= eform
          | '(' 'def' ID ':' type eform? ')'
-         | '(' 'let' ltBdgs? sform+ ')'
-ltBdgs ::= '(' ltBdg+ ')'
-ltBdg  ::= '(' ID ':' type eform? ')' ;
+         | '(' 'let' '(' ltBdg* ')' sform+ ')'
+ltBdg  ::= '(' ID ':' type eform? ')
 type   ::= 'int'
 ID     ::= [a-zA-Z][a-zA-Z_0-9]*
 
@@ -495,4 +494,4 @@ Die Hilfsmethode `Stmt asStmt(Object o)` (nicht gezeigt) ist analog zur Hilfsmet
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 36560ec 2026-11-26 lvar: fix typo in grammar (lvar)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 8a77f09 2026-11-28 lvar: improve konkrete syntax<br></sub></sup></p></blockquote>
