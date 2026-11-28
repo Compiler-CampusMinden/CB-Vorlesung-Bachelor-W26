@@ -13,6 +13,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/vlSmdEm3yBw)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-interpreter-mit-environments-und-statements/9767a14ce4cf46a239a95246a432a3f3)\]
+>
+> </details>
+
 ## Erinnerung: Interpreter für L-Expr
 
 ``` java
@@ -499,4 +508,4 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 7c85370 2026-11-28 lvar: improve sidetable (interpreter)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 034c5a5 2026-11-28 lvar: add new screencasts (environments)<br></sub></sup></p></blockquote>

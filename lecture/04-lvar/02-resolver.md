@@ -17,6 +17,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>ðŸŽ¦ Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/q6YLEXyQA74)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-scopes-name-resolver-und-symboltabellen/af95127e4eac32d315b557dadfa286d5)\]
+>
+> </details>
+
 ## Was passiert nach der Syntaxanalyse?
 
 ``` clojure
@@ -632,4 +641,4 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere Ã
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 5a88c7f 2026-11-28 lvar: improve sidetable (resolver)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> b2b1ad1 2026-11-28 lvar: add new screencasts (nameresolver)<br></sub></sup></p></blockquote>

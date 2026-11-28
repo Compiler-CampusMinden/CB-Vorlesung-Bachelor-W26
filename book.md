@@ -5061,6 +5061,15 @@ Konsequenz:
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/1zlA1D3KH9U)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-berblick-syntax-und-ast/1df2a787768cc9923eaf878886334369)\]
+>
+> </details>
+
 ##### Erinnerung L-Int / L-Expr: Nur Ausdrücke
 
 ``` clojure
@@ -5527,6 +5536,15 @@ Die Hilfsmethode `Stmt asStmt(Object o)` (nicht gezeigt) ist analog zur Hilfsmet
 > Eine zentrale Aufgabe ist das **Binden** von Bezeichnern an den Scope, in dem sie definiert werden: `bind()`, sowie das spätere **Auflösen** von Bezeichnern aus dem aktuellen oder einem umgebenden Scope: `resolve()`.
 >
 > Diese **lexikalische Namensauflösung** ist die Grundlage für weitere semantische Prüfungen, Typprüfung und letztlich Interpretation oder Codegenerierung.
+>
+> </details>
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/q6YLEXyQA74)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-scopes-name-resolver-und-symboltabellen/af95127e4eac32d315b557dadfa286d5)\]
 >
 > </details>
 
@@ -6131,6 +6149,15 @@ Entsprechend sind im obigen Code in den `resolve()`-Methoden noch zwei weitere �
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/vlSmdEm3yBw)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-interpreter-mit-environments-und-statements/9767a14ce4cf46a239a95246a432a3f3)\]
+>
+> </details>
+
 ##### Erinnerung: Interpreter für L-Expr
 
 ``` java
@@ -6610,6 +6637,15 @@ Im Interpreter können wir diese Tiefeninformation aus dem Sidetable abrufen, un
 > Im Interpreter (`InterpreterLvar`) als letztem Pass über den AST evaluieren wir nun nicht nur Ausdrücke, sondern führen nun auch Statements aus und verwalten zur Laufzeit verschachtelte Environments (`Env`). Bei lesenden Variablenzugriffen nutzt der Interpreter die im Resolver berechneten Tiefeninformationen, um gezielt das richtige Environment auszuwählen, ohne zur Laufzeit rekursiv suchen zu müssen.
 >
 > Dieses Muster "AST $\to$ Resolver $\to$ Interpreter mit *side tables* (z.B. `decls` in `SemaInfo`)" wird sich in den späteren Sprachstufen (L-If, L-Fun, L-Class, ...) wiederholen. Alle Sprachstufen leiten ihre Grammatik, AST-Klassen, Resolver und Interpreter etc. jeweils von der vorherigen Stufe ab und erweitern diese nur um die neuen Sprachfeatures.
+>
+> </details>
+
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/BNTR3xAkt2w)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-integration-pipeline-gesamtbild/209dc93d954c7087e8a65a4ff7c15f51)\]
 >
 > </details>
 
@@ -7848,13 +7884,13 @@ Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
 **Exceptions:**
 
--   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
--   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
--   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
--   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
--   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
--   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
 -   Abzählreim "99 Bottles of Beer" nach ["Lyrics of the song 99 Bottles of Beer"](https://www.99-bottles-of-beer.net/lyrics.html) on 99-bottles-of-beer.net
+-   ["Language Prolog"](https://www.99-bottles-of-beer.net/language-prolog-965.html) by M@ on 99-bottles-of-beer.net
+-   [Clojure.org: Learn Clojure](https://clojure.org/guides/learn/syntax#_structure_vs_semantics)
 -   [A Map of the Territory (mountain.png)](https://github.com/munificent/craftinginterpreters/blob/master/site/image/a-map-of-the-territory/mountain.png) by [Bob Nystrom](https://github.com/munificent) on Github.com ([MIT](https://github.com/munificent/craftinginterpreters/blob/master/LICENSE))
+-   Screenshot of ["Language Brainfuck"](https://99-bottles-of-beer.net/language-brainfuck-2542.html) by Michal Wojciech Tarnowski on 99-bottles-of-beer.net
+-   ["Language C"](https://www.99-bottles-of-beer.net/language-c-116.html) by Bill Wein on 99-bottles-of-beer.net
+-   ["Language Java"](https://www.99-bottles-of-beer.net/language-java-4.html) by Sean Russell on 99-bottles-of-beer.net
+-   ["Language Haskell"](https://www.99-bottles-of-beer.net/language-haskell-1070.html) by Iavor on 99-bottles-of-beer.net
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> a73f193 2026-11-28 lvar: improve sidetable (sheet 05)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 016d5f4 2026-11-28 lvar: add new screencasts (pipeline)<br></sub></sup></p></blockquote>

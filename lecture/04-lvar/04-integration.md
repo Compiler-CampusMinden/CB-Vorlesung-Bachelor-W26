@@ -17,6 +17,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/BNTR3xAkt2w)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-integration-pipeline-gesamtbild/209dc93d954c7087e8a65a4ff7c15f51)\]
+>
+> </details>
+
 ## Pipeline-Gesamtbild für L-Var
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/_w26/lecture/04-lvar/images/lvar-overview_inv.png" /><img src="https://raw.githubusercontent.com/Compiler-CampusMinden/CB-Vorlesung-Bachelor/_w26/lecture/04-lvar/images/lvar-overview.png"  /></picture></p>
@@ -217,4 +226,4 @@ Das folgende Muster wird uns in L-If, L-Fun, L-Class usw. begleiten:
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> d945efc 2026-11-28 lvar: improve sidetable (pipeline)<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 016d5f4 2026-11-28 lvar: add new screencasts (pipeline)<br></sub></sup></p></blockquote>

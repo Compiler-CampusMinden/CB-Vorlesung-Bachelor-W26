@@ -15,6 +15,15 @@
 >
 > </details>
 
+> [!TIP]
+>
+> <details open>
+> <summary><strong>🎦 Videos</strong></summary>
+>
+> Vorlesung \[[YT](https://youtu.be/1zlA1D3KH9U)\], \[[HSBI](https://www.hsbi.de/medienportal/video/cb-l-var-berblick-syntax-und-ast/1df2a787768cc9923eaf878886334369)\]
+>
+> </details>
+
 ## Erinnerung L-Int / L-Expr: Nur Ausdrücke
 
 ``` clojure
@@ -494,4 +503,4 @@ Die Hilfsmethode `Stmt asStmt(Object o)` (nicht gezeigt) ist analog zur Hilfsmet
 
 Unless otherwise noted, this work is licensed under CC BY-SA 4.0.
 
-<blockquote><p><sup><sub><strong>Last modified:</strong> 8a77f09 2026-11-28 lvar: improve konkrete syntax<br></sub></sup></p></blockquote>
+<blockquote><p><sup><sub><strong>Last modified:</strong> 46c740a 2026-11-28 lvar: add new screencasts (lvar)<br></sub></sup></p></blockquote>
